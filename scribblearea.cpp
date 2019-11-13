@@ -1,15 +1,9 @@
 #include <QtWidgets>
 #include "scribblearea.h"
 
-ScribbleArea::ScribbleArea(QWidget *parent)
-    : QWidget(parent)
+ScribbleArea::ScribbleArea(QWidget *parent): QWidget(parent)
 {
     setAttribute(Qt::WA_StaticContents);
-
-    modified = false;
-    scribbling = false;
-    myPenWidth = 1;
-    myPenColor = Qt::blue;
 }
 
 bool ScribbleArea::openImage(const QString &fileName)
@@ -25,7 +19,6 @@ bool ScribbleArea::openImage(const QString &fileName)
     return true;
 }
 
-
 bool ScribbleArea::saveImage(const QString &fileName, const char *fileFormat)
 {
     QImage visibleImage = image;
@@ -39,19 +32,9 @@ bool ScribbleArea::saveImage(const QString &fileName, const char *fileFormat)
     }
 }
 
-void ScribbleArea::setPenColor(const QColor &newColor)
-{
-    myPenColor = newColor;
-}
-
-void ScribbleArea::setPenWidth(int newWidth)
-{
-    myPenWidth = newWidth;
-}
-
 void ScribbleArea::clearImage()
 {
-    image.fill(qRgb(255, 255, 255));
+    image.fill(qRgb(backgroundColor["red"], backgroundColor["green"], backgroundColor["blue"]));
     modified = true;
     update();
 }
@@ -115,7 +98,7 @@ void ScribbleArea::resizeImage(QImage *image, const QSize &newSize)
     if (image->size() == newSize) return;
 
     QImage newImage(newSize, QImage::Format_RGB32);
-    newImage.fill(qRgb(255, 255, 255));
+    newImage.fill(qRgb(backgroundColor["red"], backgroundColor["green"], backgroundColor["blue"]));
 
     QPainter painter(&newImage);
     painter.drawImage(QPoint(0, 0), *image);

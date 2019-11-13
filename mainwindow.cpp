@@ -2,16 +2,18 @@
 
 #include "mainwindow.h"
 #include "scribblearea.h"
+#include "colorwheel.h"
 
 MainWindow::MainWindow()
 {
     scribbleArea = new ScribbleArea;
+//    colorWheel = new ColorWheel;
 
     setCentralWidget(scribbleArea);
     createActions();
     createMenus();
     setWindowTitle(tr("Scribble"));
-    resize(500, 500);
+    resize(windowWidth, windowHeight);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -37,7 +39,7 @@ void MainWindow::save()
 
 void MainWindow::penColor()
 {
-    QColor newColor = QColorDialog::getColor(scribbleArea->penColor());
+    QColor newColor = QColorDialog::getColor(scribbleArea->getPenColor());
     if (newColor.isValid()) scribbleArea->setPenColor(newColor);
 }
 
@@ -46,7 +48,7 @@ void MainWindow::penWidth()
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Scribble"),
                                         tr("Select pen width:"),
-                                        scribbleArea->penWidth(),
+                                        scribbleArea->getPenWidth(),
                                         1, 50, 1, &ok);
     if (ok) scribbleArea->setPenWidth(newWidth);
 }

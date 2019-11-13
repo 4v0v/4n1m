@@ -5,6 +5,7 @@
 #include <QMainWindow>
 
 class ScribbleArea;
+class ColorWheel;
 
 class MainWindow : public QMainWindow
 {
@@ -29,6 +30,7 @@ private:
     bool saveFile(const QByteArray &fileFormat);
 
     ScribbleArea *scribbleArea;
+    ColorWheel *colorWheel;
     QMenu *saveAsMenu;
     QMenu *fileMenu;
     QMenu *optionMenu;
@@ -41,6 +43,9 @@ private:
     QAction *clearScreenAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
+
+    int windowWidth = 1000;
+    int windowHeight = 800;
 };
 
 #endif

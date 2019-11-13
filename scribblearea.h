@@ -1,6 +1,8 @@
 #ifndef SCRIBBLEAREA_H
 #define SCRIBBLEAREA_H
 
+#include <QMap>
+#include <QString>
 #include <QColor>
 #include <QImage>
 #include <QPoint>
@@ -13,13 +15,14 @@ class ScribbleArea : public QWidget
 public:
     ScribbleArea(QWidget *parent = nullptr);
 
+    void setPenColor(const QColor &newColor){ myPenColor = newColor; }
+    void setPenWidth(int newWidth){ myPenWidth = newWidth; }
+    bool isModified() const { return modified; }
+    QColor getPenColor() const { return myPenColor; }
+    int getPenWidth() const { return myPenWidth; }
+
     bool openImage(const QString &fileName);
     bool saveImage(const QString &fileName, const char *fileFormat);
-    void setPenColor(const QColor &newColor);
-    void setPenWidth(int newWidth);
-    bool isModified() const { return modified; }
-    QColor penColor() const { return myPenColor; }
-    int penWidth() const { return myPenWidth; }
 
 public slots:
     void clearImage();
@@ -32,14 +35,22 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void drawLineTo(const QPoint &endPoint);
-    void resizeImage(QImage *image, const QSize &newSize);
-    bool modified;
-    bool scribbling;
-    int myPenWidth;
-    QColor myPenColor;
+    QMap<QString, int> backgroundColor {
+        {"red", 238},
+        {"green", 198},
+        {"blue", 148}
+    };
+
+    QColor myPenColor = Qt::black;
+    int myPenWidth = 3;
+    bool modified = false;
+    bool scribbling = false;
+
     QImage image;
     QPoint lastPoint;
+
+    void drawLineTo(const QPoint &endPoint);
+    void resizeImage(QImage *image, const QSize &newSize);
 };
 
 #endif
