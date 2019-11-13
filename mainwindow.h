@@ -34,7 +34,6 @@ private:
     QMenu *saveAsMenu;
     QMenu *fileMenu;
     QMenu *optionMenu;
-    QMenu *helpMenu;
     QAction *openAct;
     QList<QAction *> saveAsActs;
     QAction *exitAct;
@@ -44,7 +43,7 @@ private:
     QAction *aboutAct;
     QAction *aboutQtAct;
 
-    int windowWidth = 1000;
+    int windowWidth = 1200;
     int windowHeight = 800;
 };
 

@@ -2,13 +2,10 @@
 
 #include "mainwindow.h"
 #include "scribblearea.h"
-#include "colorwheel.h"
 
 MainWindow::MainWindow()
 {
     scribbleArea = new ScribbleArea;
-//    colorWheel = new ColorWheel;
-
     setCentralWidget(scribbleArea);
     createActions();
     createMenus();
