@@ -18,11 +18,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
     main.cpp \
     mainwindow.cpp \
-    scribblearea.cpp
+    editor.cpp \
+    timeline.cpp
 
 HEADERS += \
     mainwindow.h \
-    scribblearea.h
+    editor.h \
+    timeline.h
 
 FORMS += \
     mainwindow.ui
