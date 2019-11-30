@@ -40,9 +40,15 @@ private:
     int myPenWidth = 3;
     int currentPosition = 0;
     bool scribbling = false;
+    bool clearPoly = false;
 
     void drawLineTo(const QPoint &endPoint);
     void resizeImage(QImage *image, const QSize &newSize, int type);
+
+
+
+
+    QPolygon poly;
 };
 
 #endif

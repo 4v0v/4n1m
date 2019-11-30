@@ -3,72 +3,69 @@
 
 Editor::Editor(QWidget *parent): QWidget(parent)
 {
-    resizeImage(&keyframes[currentPosition], QSize(1, 1), 1);
+    resizeImage(&keyframes[currentPosition], QSize(width(), height()), 1);
     update();
+
+
 }
 
 void Editor::clearImage()
 {
     keyframes[currentPosition].fill(kfColor);
-    resizeImage(&keyframes[currentPosition], QSize(1, 1), 1);
     update();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
-    if (!(event->pos().x() > width() || event->pos().y() > height()))
-    {
-        if (event->pos().x() > keyframes[currentPosition].width())
-            resizeImage(&keyframes[currentPosition], QSize(event->pos().x() + 50, keyframes[currentPosition].height()), 1);
-        if (event->pos().y() > keyframes[currentPosition].height())
-            resizeImage(&keyframes[currentPosition], QSize(keyframes[currentPosition].width(), event->pos().y() + 50), 1);
-        update();
-    }
-
-    if (event->button() == Qt::LeftButton) {
-        lastPoint = event->pos();
-        scribbling = true;
-    }
+    scribbling = true;
+    poly << QPoint(event->pos().x(), event->pos().y());
+    update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
-    if (!(event->pos().x() > width() || event->pos().y() > height()))
+    if (scribbling)
     {
-        if (event->pos().x() > keyframes[currentPosition].width())
-            resizeImage(&keyframes[currentPosition], QSize(event->pos().x() + 50, keyframes[currentPosition].height()), 1);
-        if (event->pos().y() > keyframes[currentPosition].height())
-            resizeImage(&keyframes[currentPosition], QSize(keyframes[currentPosition].width(), event->pos().y() + 50), 1);
+        poly << QPoint(event->pos().x(), event->pos().y());
         update();
     }
-
-    if ((event->buttons() & Qt::LeftButton) && scribbling)
-        drawLineTo(event->pos());
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (!(event->pos().x() > width() || event->pos().y() > height()))
-    {
-        if (event->pos().x() > keyframes[currentPosition].width())
-            resizeImage(&keyframes[currentPosition], QSize(event->pos().x() + 50, keyframes[currentPosition].height()), 1);
-        if (event->pos().y() > keyframes[currentPosition].height())
-            resizeImage(&keyframes[currentPosition], QSize(keyframes[currentPosition].width(), event->pos().y() + 50), 1);
-        update();
-    }
-
-    if (event->button() == Qt::LeftButton && scribbling) {
-        drawLineTo(event->pos());
-        scribbling = false;
-    }
+    clearPoly = true;
+    scribbling = false;
+    update();
 }
 
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
-    QRect dirtyRect = event->rect();
 
+    if (clearPoly)
+    {
+        QPainter p(&keyframes[currentPosition]);
+
+        QBrush fillbrush;
+        fillbrush.setStyle(Qt::SolidPattern);
+        fillbrush.setColor(Qt::red);
+        QPainterPath path;
+        path.addPolygon(poly);
+        p.fillPath(path, fillbrush);
+
+        poly.clear();
+        clearPoly = false;
+    }
+
+    QRect dirtyRect = event->rect();
     painter.drawImage(dirtyRect, bgImage, dirtyRect);
     painter.drawImage(dirtyRect, keyframes[currentPosition], dirtyRect);
+
+
+    QBrush fillbrush;
+    fillbrush.setStyle(Qt::SolidPattern);
+    QPainterPath path;
+    path.addPolygon(poly);
+    painter.fillPath(path, fillbrush);
 }
 
 void Editor::resizeEvent(QResizeEvent *event)
