@@ -5,35 +5,38 @@ Editor::Editor(QWidget *parent): QWidget(parent)
 {
     resizeImage(&keyframes[currentPosition], QSize(width(), height()), 1);
     update();
-
-
 }
 
 void Editor::clearImage()
 {
-    keyframes[currentPosition].fill(kfColor);
+    keyframes[currentPosition].fill(Qt::transparent);
     update();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
     scribbling = true;
-    poly << QPoint(event->pos().x(), event->pos().y());
+    if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
+    if (currentTool == Tool::PEN){};
+
     update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
-    if (scribbling)
-    {
-        poly << QPoint(event->pos().x(), event->pos().y());
-        update();
-    }
+    if (!scribbling) return;
+
+    if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
+
+    if (currentTool == Tool::PEN){};
+
+    update();
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent *event)
 {
-    clearPoly = true;
+    if (currentTool == Tool::LASSOFILL) drawLassoFill = true;
+
     scribbling = false;
     update();
 }
@@ -41,31 +44,40 @@ void Editor::mouseReleaseEvent(QMouseEvent *event)
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
 
-    if (clearPoly)
+    if (currentTool == Tool::LASSOFILL)
     {
-        QPainter p(&keyframes[currentPosition]);
+        if (drawLassoFill)
+        {
+            QPainter p(&keyframes[currentPosition]);
+            QBrush fillbrush;
+            fillbrush.setStyle(lassoFillPattern);
+            fillbrush.setColor(penColor);
+            QPainterPath path;
+            path.addPolygon(lassoFillPoly);
+            p.fillPath(path, fillbrush);
+            drawLassoFill = false;
 
-        QBrush fillbrush;
-        fillbrush.setStyle(Qt::SolidPattern);
-        fillbrush.setColor(Qt::red);
-        QPainterPath path;
-        path.addPolygon(poly);
-        p.fillPath(path, fillbrush);
-
-        poly.clear();
-        clearPoly = false;
+            lassoFillPoly.clear();
+        }
     }
+
+    if (currentTool == Tool::PEN){};
+
 
     QRect dirtyRect = event->rect();
     painter.drawImage(dirtyRect, bgImage, dirtyRect);
     painter.drawImage(dirtyRect, keyframes[currentPosition], dirtyRect);
 
-
-    QBrush fillbrush;
-    fillbrush.setStyle(Qt::SolidPattern);
-    QPainterPath path;
-    path.addPolygon(poly);
-    painter.fillPath(path, fillbrush);
+    // Preview of lassofill
+    if (currentTool == Tool::LASSOFILL)
+    {
+        QBrush fillbrush;
+        fillbrush.setStyle(lassoFillPattern);
+        fillbrush.setColor(penColor);
+        QPainterPath path;
+        path.addPolygon(lassoFillPoly);
+        painter.fillPath(path, fillbrush);
+    }
 }
 
 void Editor::resizeEvent(QResizeEvent *event)
@@ -84,7 +96,7 @@ void Editor::drawLineTo(const QPoint &endPoint)
 {
     QPainter painter(&keyframes[currentPosition]);
 
-    painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+    painter.setPen(QPen(penColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
     painter.drawLine(lastPoint, endPoint);
     int rad = (myPenWidth / 2) + 2;
     update(QRect(lastPoint, endPoint).normalized().adjusted(-rad, -rad, +rad, +rad));
@@ -98,7 +110,7 @@ void Editor::resizeImage(QImage *image, const QSize &newSize, int type)
 
     QImage newImage(newSize, QImage::Format_ARGB32);
     if(type == 0)newImage.fill(bgColor);
-    if(type == 1)newImage.fill(kfColor);
+    if(type == 1)newImage.fill(Qt::transparent);
 
     QPainter painter(&newImage);
     painter.drawImage(QPoint(0, 0), *image);

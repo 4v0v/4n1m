@@ -13,11 +13,18 @@ class Editor : public QWidget
     Q_OBJECT
 
 public:
+    enum Tool {
+        PEN,
+        LASSOFILL,
+    };
+
+
     Editor(QWidget *parent = nullptr);
 
-    void setPenColor(const QColor &newColor){ myPenColor = newColor; }
+    void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ myPenWidth = newWidth; }
-    QColor getPenColor() const { return myPenColor; }
+    void setTool(int tool){ currentTool = tool; }
+    QColor getPenColor() const { return penColor; }
     int getPenWidth() const { return myPenWidth; }
 
 public slots:
@@ -34,21 +41,20 @@ private:
     QImage bgImage;
     QList<QImage> keyframes = QList<QImage>() << QImage();
     QRgb bgColor = qRgba(238, 198, 148, 255);
-    QRgb kfColor = qRgba(0, 0, 0, 0);
+    QColor penColor = Qt::black;
     QPoint lastPoint;
-    QColor myPenColor = Qt::black;
+    QPolygon lassoFillPoly;
+
+    int currentTool = Tool::LASSOFILL;
+    Qt::BrushStyle lassoFillPattern = Qt::DiagCrossPattern;
+
     int myPenWidth = 3;
     int currentPosition = 0;
     bool scribbling = false;
-    bool clearPoly = false;
+    bool drawLassoFill = false;
 
     void drawLineTo(const QPoint &endPoint);
     void resizeImage(QImage *image, const QSize &newSize, int type);
-
-
-
-
-    QPolygon poly;
 };
 
 #endif
