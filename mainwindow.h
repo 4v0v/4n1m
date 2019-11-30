@@ -17,6 +17,8 @@ public:
 private slots:
     void penColor();
     void penWidth();
+    void selectTool();
+    void selectFillStyle();
 
 private:
     void createActions();
@@ -27,6 +29,8 @@ private:
     QMenu *optionMenu;
     QAction *penColorAct;
     QAction *penWidthAct;
+    QAction *toolAct;
+    QAction *fillStyleAct;
     QAction *clearScreenAct;
 };
 

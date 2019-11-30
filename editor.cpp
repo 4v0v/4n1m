@@ -3,6 +3,7 @@
 
 Editor::Editor(QWidget *parent): QWidget(parent)
 {
+    setCursor(Qt::CrossCursor);
     resizeImage(&keyframes[currentPosition], QSize(width(), height()), 1);
     update();
 }
@@ -17,7 +18,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
 {
     scribbling = true;
     if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
-    if (currentTool == Tool::PEN){};
+    if (currentTool == Tool::PEN) lastPoint = event->pos();
 
     update();
 }
@@ -25,44 +26,23 @@ void Editor::mousePressEvent(QMouseEvent *event)
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (!scribbling) return;
-
     if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
-
-    if (currentTool == Tool::PEN){};
+    if (currentTool == Tool::PEN) drawLineTo(event->pos());
 
     update();
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent *event)
 {
-    if (currentTool == Tool::LASSOFILL) drawLassoFill = true;
-
     scribbling = false;
+    if (currentTool == Tool::LASSOFILL) drawLassoFill() ;
+    if (currentTool == Tool::PEN) drawLineTo(event->pos());
+
     update();
 }
 
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
-
-    if (currentTool == Tool::LASSOFILL)
-    {
-        if (drawLassoFill)
-        {
-            QPainter p(&keyframes[currentPosition]);
-            QBrush fillbrush;
-            fillbrush.setStyle(lassoFillPattern);
-            fillbrush.setColor(penColor);
-            QPainterPath path;
-            path.addPolygon(lassoFillPoly);
-            p.fillPath(path, fillbrush);
-            drawLassoFill = false;
-
-            lassoFillPoly.clear();
-        }
-    }
-
-    if (currentTool == Tool::PEN){};
-
 
     QRect dirtyRect = event->rect();
     painter.drawImage(dirtyRect, bgImage, dirtyRect);
@@ -101,6 +81,21 @@ void Editor::drawLineTo(const QPoint &endPoint)
     int rad = (myPenWidth / 2) + 2;
     update(QRect(lastPoint, endPoint).normalized().adjusted(-rad, -rad, +rad, +rad));
     lastPoint = endPoint;
+}
+
+
+void Editor::drawLassoFill()
+{
+    QPainter p(&keyframes[currentPosition]);
+
+    QBrush fillbrush;
+    fillbrush.setStyle(lassoFillPattern);
+    fillbrush.setColor(penColor);
+    QPainterPath path;
+    path.addPolygon(lassoFillPoly);
+    p.fillPath(path, fillbrush);
+
+    lassoFillPoly.clear();
 }
 
 

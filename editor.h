@@ -23,7 +23,13 @@ public:
 
     void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ myPenWidth = newWidth; }
-    void setTool(int tool){ currentTool = tool; }
+    void setTool(Tool tool){ currentTool = tool; }
+    int getTool(){ return currentTool; }
+
+    void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
+    int getFillStyle(){ return lassoFillPattern; }
+
+
     QColor getPenColor() const { return penColor; }
     int getPenWidth() const { return myPenWidth; }
 
@@ -38,6 +44,10 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
+    void drawLineTo(const QPoint &endPoint);
+    void drawLassoFill();
+    void resizeImage(QImage *image, const QSize &newSize, int type);
+
     QImage bgImage;
     QList<QImage> keyframes = QList<QImage>() << QImage();
     QRgb bgColor = qRgba(238, 198, 148, 255);
@@ -45,16 +55,12 @@ private:
     QPoint lastPoint;
     QPolygon lassoFillPoly;
 
-    int currentTool = Tool::LASSOFILL;
-    Qt::BrushStyle lassoFillPattern = Qt::DiagCrossPattern;
+    int currentTool = Tool::PEN;
+    Qt::BrushStyle lassoFillPattern = Qt::SolidPattern;
 
     int myPenWidth = 3;
     int currentPosition = 0;
     bool scribbling = false;
-    bool drawLassoFill = false;
-
-    void drawLineTo(const QPoint &endPoint);
-    void resizeImage(QImage *image, const QSize &newSize, int type);
 };
 
 #endif
