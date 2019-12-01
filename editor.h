@@ -7,6 +7,7 @@
 #include <QImage>
 #include <QPoint>
 #include <QWidget>
+#include <QDebug>
 
 class Editor : public QWidget
 {
@@ -18,23 +19,19 @@ public:
         LASSOFILL,
     };
 
-
     Editor(QWidget *parent = nullptr);
-
     void setPenColor(const QColor &newColor){ penColor = newColor; }
-    void setPenWidth(int newWidth){ myPenWidth = newWidth; }
-    void setTool(Tool tool){ currentTool = tool; }
+    void setPenWidth(int newWidth){ penWidth = newWidth; }
     int getTool(){ return currentTool; }
-
     void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
     int getFillStyle(){ return lassoFillPattern; }
-
-
     QColor getPenColor() const { return penColor; }
-    int getPenWidth() const { return myPenWidth; }
+    int getPenWidth() const { return penWidth; }
 
 public slots:
     void clearImage();
+    void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
+    void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -44,23 +41,23 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void drawLineTo(const QPoint &endPoint);
     void drawLassoFill();
+    void drawPenLines();
     void resizeImage(QImage *image, const QSize &newSize, int type);
 
     QImage bgImage;
-    QList<QImage> keyframes = QList<QImage>() << QImage();
     QRgb bgColor = qRgba(238, 198, 148, 255);
-    QColor penColor = Qt::black;
-    QPoint lastPoint;
-    QPolygon lassoFillPoly;
-
-    int currentTool = Tool::PEN;
-    Qt::BrushStyle lassoFillPattern = Qt::SolidPattern;
-
-    int myPenWidth = 3;
     int currentPosition = 0;
+    QList<QImage> keyframes = QList<QImage>() << QImage();
+
     bool scribbling = false;
+    int currentTool = Tool::PEN;
+    QPolygon lassoFill;
+    QPolygon penLines;
+    Qt::BrushStyle lassoFillPattern = Qt::SolidPattern;
+    Qt::PenStyle penPattern = Qt::SolidLine;
+    QColor penColor = Qt::black;
+    int penWidth = 3;
 };
 
 #endif

@@ -8,55 +8,59 @@ Editor::Editor(QWidget *parent): QWidget(parent)
     update();
 }
 
-void Editor::clearImage()
-{
-    keyframes[currentPosition].fill(Qt::transparent);
-    update();
-}
-
 void Editor::mousePressEvent(QMouseEvent *event)
 {
     scribbling = true;
-    if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
-    if (currentTool == Tool::PEN) lastPoint = event->pos();
-
-    update();
-}
-
-void Editor::mouseMoveEvent(QMouseEvent *event)
-{
-    if (!scribbling) return;
-    if (currentTool == Tool::LASSOFILL) lassoFillPoly << QPoint(event->pos().x(), event->pos().y());
-    if (currentTool == Tool::PEN) drawLineTo(event->pos());
-
+    switch (currentTool)
+    {
+        case Tool::PEN: penLines << QPoint(event->pos().x(), event->pos().y()); break;
+        case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
+    }
     update();
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent *event)
 {
     scribbling = false;
-    if (currentTool == Tool::LASSOFILL) drawLassoFill() ;
-    if (currentTool == Tool::PEN) drawLineTo(event->pos());
+    switch (currentTool)
+    {
+        case Tool::PEN: drawPenLines(); break;
+        case Tool::LASSOFILL: drawLassoFill(); break;
+    }
+    update();
+}
 
+void Editor::mouseMoveEvent(QMouseEvent *event)
+{
+    if (!scribbling) return;
+    switch (currentTool)
+    {
+        case Tool::PEN: penLines << QPoint(event->pos().x(), event->pos().y()); break;
+        case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
+    }
     update();
 }
 
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
+    painter.drawImage(event->rect(), bgImage, event->rect());
+    painter.drawImage(event->rect(), keyframes[currentPosition], event->rect());
 
-    QRect dirtyRect = event->rect();
-    painter.drawImage(dirtyRect, bgImage, dirtyRect);
-    painter.drawImage(dirtyRect, keyframes[currentPosition], dirtyRect);
-
-    // Preview of lassofill
-    if (currentTool == Tool::LASSOFILL)
-    {
-        QBrush fillbrush;
-        fillbrush.setStyle(lassoFillPattern);
-        fillbrush.setColor(penColor);
-        QPainterPath path;
-        path.addPolygon(lassoFillPoly);
-        painter.fillPath(path, fillbrush);
+    // Previews
+    switch (currentTool) {
+        case Tool::PEN:
+        {
+            painter.setPen(QPen(penColor, penWidth, penPattern, Qt::RoundCap, Qt::RoundJoin));
+            painter.drawPolyline(penLines);
+            break;
+        }
+        case Tool::LASSOFILL:
+        {
+            QPainterPath path;
+            path.addPolygon(lassoFill);
+            painter.fillPath(path, QBrush(penColor, lassoFillPattern));
+            break;
+        }
     }
 }
 
@@ -68,36 +72,31 @@ void Editor::resizeEvent(QResizeEvent *event)
         resizeImage(&bgImage, QSize(newWidth, newHeight), 0);
         update();
     }
-
     QWidget::resizeEvent(event);
 }
 
-void Editor::drawLineTo(const QPoint &endPoint)
+void Editor::drawPenLines()
 {
     QPainter painter(&keyframes[currentPosition]);
-
-    painter.setPen(QPen(penColor, myPenWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
-    painter.drawLine(lastPoint, endPoint);
-    int rad = (myPenWidth / 2) + 2;
-    update(QRect(lastPoint, endPoint).normalized().adjusted(-rad, -rad, +rad, +rad));
-    lastPoint = endPoint;
+    painter.setPen(QPen(penColor, penWidth, penPattern, Qt::RoundCap, Qt::RoundJoin));
+    painter.drawPolyline(penLines);
+    penLines.clear();
 }
-
 
 void Editor::drawLassoFill()
 {
-    QPainter p(&keyframes[currentPosition]);
-
-    QBrush fillbrush;
-    fillbrush.setStyle(lassoFillPattern);
-    fillbrush.setColor(penColor);
+    QPainter painter(&keyframes[currentPosition]);
     QPainterPath path;
-    path.addPolygon(lassoFillPoly);
-    p.fillPath(path, fillbrush);
-
-    lassoFillPoly.clear();
+    path.addPolygon(lassoFill);
+    painter.fillPath(path, QBrush(penColor, lassoFillPattern));
+    lassoFill.clear();
 }
 
+void Editor::clearImage()
+{
+    keyframes[currentPosition].fill(Qt::transparent);
+    update();
+}
 
 void Editor::resizeImage(QImage *image, const QSize &newSize, int type)
 {
