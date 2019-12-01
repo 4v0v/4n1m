@@ -6,6 +6,7 @@
 
 class Editor;
 class Timeline;
+class Object;
 
 class MainWindow : public QMainWindow
 {
@@ -13,6 +14,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
+
 
 private slots:
     void penColor();
@@ -25,11 +27,14 @@ private:
 
     Editor *editor;
     Timeline *timeline;
+    Object *object;
+
     QMenu *optionMenu;
     QAction *penColorAct;
     QAction *penWidthAct;
     QAction *toolAsPenAct;
     QAction *toolAsLassoFillAct;
+    QAction *toolAsEraserAct;
     QAction *fillStyleAct;
     QAction *clearScreenAct;
 };

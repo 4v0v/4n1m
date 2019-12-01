@@ -1,12 +1,14 @@
 #include <QtWidgets>
 
 #include "mainwindow.h"
+#include "object.h"
 #include "editor.h"
 #include "timeline.h"
 
 MainWindow::MainWindow()
 {
-    editor = new Editor;
+    object = new Object;
+    editor = new Editor(object);
     timeline = new Timeline;
 
     QGridLayout *layout = new QGridLayout;
@@ -29,17 +31,20 @@ void MainWindow::createActions()
     fillStyleAct = new QAction(tr("LassoFill Style..."), this);
     toolAsPenAct = new QAction(tr("Pen"), this);
     toolAsLassoFillAct = new QAction(tr("LassoFill"), this);
+    toolAsEraserAct = new QAction(tr("Eraser"), this);
     clearScreenAct = new QAction(tr("Clear Screen"), this);
 
     clearScreenAct->setShortcut(tr("W"));
     toolAsPenAct->setShortcut(Qt::Key_1);
     toolAsLassoFillAct->setShortcut(Qt::Key_2);
+    toolAsEraserAct->setShortcut(Qt::Key_3);
 
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
     connect(fillStyleAct, SIGNAL(triggered()), this, SLOT(fillStyle()));
     connect(toolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
     connect(toolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
+    connect(toolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
 }
 
@@ -52,6 +57,7 @@ void MainWindow::createMenus()
     optionMenu->addSeparator();
     optionMenu->addAction(toolAsPenAct);
     optionMenu->addAction(toolAsLassoFillAct);
+    optionMenu->addAction(toolAsEraserAct);
     optionMenu->addSeparator();
     optionMenu->addAction(clearScreenAct);
 

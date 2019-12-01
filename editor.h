@@ -8,7 +8,9 @@
 #include <QPoint>
 #include <QWidget>
 #include <QDebug>
+#include "object.h"
 
+class Object;
 class Editor : public QWidget
 {
     Q_OBJECT
@@ -17,9 +19,12 @@ public:
     enum Tool {
         PEN,
         LASSOFILL,
+        ERASER
     };
 
-    Editor(QWidget *parent = nullptr);
+    Editor(Object *o, QWidget *parent = nullptr);
+
+    void setObject(Object* o) { object = o; }
     void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ penWidth = newWidth; }
     int getTool(){ return currentTool; }
@@ -32,6 +37,7 @@ public slots:
     void clearImage();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
+    void setToolAsEraser() { if (!scribbling) currentTool = Tool::ERASER; }
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -41,23 +47,22 @@ protected:
     void resizeEvent(QResizeEvent *event) override;
 
 private:
-    void drawLassoFill();
-    void drawPenLines();
-    void resizeImage(QImage *image, const QSize &newSize, int type);
-
+    Object* object;
     QImage bgImage;
     QRgb bgColor = qRgba(238, 198, 148, 255);
     int currentPosition = 0;
-    QList<QImage> keyframes = QList<QImage>() << QImage();
 
     bool scribbling = false;
     int currentTool = Tool::PEN;
     QPolygon lassoFill;
-    QPolygon penLines;
+    QPolygon penStroke;
+    QPolygon eraserStroke;
     Qt::BrushStyle lassoFillPattern = Qt::SolidPattern;
     Qt::PenStyle penPattern = Qt::SolidLine;
     QColor penColor = Qt::black;
+    QColor eraserColor = bgColor;
     int penWidth = 3;
+    int eraserWidth = 15;
 };
 
 #endif
