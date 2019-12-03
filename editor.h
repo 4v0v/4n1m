@@ -27,14 +27,17 @@ public:
     void setObject(Object* o) { object = o; }
     void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ penWidth = newWidth; }
-    int getTool(){ return currentTool; }
     void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
+    int getTool(){ return currentTool; }
     int getFillStyle(){ return lassoFillPattern; }
     QColor getPenColor() const { return penColor; }
     int getPenWidth() const { return penWidth; }
 
 public slots:
     void clearImage();
+    void gotoNextFrame();
+    void gotoPreviousFrame();
+    void gotoKeyframe(int pos);
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
     void setToolAsEraser() { if (!scribbling) currentTool = Tool::ERASER; }
@@ -50,7 +53,9 @@ private:
     Object* object;
     QImage bgImage;
     QRgb bgColor = qRgba(238, 198, 148, 255);
+
     int currentPosition = 0;
+    int currentKeyframePosition = 0;
 
     bool scribbling = false;
     int currentTool = Tool::PEN;

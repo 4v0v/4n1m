@@ -3,6 +3,7 @@
 
 Object::Object()
 {
+    addKeyframeAt(0);
 }
 
 void Object::resizeImage(int pos, int width , int height)

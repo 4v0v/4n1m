@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QList>
 #include <QMainWindow>
 
 class Editor;
@@ -30,6 +29,8 @@ private:
     Object *object;
 
     QMenu *optionMenu;
+    QAction *nextFrameAct;
+    QAction *previousFrameAct;
     QAction *penColorAct;
     QAction *penWidthAct;
     QAction *toolAsPenAct;

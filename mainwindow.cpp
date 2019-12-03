@@ -33,11 +33,15 @@ void MainWindow::createActions()
     toolAsLassoFillAct = new QAction(tr("LassoFill"), this);
     toolAsEraserAct = new QAction(tr("Eraser"), this);
     clearScreenAct = new QAction(tr("Clear Screen"), this);
+    nextFrameAct = new QAction(tr("Next"), this);
+    previousFrameAct = new QAction(tr("Previous"), this);
 
     clearScreenAct->setShortcut(tr("W"));
     toolAsPenAct->setShortcut(Qt::Key_1);
     toolAsLassoFillAct->setShortcut(Qt::Key_2);
     toolAsEraserAct->setShortcut(Qt::Key_3);
+    nextFrameAct->setShortcut(Qt::Key_Right);
+    previousFrameAct->setShortcut(Qt::Key_Left);
 
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
@@ -46,6 +50,8 @@ void MainWindow::createActions()
     connect(toolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(toolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
+    connect(nextFrameAct, SIGNAL(triggered()), editor, SLOT(gotoNextFrame()));
+    connect(previousFrameAct, SIGNAL(triggered()), editor, SLOT(gotoPreviousFrame()));
 }
 
 void MainWindow::createMenus()
@@ -60,6 +66,9 @@ void MainWindow::createMenus()
     optionMenu->addAction(toolAsEraserAct);
     optionMenu->addSeparator();
     optionMenu->addAction(clearScreenAct);
+    optionMenu->addSeparator();
+    optionMenu->addAction(nextFrameAct);
+    optionMenu->addAction(previousFrameAct);
 
     menuBar()->addMenu(optionMenu);
 }
