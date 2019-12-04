@@ -38,6 +38,8 @@ private:
     QAction *toolAsEraserAct;
     QAction *fillStyleAct;
     QAction *clearScreenAct;
+    QAction *addKeyframeAct;
+    QAction *removeKeyframeAct;
 };
 
 #endif

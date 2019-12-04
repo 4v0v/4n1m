@@ -9,7 +9,10 @@ MainWindow::MainWindow()
 {
     object = new Object;
     editor = new Editor(object);
-    timeline = new Timeline;
+    timeline = new Timeline(object);
+
+    editor->setTimeline(timeline);
+    timeline->setEditor(editor);
 
     QGridLayout *layout = new QGridLayout;
     layout->addWidget(editor, 0, 0, 6, 1);
@@ -34,14 +37,18 @@ void MainWindow::createActions()
     toolAsEraserAct = new QAction(tr("Eraser"), this);
     clearScreenAct = new QAction(tr("Clear Screen"), this);
     nextFrameAct = new QAction(tr("Next"), this);
-    previousFrameAct = new QAction(tr("Previous"), this);
+    previousFrameAct = new QAction(tr("Prev"), this);
+    addKeyframeAct = new QAction(tr("Add Key"), this);
+    removeKeyframeAct = new QAction(tr("Remove Key"), this);
 
-    clearScreenAct->setShortcut(tr("W"));
+    clearScreenAct->setShortcut(tr("Z"));
     toolAsPenAct->setShortcut(Qt::Key_1);
     toolAsLassoFillAct->setShortcut(Qt::Key_2);
     toolAsEraserAct->setShortcut(Qt::Key_3);
     nextFrameAct->setShortcut(Qt::Key_Right);
     previousFrameAct->setShortcut(Qt::Key_Left);
+    removeKeyframeAct->setShortcut(tr("W"));
+    addKeyframeAct->setShortcut(tr("X"));
 
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
@@ -50,8 +57,10 @@ void MainWindow::createActions()
     connect(toolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(toolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
-    connect(nextFrameAct, SIGNAL(triggered()), editor, SLOT(gotoNextFrame()));
-    connect(previousFrameAct, SIGNAL(triggered()), editor, SLOT(gotoPreviousFrame()));
+    connect(nextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
+    connect(previousFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
+    connect(addKeyframeAct, SIGNAL(triggered()), timeline, SLOT(addKeyframe()));
+    connect(removeKeyframeAct, SIGNAL(triggered()), timeline, SLOT(removeKeyframe()));
 }
 
 void MainWindow::createMenus()
@@ -69,6 +78,8 @@ void MainWindow::createMenus()
     optionMenu->addSeparator();
     optionMenu->addAction(nextFrameAct);
     optionMenu->addAction(previousFrameAct);
+    optionMenu->addAction(addKeyframeAct);
+    optionMenu->addAction(removeKeyframeAct);
 
     menuBar()->addMenu(optionMenu);
 }

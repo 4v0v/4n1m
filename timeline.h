@@ -3,19 +3,42 @@
 
 #include <QWidget>
 
-
+class Editor;
+class Object;
 class Timeline : public QWidget
 {
     Q_OBJECT
 
 public:
-    Timeline(QWidget *parent = nullptr);
+    Timeline(Object *o = nullptr, QWidget *parent = nullptr);
+
+    void setObject(Object* o) { object = o; }
+    void setEditor(Editor* e) { editor = e; }
+
+    int getPos() { return timelinePos; }
 
 
 public slots:
-protected:
-private:
+    void gotoNextFrame();
+    void gotoPrevFrame();
+    void gotoFrame(int pos);
+    void addEmptyFrame();
+    void removeEmptyFrame();
+    void addKeyframe();
+    void removeKeyframe();
 
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
+private:
+    Object* object;
+    Editor* editor;
+
+    int timelinePos = 0;
 };
 
 #endif

@@ -8,8 +8,8 @@
 #include <QPoint>
 #include <QWidget>
 #include <QDebug>
-#include "object.h"
 
+class Timeline;
 class Object;
 class Editor : public QWidget
 {
@@ -22,9 +22,11 @@ public:
         ERASER
     };
 
-    Editor(Object *o, QWidget *parent = nullptr);
+    Editor(Object *o = nullptr, QWidget *parent = nullptr);
 
     void setObject(Object* o) { object = o; }
+    void setTimeline(Timeline* t) { timeline = t; }
+
     void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ penWidth = newWidth; }
     void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
@@ -33,11 +35,10 @@ public:
     QColor getPenColor() const { return penColor; }
     int getPenWidth() const { return penWidth; }
 
+    bool isScribbling() { return scribbling; }
+
 public slots:
     void clearImage();
-    void gotoNextFrame();
-    void gotoPreviousFrame();
-    void gotoKeyframe(int pos);
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
     void setToolAsEraser() { if (!scribbling) currentTool = Tool::ERASER; }
@@ -51,11 +52,10 @@ protected:
 
 private:
     Object* object;
+    Timeline* timeline;
+
     QImage bgImage;
     QRgb bgColor = qRgba(238, 198, 148, 255);
-
-    int currentPosition = 0;
-    int currentKeyframePosition = 0;
 
     bool scribbling = false;
     int currentTool = Tool::PEN;

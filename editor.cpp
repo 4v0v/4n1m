@@ -1,24 +1,19 @@
 #include <QtWidgets>
 #include "editor.h"
+#include "timeline.h"
+#include "object.h"
 
 Editor::Editor(Object *o, QWidget *parent): QWidget(parent)
 {
     setObject(o);
     setCursor(Qt::CrossCursor);
-    object->resizeImage(currentKeyframePosition, width(), height());
+    object->resizeImage(object->getPos(), width(), height());
     update();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
-    if (!object->isKeyframe(currentPosition))
-    {
-        object->addKeyframeAt(currentPosition);
-//        qDebug() << object->isKeyframe(currentPosition);
-        object->resizeImage(currentPosition, width(), height());
-        currentKeyframePosition = currentPosition;
-        update();
-    }
+    if (!object->isKeyframe(timeline->getPos())) timeline->addKeyframe();
 
     scribbling = true;
     switch (currentTool)
@@ -37,7 +32,7 @@ void Editor::mouseReleaseEvent(QMouseEvent *event)
     {
         case Tool::PEN:
             object->drawPenStroke(
-                        currentKeyframePosition,
+                        object->getPos(),
                         QPen(penColor, penWidth, penPattern, Qt::RoundCap, Qt::RoundJoin),
                         penStroke
                     );
@@ -45,7 +40,7 @@ void Editor::mouseReleaseEvent(QMouseEvent *event)
             break;
         case Tool::LASSOFILL:
             object->drawLassoFill(
-                        currentKeyframePosition,
+                        object->getPos(),
                         QBrush(penColor, lassoFillPattern),
                         lassoFill
                     );
@@ -53,7 +48,7 @@ void Editor::mouseReleaseEvent(QMouseEvent *event)
             break;
         case Tool::ERASER:
             object->drawPenStroke(
-                        currentKeyframePosition,
+                        object->getPos(),
                         QPen(eraserColor, eraserWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),
                         eraserStroke
                     );
@@ -78,7 +73,7 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.drawImage(event->rect(), bgImage, event->rect());
-    painter.drawImage(event->rect(), *object->getKeyframeAt(currentKeyframePosition), event->rect());
+    painter.drawImage(event->rect(), *object->getKeyframeImageAt(object->getPos()), event->rect());
 
     // Previews
     switch (currentTool) {
@@ -128,34 +123,6 @@ void Editor::clearImage()
 {
     if (scribbling) return;
 
-    object->clearImage(currentKeyframePosition);
+    object->clearImage(object->getPos());
     update();
-}
-
-void Editor::gotoNextFrame()
-{
-    if (scribbling) return;
-
-    currentPosition += 1;
-    if (object->isKeyframe(currentPosition)) currentKeyframePosition = currentPosition;
-
-    update();
-}
-
-void Editor::gotoPreviousFrame()
-{
-    if (scribbling) return;
-    if (currentPosition == 0) return;
-
-    currentPosition -= 1;
-    if (object->isKeyframe(currentPosition)) currentKeyframePosition = currentPosition;
-
-    update();
-}
-
-void Editor::gotoKeyframe(int pos)
-{
-    if (scribbling) return;
-
-    currentPosition = pos;
 }
