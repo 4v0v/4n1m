@@ -75,6 +75,7 @@ void Editor::paintEvent(QPaintEvent* event) {
     painter.drawImage(event->rect(), bgImage, event->rect());
 
 
+    // prev onion
     if (object->getPrevKeyframePos(object->getPos()) != object->getPos())
     {
         painter.setOpacity(0.2);
@@ -89,6 +90,7 @@ void Editor::paintEvent(QPaintEvent* event) {
         painter.setOpacity(1.00);
     }
 
+    // next onion
     if (object->getNextKeyframePos(object->getPos()) != object->getPos())
     {
         painter.setOpacity(0.2);

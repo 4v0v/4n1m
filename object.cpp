@@ -37,27 +37,41 @@ void Object::clearImage(int pos)
     keyframes[pos].fill(Qt::transparent);
 }
 
-QList<int> Object::getKeyframePoss(int begin, int end = -1)
-{
-    QList<int> kfpositions;
-    if (end == -1) end = keyframes.lastKey();
-    for (int i = begin; i < end; ++i)
-        if (isKeyframe(i)) kfpositions.push_back(i);
-    return kfpositions;
-}
-
-void Object::moveKeyframesTo(QList<int> kfpositions, int pos)
-{
-
-}
-
 int Object::getPrevKeyframePos(int pos)
 {
-    int temp = keyframes.begin().key();
+    int temp = keyframes.firstKey();
     for (auto i = keyframes.begin(); i != keyframes.end(); ++i)
     {
         if (i.key() >= pos) return temp;
         temp = i.key();
     }
     return temp;
+}
+
+int Object::getNextKeyframePos(int pos)
+{
+    if (pos > keyframes.lastKey()) return keyframes.lastKey();
+    return keyframes.upperBound(pos).key();
+}
+
+void Object::foreachKeyframe(std::function<void(int)> action, int begin, int end)
+{
+    if (end == 0) end = keyframes.lastKey();
+    if (begin > end) begin = keyframes.lastKey();
+
+    for (int i = begin; i < end + 1; ++i)
+    {
+        if(isKeyframe(i)) action(i);
+    }
+}
+
+void Object::foreachKeyframeRevert(std::function<void(int)> action, int begin, int end)
+{
+    if (end == 0) end = keyframes.lastKey();
+    if (begin > end) begin = keyframes.lastKey();
+
+    for (int i = end; i > begin - 1; --i)
+    {
+        if(isKeyframe(i)) action(i);
+    }
 }

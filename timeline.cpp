@@ -81,26 +81,9 @@ void Timeline::gotoFrame(int pos)
     editor->update();
 }
 
-void Timeline::addEmptyFrame()
-{
-    if (editor->isScribbling()) return;
-
-    update();
-    editor->update();
-}
-
-void Timeline::removeEmptyFrame()
-{
-    if (editor->isScribbling()) return;
-
-    update();
-    editor->update();
-}
-
 void Timeline::addKeyframe()
 {
     if (editor->isScribbling()) return;
-
     if (object->isKeyframe(timelinePos)) return;
 
     object->addKeyframeAt(timelinePos);
@@ -122,8 +105,62 @@ void Timeline::removeKeyframe()
         object->addKeyframeAt(0);
         object->resizeImage(0, editor->width(), editor->height());
     }
-
     object->setPos(object->getPrevKeyframePos(timelinePos));
+
+    update();
+    editor->update();
+}
+
+void Timeline::insertFrame()
+{
+    if (editor->isScribbling()) return;
+    if (timelinePos >= object->getLastKeyframePos()) return;
+
+    if (object->isKeyframe(timelinePos))
+    {
+        object->foreachKeyframeRevert([this](int i){
+                QImage img = object->getKeyframeImageAt(i)->copy();
+                object->addKeyframeAt(i + 1, img);
+                object->removeKeyframeAt(i);
+        }, timelinePos + 1);
+    }
+    else
+    {
+        object->foreachKeyframeRevert([this](int i){
+                QImage img = object->getKeyframeImageAt(i)->copy();
+                object->addKeyframeAt(i + 1, img);
+                object->removeKeyframeAt(i);
+        }, timelinePos);
+        object->setPos(object->getPrevKeyframePos(timelinePos));
+    }
+
+    update();
+    editor->update();
+}
+
+void Timeline::removeFrame()
+{
+    if (editor->isScribbling()) return;
+    if (timelinePos >= object->getLastKeyframePos()) return;
+    if (object->isKeyframe(timelinePos + 1)) return;
+
+    if (object->isKeyframe(timelinePos))
+    {
+        object->foreachKeyframe([this](int i){
+                QImage img = object->getKeyframeImageAt(i)->copy();
+                object->removeKeyframeAt(i);
+                object->addKeyframeAt(i - 1, img);
+        }, timelinePos + 1);
+    }
+    else
+    {
+        object->foreachKeyframe([this](int i){
+                QImage img = object->getKeyframeImageAt(i)->copy();
+                object->removeKeyframeAt(i);
+                object->addKeyframeAt(i - 1, img);
+        }, timelinePos);
+        object->setPos(object->getPrevKeyframePos(timelinePos));
+    }
 
     update();
     editor->update();

@@ -40,6 +40,8 @@ private:
     QAction *clearScreenAct;
     QAction *addKeyframeAct;
     QAction *removeKeyframeAct;
+    QAction *insertFrameAct;
+    QAction *removeFrameAct;
 };
 
 #endif

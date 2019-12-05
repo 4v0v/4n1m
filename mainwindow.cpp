@@ -40,6 +40,8 @@ void MainWindow::createActions()
     previousFrameAct = new QAction(tr("Prev"), this);
     addKeyframeAct = new QAction(tr("Add Key"), this);
     removeKeyframeAct = new QAction(tr("Remove Key"), this);
+    insertFrameAct = new QAction(tr("Insert frame"), this);
+    removeFrameAct = new QAction(tr("Remove frame"), this);
 
     clearScreenAct->setShortcut(tr("Z"));
     toolAsPenAct->setShortcut(Qt::Key_1);
@@ -49,6 +51,8 @@ void MainWindow::createActions()
     previousFrameAct->setShortcut(Qt::Key_Left);
     removeKeyframeAct->setShortcut(tr("W"));
     addKeyframeAct->setShortcut(tr("X"));
+    insertFrameAct->setShortcut(tr("C"));
+    removeFrameAct->setShortcut(tr("V"));
 
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
@@ -61,6 +65,8 @@ void MainWindow::createActions()
     connect(previousFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
     connect(addKeyframeAct, SIGNAL(triggered()), timeline, SLOT(addKeyframe()));
     connect(removeKeyframeAct, SIGNAL(triggered()), timeline, SLOT(removeKeyframe()));
+    connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
+    connect(removeFrameAct, SIGNAL(triggered()), timeline, SLOT(removeFrame()));
 }
 
 void MainWindow::createMenus()
@@ -80,6 +86,8 @@ void MainWindow::createMenus()
     optionMenu->addAction(previousFrameAct);
     optionMenu->addAction(addKeyframeAct);
     optionMenu->addAction(removeKeyframeAct);
+    optionMenu->addAction(insertFrameAct);
+    optionMenu->addAction(removeFrameAct);
 
     menuBar()->addMenu(optionMenu);
 }

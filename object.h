@@ -12,14 +12,18 @@ class Object
 public:
     Object();
     QImage* getKeyframeImageAt(int pos) { return &keyframes[pos]; }
-    QList<int> getKeyframePoss (int begin, int end);
-    void addKeyframeAt(int pos) { keyframes.insert(pos, QImage(1, 1, QImage::Format_ARGB32)); }
+    void addKeyframeAt(int pos, QImage img = QImage(1, 1, QImage::Format_ARGB32)) { keyframes.insert(pos, img); }
     void removeKeyframeAt(int pos) { keyframes.remove(pos); }
-    void moveKeyframesTo(QList<int> kfpositions, int pos);
+    
+    void foreachKeyframe(std::function<void(int)>, int begin = 0, int end = 0);
+    void foreachKeyframeRevert(std::function<void(int)>, int begin = 0, int end = 0);
 
     bool isKeyframe(int pos) { return keyframes.contains(pos); }
     int getPrevKeyframePos(int pos);
+    int getNextKeyframePos(int pos);
     int getPos() { return position; }
+    int getFirstKeyframePos() { return keyframes.firstKey(); }
+    int getLastKeyframePos() { return keyframes.lastKey(); }
     void setPos(int pos) { position = pos; }
 
     void drawPenStroke(int pos, QPen pen, QPolygon poly);

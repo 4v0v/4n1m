@@ -22,10 +22,10 @@ public slots:
     void gotoNextFrame();
     void gotoPrevFrame();
     void gotoFrame(int pos);
-    void addEmptyFrame();
-    void removeEmptyFrame();
     void addKeyframe();
     void removeKeyframe();
+    void insertFrame();
+    void removeFrame();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
