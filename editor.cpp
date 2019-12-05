@@ -25,8 +25,9 @@ void Editor::mousePressEvent(QMouseEvent *event)
     update();
 }
 
-void Editor::mouseReleaseEvent(QMouseEvent *event)
+void Editor::mouseReleaseEvent(QMouseEvent*)
 {
+
     scribbling = false;
     switch (currentTool)
     {
@@ -74,8 +75,8 @@ void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
     painter.drawImage(event->rect(), bgImage, event->rect());
 
-
-    if (object->getPrevKeyframePos(object->getPos()) != object->getPos())
+    // Prev onion
+    if (object->getPrevKeyframePos(object->getPos()) < object->getPos())
     {
         painter.setOpacity(0.2);
         int prev = object->getPrevKeyframePos(object->getPos());
@@ -89,7 +90,8 @@ void Editor::paintEvent(QPaintEvent* event) {
         painter.setOpacity(1.00);
     }
 
-    if (object->getNextKeyframePos(object->getPos()) != object->getPos())
+    // Next onion
+    if (object->getNextKeyframePos(object->getPos()) > object->getPos())
     {
         painter.setOpacity(0.2);
         int next = object->getNextKeyframePos(object->getPos());
@@ -103,10 +105,10 @@ void Editor::paintEvent(QPaintEvent* event) {
         painter.setOpacity(1.00);
     }
 
-
+    // Current image
     painter.drawImage(event->rect(), *object->getKeyframeImageAt(object->getPos()), event->rect());
 
-    // Previews
+    // Tool previews
     switch (currentTool) {
         case Tool::PEN:
         {

@@ -50,7 +50,7 @@ int Object::getPrevKeyframePos(int pos)
 
 int Object::getNextKeyframePos(int pos)
 {
-    if (pos > keyframes.lastKey()) return keyframes.lastKey();
+    if (pos >= keyframes.lastKey()) return keyframes.lastKey();
     return keyframes.upperBound(pos).key();
 }
 

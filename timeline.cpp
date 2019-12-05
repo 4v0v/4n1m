@@ -9,12 +9,12 @@ Timeline::Timeline(Object *o, QWidget *parent): QWidget(parent)
     update();
 }
 
-void Timeline::mousePressEvent(QMouseEvent *event){}
-void Timeline::mouseReleaseEvent(QMouseEvent *event){}
-void Timeline::mouseMoveEvent(QMouseEvent *event){}
+void Timeline::mousePressEvent(QMouseEvent*){}
+void Timeline::mouseReleaseEvent(QMouseEvent*){}
+void Timeline::mouseMoveEvent(QMouseEvent*){}
 void Timeline::resizeEvent(QResizeEvent *event) { QWidget::resizeEvent(event); }
 
-void Timeline::paintEvent(QPaintEvent* event) {
+void Timeline::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     for (int i = 0; i < 31; ++i) {
         QPainterPath path;
