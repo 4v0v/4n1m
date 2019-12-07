@@ -17,7 +17,6 @@ public:
 
     int getPos() { return timelinePos; }
 
-
 public slots:
     void gotoNextFrame();
     void gotoPrevFrame();
@@ -26,6 +25,8 @@ public slots:
     void removeKeyframe();
     void insertFrame();
     void removeFrame();
+    void copyFrame();
+    void pasteFrame();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -38,6 +39,7 @@ private:
     Object* object;
     Editor* editor;
 
+    QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
 };
 

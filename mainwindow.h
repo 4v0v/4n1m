@@ -19,6 +19,7 @@ private slots:
     void penColor();
     void penWidth();
     void fillStyle();
+    void showPreview();
 
 private:
     void createActions();
@@ -42,6 +43,9 @@ private:
     QAction *removeKeyframeAct;
     QAction *insertFrameAct;
     QAction *removeFrameAct;
+    QAction *copyFrameAct;
+    QAction *pasteFrameAct;
+    QAction *previewAct;
 };
 
 #endif

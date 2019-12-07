@@ -1,9 +1,11 @@
 #include <QtWidgets>
+#include <QWindow>
 
 #include "mainwindow.h"
 #include "object.h"
 #include "editor.h"
 #include "timeline.h"
+#include "preview.h"
 
 MainWindow::MainWindow()
 {
@@ -25,6 +27,7 @@ MainWindow::MainWindow()
     setWindowTitle(tr("4n1m"));
     createActions();
     createMenus();
+
 }
 
 void MainWindow::createActions()
@@ -42,6 +45,9 @@ void MainWindow::createActions()
     removeKeyframeAct = new QAction(tr("Remove Key"), this);
     insertFrameAct = new QAction(tr("Insert frame"), this);
     removeFrameAct = new QAction(tr("Remove frame"), this);
+    previewAct = new QAction(tr("Preview"), this);
+    copyFrameAct = new QAction(tr("Copy frame"), this);
+    pasteFrameAct = new QAction(tr("Paste frame"), this);
 
     clearScreenAct->setShortcut(tr("Z"));
     toolAsPenAct->setShortcut(Qt::Key_1);
@@ -53,6 +59,9 @@ void MainWindow::createActions()
     addKeyframeAct->setShortcut(tr("X"));
     insertFrameAct->setShortcut(tr("C"));
     removeFrameAct->setShortcut(tr("V"));
+    previewAct->setShortcut(tr("P"));
+    copyFrameAct->setShortcut(tr("E"));
+    pasteFrameAct->setShortcut(tr("R"));
 
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(penColor()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(penWidth()));
@@ -67,6 +76,9 @@ void MainWindow::createActions()
     connect(removeKeyframeAct, SIGNAL(triggered()), timeline, SLOT(removeKeyframe()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
     connect(removeFrameAct, SIGNAL(triggered()), timeline, SLOT(removeFrame()));
+    connect(previewAct, SIGNAL(triggered()), this, SLOT(showPreview()));
+    connect(copyFrameAct, SIGNAL(triggered()), timeline, SLOT(copyFrame()));
+    connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
 }
 
 void MainWindow::createMenus()
@@ -88,6 +100,10 @@ void MainWindow::createMenus()
     optionMenu->addAction(removeKeyframeAct);
     optionMenu->addAction(insertFrameAct);
     optionMenu->addAction(removeFrameAct);
+    optionMenu->addAction(copyFrameAct);
+    optionMenu->addAction(pasteFrameAct);
+    optionMenu->addSeparator();
+    optionMenu->addAction(previewAct);
 
     menuBar()->addMenu(optionMenu);
 }
@@ -110,4 +126,10 @@ void MainWindow::fillStyle()
     bool ok;
     int newFillStyle = QInputDialog::getInt(this, tr("S"), tr("Select fill style"), editor->getFillStyle(), 1, 14, 1, &ok);
     if (ok) editor->setFillStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+}
+
+void MainWindow::showPreview()
+{
+    Preview *p = new Preview(object);
+    p->show();
 }

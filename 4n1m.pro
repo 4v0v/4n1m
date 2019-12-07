@@ -20,12 +20,14 @@ SOURCES += \
     mainwindow.cpp \
     editor.cpp \
     object.cpp \
+    preview.cpp \
     timeline.cpp
 
 HEADERS += \
     mainwindow.h \
     editor.h \
     object.h \
+    preview.h \
     timeline.h
 
 FORMS += \

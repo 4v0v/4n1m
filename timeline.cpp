@@ -165,3 +165,20 @@ void Timeline::removeFrame()
     update();
     editor->update();
 }
+
+void Timeline::copyFrame()
+{
+    if (object->isKeyframe(timelinePos)) clipboard = object->getKeyframeImageAt(timelinePos)->copy();
+    else clipboard = object->getKeyframeImageAt(object->getPrevKeyframePos(timelinePos))->copy();
+}
+
+void Timeline::pasteFrame()
+{
+    if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
+    object->addKeyframeAt(timelinePos, clipboard.copy());
+
+    object->setPos(timelinePos);
+    update();
+    editor->update();
+}
+
