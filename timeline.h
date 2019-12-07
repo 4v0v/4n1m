@@ -10,8 +10,7 @@ class Timeline : public QWidget
     Q_OBJECT
 
 public:
-    Timeline(Object *o = nullptr, QWidget *parent = nullptr);
-
+    Timeline(Object* = nullptr, QWidget* = nullptr);
     void setObject(Object* o) { object = o; }
     void setEditor(Editor* e) { editor = e; }
 
@@ -20,7 +19,7 @@ public:
 public slots:
     void gotoNextFrame();
     void gotoPrevFrame();
-    void gotoFrame(int pos);
+    void gotoFrame(int);
     void addKeyframe();
     void removeKeyframe();
     void insertFrame();
@@ -29,16 +28,15 @@ public slots:
     void pasteFrame();
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+    void paintEvent(QPaintEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
 
 private:
     Object* object;
     Editor* editor;
-
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
 };

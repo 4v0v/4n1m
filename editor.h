@@ -22,11 +22,9 @@ public:
         ERASER
     };
 
-    Editor(Object *o = nullptr, QWidget *parent = nullptr);
-
+    Editor(Object* = nullptr, QWidget* = nullptr);
     void setObject(Object* o) { object = o; }
     void setTimeline(Timeline* t) { timeline = t; }
-
     void setPenColor(const QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ penWidth = newWidth; }
     void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
@@ -34,21 +32,21 @@ public:
     int getFillStyle(){ return lassoFillPattern; }
     QColor getPenColor() const { return penColor; }
     int getPenWidth() const { return penWidth; }
-
     bool isScribbling() { return scribbling; }
 
 public slots:
     void clearImage();
+    void toggleOnionskin();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
     void setToolAsEraser() { if (!scribbling) currentTool = Tool::ERASER; }
 
 protected:
-    void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override;
-    void mouseReleaseEvent(QMouseEvent *event) override;
-    void paintEvent(QPaintEvent *event) override;
-    void resizeEvent(QResizeEvent *event) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+    void paintEvent(QPaintEvent*) override;
+    void resizeEvent(QResizeEvent*) override;
 
 private:
     Object* object;
@@ -58,6 +56,7 @@ private:
     QRgb bgColor = qRgba(238, 198, 148, 255);
 
     bool scribbling = false;
+    bool isOnionskinVisible = true;
     int currentTool = Tool::PEN;
     QPolygon lassoFill;
     QPolygon penStroke;

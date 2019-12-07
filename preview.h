@@ -10,7 +10,6 @@ class Preview : public QWidget
 
 public:
     Preview(Object *o = nullptr, QWidget *parent = nullptr);
-
     void setObject(Object* o) { object = o; }
 
 public slots:
@@ -20,10 +19,8 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
 
-
 private:
     Object* object;
-
     int currentPosition = 0;
 };
 

@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-
 #include <QMainWindow>
 
 class Editor;
 class Timeline;
 class Object;
+class Preview;
 
 class MainWindow : public QMainWindow
 {
@@ -14,38 +14,17 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-
 private slots:
-    void penColor();
-    void penWidth();
-    void fillStyle();
-    void showPreview();
+    void openPenColorWindow();
+    void openPenWidthWindow();
+    void openFillStyleWindow();
+    void openPreviewWindow();
 
 private:
-    void createActions();
-    void createMenus();
-
     Editor *editor;
     Timeline *timeline;
     Object *object;
-
-    QMenu *optionMenu;
-    QAction *nextFrameAct;
-    QAction *previousFrameAct;
-    QAction *penColorAct;
-    QAction *penWidthAct;
-    QAction *toolAsPenAct;
-    QAction *toolAsLassoFillAct;
-    QAction *toolAsEraserAct;
-    QAction *fillStyleAct;
-    QAction *clearScreenAct;
-    QAction *addKeyframeAct;
-    QAction *removeKeyframeAct;
-    QAction *insertFrameAct;
-    QAction *removeFrameAct;
-    QAction *copyFrameAct;
-    QAction *pasteFrameAct;
-    QAction *previewAct;
+    Preview *preview;
 };
 
 #endif

@@ -5,6 +5,18 @@
 
 Editor::Editor(Object *o, QWidget *parent): QWidget(parent)
 {
+    if (width() > bgImage.width() || height() > bgImage.height()) {
+        int newWidth = qMax(width() + 128, bgImage.width());
+        int newHeight = qMax(height() + 128, bgImage.height());
+        QSize newSize = QSize(newWidth, newHeight);
+        if (bgImage.size() == newSize) return;
+        QImage newImage(newSize, QImage::Format_ARGB32);
+        newImage.fill(bgColor);
+        QPainter painter(&newImage);
+        painter.drawImage(QPoint(0, 0), bgImage);
+        bgImage = newImage;
+    }
+
     setObject(o);
     setCursor(Qt::CrossCursor);
     object->resizeImage(object->getPos(), width(), height());
@@ -73,35 +85,53 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
 
 void Editor::paintEvent(QPaintEvent* event) {
     QPainter painter(this);
+
+    // Background
     painter.drawImage(event->rect(), bgImage, event->rect());
 
-    // Prev onion
-    if (object->getPrevKeyframePos(object->getPos()) < object->getPos())
+    // Onionskin
+    if (isOnionskinVisible)
     {
-        painter.setOpacity(0.2);
         int prev = object->getPrevKeyframePos(object->getPos());
-        QImage img = *object->getKeyframeImageAt(prev);
-        QPainter p(&img);
-        QPainterPath path;
-        p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-        path.addRect(0, 0, width(), height());
-        p.fillPath(path, Qt::red);
-        painter.drawImage(event->rect(), img, event->rect());
-        painter.setOpacity(1.00);
-    }
-
-    // Next onion
-    if (object->getNextKeyframePos(object->getPos()) > object->getPos())
-    {
-        painter.setOpacity(0.2);
         int next = object->getNextKeyframePos(object->getPos());
-        QImage img = *object->getKeyframeImageAt(next);
-        QPainter p(&img);
         QPainterPath path;
-        p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
         path.addRect(0, 0, width(), height());
-        p.fillPath(path, Qt::blue);
-        painter.drawImage(event->rect(), img, event->rect());
+        if (prev < object->getPos())
+        {
+            painter.setOpacity(0.2);
+            QImage img = *object->getKeyframeImageAt(prev);
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::red);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
+        if (object->getPrevKeyframePos(prev) < object->getPos())
+        {
+            painter.setOpacity(0.1);
+            QImage img = *object->getKeyframeImageAt(object->getPrevKeyframePos(prev));
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::red);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
+        if (next > object->getPos())
+        {
+            painter.setOpacity(0.2);
+            QImage img = *object->getKeyframeImageAt(next);
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::blue);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
+        if (object->getNextKeyframePos(next) > object->getPos())
+        {
+            painter.setOpacity(0.1);
+            QImage img = *object->getKeyframeImageAt(object->getNextKeyframePos(next));
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::blue);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
         painter.setOpacity(1.00);
     }
 
@@ -132,30 +162,17 @@ void Editor::paintEvent(QPaintEvent* event) {
     }
 }
 
-void Editor::resizeEvent(QResizeEvent *event)
-{
-    // Resize background
-    if (width() > bgImage.width() || height() > bgImage.height()) {
-        int newWidth = qMax(width() + 128, bgImage.width());
-        int newHeight = qMax(height() + 128, bgImage.height());
-        QSize newSize = QSize(newWidth, newHeight);
-        if (bgImage.size() == newSize) return;
-        QImage newImage(newSize, QImage::Format_ARGB32);
-        newImage.fill(bgColor);
-        QPainter painter(&newImage);
-        painter.drawImage(QPoint(0, 0), bgImage);
-        bgImage = newImage;
-
-        update();
-    }
-
-    QWidget::resizeEvent(event);
-}
+void Editor::resizeEvent(QResizeEvent*){}
 
 void Editor::clearImage()
 {
     if (scribbling) return;
-
     object->clearImage(object->getPos());
+    update();
+}
+
+void Editor::toggleOnionskin()
+{
+    isOnionskinVisible = !isOnionskinVisible;
     update();
 }
