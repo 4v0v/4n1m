@@ -25,13 +25,13 @@ public:
     Editor(Object* = nullptr, QWidget* = nullptr);
     void setObject(Object* o) { object = o; }
     void setTimeline(Timeline* t) { timeline = t; }
-    void setPenColor(const QColor &newColor){ penColor = newColor; }
+    void setPenColor(QColor &newColor){ penColor = newColor; }
     void setPenWidth(int newWidth){ penWidth = newWidth; }
     void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
     int getTool(){ return currentTool; }
     int getFillStyle(){ return lassoFillPattern; }
-    QColor getPenColor() const { return penColor; }
-    int getPenWidth() const { return penWidth; }
+    QColor getPenColor() { return penColor; }
+    int getPenWidth() { return penWidth; }
     bool isScribbling() { return scribbling; }
 
 public slots:

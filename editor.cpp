@@ -96,6 +96,7 @@ void Editor::paintEvent(QPaintEvent* event) {
         int next = object->getNextKeyframePos(object->getPos());
         QPainterPath path;
         path.addRect(0, 0, width(), height());
+
         if (prev < object->getPos())
         {
             painter.setOpacity(0.2);
@@ -132,6 +133,25 @@ void Editor::paintEvent(QPaintEvent* event) {
             p.fillPath(path, Qt::blue);
             painter.drawImage(event->rect(), img, event->rect());
         }
+        if (object->getPos() == object->getFirstKeyframePos())
+        {
+            painter.setOpacity(0.3);
+            QImage img = *object->getKeyframeImageAt(object->getLastKeyframePos());
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::darkGreen);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
+        if (object->getPos() == object->getLastKeyframePos())
+        {
+            painter.setOpacity(0.3);
+            QImage img = *object->getKeyframeImageAt(object->getFirstKeyframePos());
+            QPainter p(&img);
+            p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+            p.fillPath(path, Qt::darkGreen);
+            painter.drawImage(event->rect(), img, event->rect());
+        }
+
         painter.setOpacity(1.00);
     }
 

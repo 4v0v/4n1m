@@ -121,8 +121,15 @@ void Timeline::removeFrame()
 
 void Timeline::copyFrame()
 {
-    if (object->isKeyframe(timelinePos)) clipboard = object->getKeyframeImageAt(timelinePos)->copy();
-    else clipboard = object->getKeyframeImageAt(object->getPrevKeyframePos(timelinePos))->copy();
+    if (!object->isKeyframe(timelinePos)) return;
+    clipboard = object->getKeyframeImageAt(timelinePos)->copy();
+}
+
+void Timeline::cutFrame()
+{
+    if (!object->isKeyframe(timelinePos)) return;
+    clipboard = object->getKeyframeImageAt(timelinePos)->copy();
+    removeFrame();
 }
 
 void Timeline::pasteFrame()

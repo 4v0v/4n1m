@@ -5,9 +5,13 @@
 #include "editor.h"
 #include "timeline.h"
 #include "preview.h"
+#include "commands.h"
 
 MainWindow::MainWindow()
 {
+    // Init UndoStack
+    undoStack = new QUndoStack(this);
+
     // Init Widgets
     object = new Object;
     editor = new Editor(object);
@@ -31,6 +35,7 @@ MainWindow::MainWindow()
     // Create Actions
     QAction *penColorAct = new QAction(tr("Color..."), this);
     QAction *penWidthAct = new QAction(tr("Pen Width..."), this);
+    QAction *undoStackAct = new QAction(tr("Open Undo Stack"), this);
     QAction *fillStyleAct = new QAction(tr("LassoFill Style..."), this);
     QAction *toolAsPenAct = new QAction(tr("Pen"), this);
     QAction *toolAsLassoFillAct = new QAction(tr("LassoFill"), this);
@@ -44,8 +49,12 @@ MainWindow::MainWindow()
     QAction *removeFrameAct = new QAction(tr("Remove frame"), this);
     QAction *previewAct = new QAction(tr("Preview"), this);
     QAction *copyFrameAct = new QAction(tr("Copy frame"), this);
+    QAction *cutFrameAct = new QAction(tr("Cut frame"), this);
     QAction *pasteFrameAct = new QAction(tr("Paste frame"), this);
     QAction *toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
+    QAction *undoAction = undoStack->createUndoAction(this, tr("&Undo"));
+    QAction *redoAction = undoStack->createRedoAction(this, tr("&Redo"));
+    QAction *nbrAct = new QAction(tr("Set nbr..."), this);
 
     // Shortcuts
     toolAsPenAct->setShortcut(Qt::Key_1);
@@ -62,15 +71,20 @@ MainWindow::MainWindow()
     insertFrameAct->setShortcut(tr("C"));
     removeFrameAct->setShortcut(tr("V"));
     previewAct->setShortcut(tr("P"));
-    copyFrameAct->setShortcut(tr("E"));
-    pasteFrameAct->setShortcut(tr("R"));
+    undoStackAct->setShortcut(tr("O"));
     toggleOnionskinAct->setShortcut(tr("Y"));
+    copyFrameAct->setShortcut(QKeySequence::Copy);
+    cutFrameAct->setShortcut(QKeySequence::Cut);
+    pasteFrameAct->setShortcut(QKeySequence::Paste);
+    undoAction->setShortcuts(QKeySequence::Undo);
+    redoAction->setShortcuts(QKeySequence::Redo);
 
     // Connect Signals & SLots
     connect(penColorAct, SIGNAL(triggered()), this, SLOT(openPenColorWindow()));
     connect(penWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
     connect(fillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
     connect(previewAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
+    connect(undoStackAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(toolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
     connect(toolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(toolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
@@ -83,32 +97,43 @@ MainWindow::MainWindow()
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
     connect(removeFrameAct, SIGNAL(triggered()), timeline, SLOT(removeFrame()));
     connect(copyFrameAct, SIGNAL(triggered()), timeline, SLOT(copyFrame()));
+    connect(cutFrameAct, SIGNAL(triggered()), timeline, SLOT(cutFrame()));
     connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
+    connect(nbrAct, SIGNAL(triggered()), this, SLOT(changeNbrWindow()));
 
-    // Create Menu
+    // Create Menus
     QMenu *optionMenu = new QMenu(tr("Menu"), this);
-    optionMenu->addAction(penColorAct);
-    optionMenu->addAction(penWidthAct);
-    optionMenu->addAction(fillStyleAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(toolAsPenAct);
-    optionMenu->addAction(toolAsLassoFillAct);
-    optionMenu->addAction(toolAsEraserAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(clearScreenAct);
-    optionMenu->addSeparator();
     optionMenu->addAction(nextFrameAct);
     optionMenu->addAction(previousFrameAct);
     optionMenu->addAction(addKeyframeAct);
     optionMenu->addAction(removeKeyframeAct);
     optionMenu->addAction(insertFrameAct);
     optionMenu->addAction(removeFrameAct);
-    optionMenu->addAction(copyFrameAct);
-    optionMenu->addAction(pasteFrameAct);
+    optionMenu->addAction(clearScreenAct);
     optionMenu->addSeparator();
     optionMenu->addAction(previewAct);
-    optionMenu->addAction(toggleOnionskinAct);
+    optionMenu->addAction(undoStackAct);
+    optionMenu->addSeparator();
+    optionMenu->addAction(copyFrameAct);
+    optionMenu->addAction(cutFrameAct);
+    optionMenu->addAction(pasteFrameAct);
+    optionMenu->addAction(undoAction);
+    optionMenu->addAction(redoAction);
+    optionMenu->addSeparator();
+    optionMenu->addAction(nbrAct);
     menuBar()->addMenu(optionMenu);
+
+    QMenu *toolsMenu = new QMenu(tr("Tools"), this);
+    toolsMenu->addAction(penColorAct);
+    toolsMenu->addAction(penWidthAct);
+    toolsMenu->addAction(fillStyleAct);
+    toolsMenu->addSeparator();
+    toolsMenu->addAction(toolAsPenAct);
+    toolsMenu->addAction(toolAsLassoFillAct);
+    toolsMenu->addAction(toolAsEraserAct);
+    toolsMenu->addSeparator();
+    optionMenu->addAction(toggleOnionskinAct);
+    menuBar()->addMenu(toolsMenu);
 }
 
 void MainWindow::openPenColorWindow()
@@ -133,6 +158,29 @@ void MainWindow::openFillStyleWindow()
 
 void MainWindow::openPreviewWindow()
 {
+    if (preview) preview->close();
     preview = new Preview(object);
+    preview->setWindowTitle(tr("Preview"));
     preview->show();
+    preview->setAttribute(Qt::WA_QuitOnClose, false);
+}
+
+void MainWindow::openUndoStackWindow()
+{
+    if (undoView) undoView->close();
+    undoView = new QUndoView(undoStack);
+    undoView->setWindowTitle(tr("Undo Stack"));
+    undoView->show();
+    undoView->setAttribute(Qt::WA_QuitOnClose, false);
+}
+
+void MainWindow::changeNbrWindow()
+{
+    qDebug() << nbr;
+    bool ok;
+    int n = QInputDialog::getInt(this, tr("Fill Style"), tr("Select nbr"), editor->getFillStyle(), 1, 14, 1, &ok);
+    if (ok)
+    {
+        undoStack->push(new ChangeNbrCommand(n, &nbr));
+    }
 }

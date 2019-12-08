@@ -25,6 +25,7 @@ public slots:
     void insertFrame();
     void removeFrame();
     void copyFrame();
+    void cutFrame();
     void pasteFrame();
 
 protected:
