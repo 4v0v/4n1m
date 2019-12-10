@@ -16,13 +16,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow();
 
-private slots:
+public slots:
+    void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
     void openFillStyleWindow();
     void openPreviewWindow();
     void openUndoStackWindow();
-    void changeNbrWindow();
 
 private:
     Editor *editor;
@@ -31,8 +31,6 @@ private:
     Preview *preview;
     QUndoStack *undoStack;
     QUndoView *undoView;
-
-    int nbr = 0;
 };
 
 #endif

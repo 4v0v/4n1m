@@ -8,6 +8,8 @@
 #include <QPoint>
 #include <QWidget>
 #include <QDebug>
+#include <QUndoStack>
+#include <QPainter>
 
 class Timeline;
 class Object;
@@ -22,20 +24,19 @@ public:
         ERASER
     };
 
-    Editor(Object* = nullptr, QWidget* = nullptr);
-    void setObject(Object* o) { object = o; }
+    Editor(Object* = nullptr, QUndoStack* = nullptr, QWidget* = nullptr);
     void setTimeline(Timeline* t) { timeline = t; }
-    void setPenColor(QColor &newColor){ penColor = newColor; }
-    void setPenWidth(int newWidth){ penWidth = newWidth; }
-    void setFillStyle(Qt::BrushStyle b){ lassoFillPattern = b; }
+    Timeline* getTimeline() { return timeline; }
     int getTool(){ return currentTool; }
-    int getFillStyle(){ return lassoFillPattern; }
-    QColor getPenColor() { return penColor; }
-    int getPenWidth() { return penWidth; }
     bool isScribbling() { return scribbling; }
+    int getPos() { return editorPosition; }
+    void setPos(int i) { editorPosition = i; }
+    void setBackgroundColor(QColor &newColor){ backgroundColor = newColor; }
+    QColor getBackgroundColor(){ return backgroundColor; }
+    QPen* getLinePen() { return &linePen; }
+    QBrush* getLassoFillBrush() { return &lassoBrush; }
 
 public slots:
-    void clearImage();
     void toggleOnionskin();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
@@ -46,27 +47,28 @@ protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void paintEvent(QPaintEvent*) override;
-    void resizeEvent(QResizeEvent*) override;
 
 private:
+    void drawPenStroke();
+    void drawLassoFill();
+    void clearImage();
+
     Object* object;
     Timeline* timeline;
+    QUndoStack* undoStack;
 
-    QImage bgImage;
-    QRgb bgColor = qRgba(238, 198, 148, 255);
-
+    int editorPosition = 0;
     bool scribbling = false;
-    bool isOnionskinVisible = true;
+    bool onionskinVisible = true;
     int currentTool = Tool::PEN;
     QPolygon lassoFill;
     QPolygon penStroke;
     QPolygon eraserStroke;
-    Qt::BrushStyle lassoFillPattern = Qt::SolidPattern;
-    Qt::PenStyle penPattern = Qt::SolidLine;
-    QColor penColor = Qt::black;
-    QColor eraserColor = bgColor;
-    int penWidth = 3;
-    int eraserWidth = 15;
+    QColor backgroundColor = qRgba(238, 198, 148, 255);
+
+    QPen linePen = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen eraserPen = QPen(Qt::blue, 15, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QBrush lassoBrush = QBrush(Qt::black, Qt::SolidPattern);
 };
 
 #endif

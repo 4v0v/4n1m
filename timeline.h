@@ -2,6 +2,7 @@
 #define TIMELINE_H
 
 #include <QWidget>
+#include <QUndoStack>
 
 class Editor;
 class Object;
@@ -10,11 +11,17 @@ class Timeline : public QWidget
     Q_OBJECT
 
 public:
-    Timeline(Object* = nullptr, QWidget* = nullptr);
-    void setObject(Object* o) { object = o; }
+    Timeline(Object* = nullptr, QUndoStack* = nullptr, QWidget* = nullptr);
+    Object* getObject() { return object; }
     void setEditor(Editor* e) { editor = e; }
-
+    Editor* getEditor() { return editor; }
     int getPos() { return timelinePos; }
+    void setPos(int i) { timelinePos = i; }
+
+signals:
+    void changeFrameUndo(int, int, Timeline*);
+    void addImageUndo(QImage, int, Object*);
+    void removeImageUndo(QImage, int, Object*);
 
 public slots:
     void gotoNextFrame();
@@ -38,6 +45,7 @@ protected:
 private:
     Object* object;
     Editor* editor;
+    QUndoStack* undoStack;
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
 };

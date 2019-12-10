@@ -2,25 +2,15 @@
 #include "editor.h"
 #include "timeline.h"
 #include "object.h"
+#include "commands.h"
 
-Editor::Editor(Object *o, QWidget *parent): QWidget(parent)
+Editor::Editor(Object *o, QUndoStack* u, QWidget* parent): QWidget(parent)
 {
-    if (width() > bgImage.width() || height() > bgImage.height()) {
-        int newWidth = qMax(width() + 128, bgImage.width());
-        int newHeight = qMax(height() + 128, bgImage.height());
-        QSize newSize = QSize(newWidth, newHeight);
-        if (bgImage.size() == newSize) return;
-        QImage newImage(newSize, QImage::Format_ARGB32);
-        newImage.fill(bgColor);
-        QPainter painter(&newImage);
-        painter.drawImage(QPoint(0, 0), bgImage);
-        bgImage = newImage;
-    }
-
-    setObject(o);
-    setCursor(Qt::CrossCursor);
-    object->resizeImage(object->getPos(), width(), height());
-    update();
+    undoStack = u;
+    object = o;
+    this->setCursor(Qt::CrossCursor);
+    object->addKeyframeAt(0, QImage(this->width(), this->height(), QImage::Format_ARGB32));
+    this->update();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
@@ -34,41 +24,27 @@ void Editor::mousePressEvent(QMouseEvent *event)
         case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
         case Tool::ERASER: eraserStroke << QPoint(event->pos().x(), event->pos().y()); break;
     }
-    update();
+    this->update();
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent*)
 {
-
     scribbling = false;
     switch (currentTool)
     {
         case Tool::PEN:
-            object->drawPenStroke(
-                        object->getPos(),
-                        QPen(penColor, penWidth, penPattern, Qt::RoundCap, Qt::RoundJoin),
-                        penStroke
-                    );
+            this->drawPenStroke();
             penStroke.clear();
             break;
         case Tool::LASSOFILL:
-            object->drawLassoFill(
-                        object->getPos(),
-                        QBrush(penColor, lassoFillPattern),
-                        lassoFill
-                    );
+            this->drawLassoFill();
             lassoFill.clear();
             break;
         case Tool::ERASER:
-            object->drawPenStroke(
-                        object->getPos(),
-                        QPen(eraserColor, eraserWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin),
-                        eraserStroke
-                    );
             eraserStroke.clear();
             break;
     }
-    update();
+    this->update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event)
@@ -80,33 +56,36 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
         case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
         case Tool::ERASER: eraserStroke << QPoint(event->pos().x(), event->pos().y()); break;
     }
-    update();
+    this->update();
 }
 
-void Editor::paintEvent(QPaintEvent* event) {
+void Editor::paintEvent(QPaintEvent* event)
+{
     QPainter painter(this);
 
     // Background
-    painter.drawImage(event->rect(), bgImage, event->rect());
+    QImage backgroundImage = QImage(this->width(), this->height(), QImage::Format_ARGB32);
+    backgroundImage.fill(backgroundColor);
+    painter.drawImage(event->rect(), backgroundImage, event->rect());
 
     // Onionskin
-    if (isOnionskinVisible)
+    if (onionskinVisible)
     {
-        int prev = object->getPrevKeyframePos(object->getPos());
-        int next = object->getNextKeyframePos(object->getPos());
+        int prev = object->getPrevKeyframePos(this->getPos());
+        int next = object->getNextKeyframePos(this->getPos());
         QPainterPath path;
         path.addRect(0, 0, width(), height());
 
-        if (prev < object->getPos())
+        if (prev < this->getPos())
         {
-            painter.setOpacity(0.2);
+            painter.setOpacity(0.3);
             QImage img = *object->getKeyframeImageAt(prev);
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::red);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getPrevKeyframePos(prev) < object->getPos())
+        if (object->getPrevKeyframePos(prev) < this->getPos())
         {
             painter.setOpacity(0.1);
             QImage img = *object->getKeyframeImageAt(object->getPrevKeyframePos(prev));
@@ -115,16 +94,16 @@ void Editor::paintEvent(QPaintEvent* event) {
             p.fillPath(path, Qt::red);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (next > object->getPos())
+        if (next > this->getPos())
         {
-            painter.setOpacity(0.2);
+            painter.setOpacity(0.3);
             QImage img = *object->getKeyframeImageAt(next);
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::blue);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getNextKeyframePos(next) > object->getPos())
+        if (object->getNextKeyframePos(next) > this->getPos())
         {
             painter.setOpacity(0.1);
             QImage img = *object->getKeyframeImageAt(object->getNextKeyframePos(next));
@@ -133,7 +112,7 @@ void Editor::paintEvent(QPaintEvent* event) {
             p.fillPath(path, Qt::blue);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getPos() == object->getFirstKeyframePos())
+        if (this->getPos() == object->getFirstKeyframePos() && object->getKeyframesCount() > 3)
         {
             painter.setOpacity(0.3);
             QImage img = *object->getKeyframeImageAt(object->getLastKeyframePos());
@@ -142,7 +121,7 @@ void Editor::paintEvent(QPaintEvent* event) {
             p.fillPath(path, Qt::darkGreen);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getPos() == object->getLastKeyframePos())
+        if (this->getPos() == object->getLastKeyframePos() && object->getKeyframesCount() > 3)
         {
             painter.setOpacity(0.3);
             QImage img = *object->getKeyframeImageAt(object->getFirstKeyframePos());
@@ -156,13 +135,13 @@ void Editor::paintEvent(QPaintEvent* event) {
     }
 
     // Current image
-    painter.drawImage(event->rect(), *object->getKeyframeImageAt(object->getPos()), event->rect());
+    painter.drawImage(event->rect(), *object->getKeyframeImageAt(this->getPos()), event->rect());
 
     // Tool previews
     switch (currentTool) {
         case Tool::PEN:
         {
-            painter.setPen(QPen(penColor, penWidth, penPattern, Qt::RoundCap, Qt::RoundJoin));
+            painter.setPen(linePen);
             painter.drawPolyline(penStroke);
             break;
         }
@@ -170,29 +149,53 @@ void Editor::paintEvent(QPaintEvent* event) {
         {
             QPainterPath path;
             path.addPolygon(lassoFill);
-            painter.fillPath(path, QBrush(penColor, lassoFillPattern));
+            painter.fillPath(path, lassoBrush);
             break;
         }
         case Tool::ERASER:
         {
-            painter.setPen(QPen(eraserColor, eraserWidth, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+            painter.setPen(eraserPen);
             painter.drawPolyline(eraserStroke);
             break;
         }
     }
 }
 
-void Editor::resizeEvent(QResizeEvent*){}
+void Editor::drawPenStroke()
+{
+    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QPainter painter(&j);
+    painter.setPen(linePen);
+    painter.drawPolyline(penStroke);
+
+    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+}
+
+void Editor::drawLassoFill()
+{
+    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QPainter painter(&j);
+    QPainterPath path;
+    path.addPolygon(lassoFill);
+    painter.fillPath(path, lassoBrush);
+
+    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+}
 
 void Editor::clearImage()
 {
     if (scribbling) return;
-    object->clearImage(object->getPos());
-    update();
+    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    j.fill(Qt::transparent);
+
+    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
 }
 
 void Editor::toggleOnionskin()
 {
-    isOnionskinVisible = !isOnionskinVisible;
-    update();
+    onionskinVisible = !onionskinVisible;
+    this->update();
 }

@@ -1,20 +1,82 @@
 #include "commands.h"
+#include "object.h"
+#include "timeline.h"
+#include "editor.h"
 #include <QDebug>
 
-ChangeNbrCommand::ChangeNbrCommand(int n, int* m, QUndoCommand *parent): QUndoCommand(parent)
+ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
 {
-    myNbr = m;
-    oldNbr = int(*m);
-    newNbr = n;
+    oldImg = i;
+    newImg = j;
+    pos = p;
+    object = o;
 }
 
-void ChangeNbrCommand::undo()
+void ModifyImageCommand::undo()
 {
-    *myNbr = oldNbr;
+    object->addKeyframeAt(pos, oldImg);
+    object->getEditor()->update();
+    object->getTimeline()->update();
 }
 
-void ChangeNbrCommand::redo()
+void ModifyImageCommand::redo()
 {
-    *myNbr = newNbr;
-    setText(QObject::tr("Nbr = %1").arg(newNbr));
+    object->addKeyframeAt(pos, newImg);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+    setText("modify image");
 }
+
+AddImageCommand::AddImageCommand(QImage i, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
+{
+    newImg = i;
+    pos = p;
+    object = o;
+}
+
+void AddImageCommand::undo()
+{
+    object->removeKeyframeAt(pos);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+}
+
+void AddImageCommand::redo()
+{
+    object->addKeyframeAt(pos, newImg);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+    setText("add image");
+}
+
+RemoveImageCommand::RemoveImageCommand(QImage i, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
+{
+    oldImg = i;
+    pos = p;
+    object = o;
+}
+
+void RemoveImageCommand::undo()
+{
+    object->addKeyframeAt(pos, oldImg);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+}
+
+void RemoveImageCommand::redo()
+{
+    object->removeKeyframeAt(pos);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+    setText("remove image");
+}
+
+ChangeFrameCommand::ChangeFrameCommand(int i, int j, Timeline* t, QUndoCommand* parent): QUndoCommand(parent)
+{
+    oldPos = i;
+    newPos = j;
+    timeline = t;
+}
+void ChangeFrameCommand::undo(){}
+void ChangeFrameCommand::redo(){}
+

@@ -2,21 +2,62 @@
 #define COMMANDS_H
 
 #include <QUndoCommand>
+#include <QImage>
 
-class ChangeNbrCommand : public QUndoCommand
+class Object;
+class Timeline;
+class Editor;
+class ModifyImageCommand : public QUndoCommand
 {
 public:
-    enum { Id = 1234 };
-
-    ChangeNbrCommand(int, int*, QUndoCommand *parent = nullptr);
+    ModifyImageCommand(QImage, QImage, int, Object*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
-    int id() const override { return Id; }
 
 private:
-    int *myNbr;
-    int oldNbr;
-    int newNbr;
+    Object *object;
+    QImage oldImg;
+    QImage newImg;
+    int pos;
+};
+
+class AddImageCommand : public QUndoCommand
+{
+public:
+    AddImageCommand(QImage, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object* object;
+    QImage newImg;
+    int pos;
+};
+
+class RemoveImageCommand : public QUndoCommand
+{
+public:
+    RemoveImageCommand(QImage, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object* object;
+    QImage oldImg;
+    int pos;
+};
+
+class ChangeFrameCommand : public QUndoCommand
+{
+public:
+    ChangeFrameCommand(int, int, Timeline*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Timeline *timeline;
+    int oldPos;
+    int newPos;
 };
 
 #endif

@@ -1,9 +1,11 @@
 #include <QtWidgets>
 #include "object.h"
+#include "timeline.h"
+#include "editor.h"
 
-Object::Object()
+Object::Object(QUndoStack* u, QWidget* parent): QWidget(parent)
 {
-    addKeyframeAt(0);
+    undoStack = u;
 }
 
 void Object::resizeImage(int pos, int width , int height)
@@ -15,26 +17,6 @@ void Object::resizeImage(int pos, int width , int height)
     QPainter painter(&newImage);
     painter.drawImage(QPoint(0, 0), keyframes[pos]);
     keyframes[pos] = newImage;
-}
-
-void Object::drawPenStroke(int pos, QPen pen, QPolygon poly)
-{
-    QPainter painter(&keyframes[pos]);
-    painter.setPen(pen);
-    painter.drawPolyline(poly);
-}
-
-void Object::drawLassoFill(int pos, QBrush brush, QPolygon poly)
-{
-    QPainter painter(&keyframes[pos]);
-    QPainterPath path;
-    path.addPolygon(poly);
-    painter.fillPath(path, brush);
-}
-
-void Object::clearImage(int pos)
-{
-    keyframes[pos].fill(Qt::transparent);
 }
 
 int Object::getPrevKeyframePos(int pos)

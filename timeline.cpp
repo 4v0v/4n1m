@@ -3,9 +3,10 @@
 #include "editor.h"
 #include "object.h"
 
-Timeline::Timeline(Object *o, QWidget *parent): QWidget(parent)
+Timeline::Timeline(Object* o, QUndoStack* u, QWidget* parent): QWidget(parent)
 {
-    setObject(o);
+    undoStack = u;
+    object = o;
     update();
 }
 
@@ -25,7 +26,7 @@ void Timeline::paintEvent(QPaintEvent*) {
         painter.fillPath(path, object->isKeyframe(i) ? Qt::black : Qt::white );
         painter.drawPath(path);
 
-        if (i == timelinePos)
+        if (i == this->getPos())
         {
             path.addRect(i* 20, 0, 15, height() - 1);
             QPen pen(Qt::red);
@@ -39,27 +40,32 @@ void Timeline::paintEvent(QPaintEvent*) {
 void Timeline::gotoNextFrame()
 {
     if (editor->isScribbling()) return;
-    timelinePos += 1;
-    if (object->isKeyframe(timelinePos)) object->setPos(timelinePos);
-    update();
+
+    this->setPos(this->getPos()+1);
+    if (object->isKeyframe(this->getPos())) editor->setPos(this->getPos());
+    else editor->setPos(object->getPrevKeyframePos(this->getPos()));
+
+    this->update();
     editor->update();
 }
 
 void Timeline::gotoPrevFrame()
 {
     if (editor->isScribbling()) return;
-    if (timelinePos == 0) return;
-    timelinePos -= 1;
-    if (object->isKeyframe(timelinePos)) object->setPos(timelinePos);
-    else object->setPos(object->getPrevKeyframePos(timelinePos));
-    update();
+    if (this->getPos() == 0) return;
+
+    this->setPos(this->getPos()-1);
+    if (object->isKeyframe(this->getPos())) editor->setPos(this->getPos());
+    else editor->setPos(object->getPrevKeyframePos(this->getPos()));
+
+    this->update();
     editor->update();
 }
 
 void Timeline::gotoFrame(int pos)
 {
     if (editor->isScribbling()) return;
-    timelinePos = pos;
+    this->setPos(pos);
     update();
     editor->update();
 }
@@ -67,10 +73,10 @@ void Timeline::gotoFrame(int pos)
 void Timeline::addKeyframe()
 {
     if (editor->isScribbling()) return;
-    if (object->isKeyframe(timelinePos)) return;
-    object->addKeyframeAt(timelinePos);
-    object->resizeImage(timelinePos, editor->width(), editor->height());
-    object->setPos(timelinePos);
+    if (object->isKeyframe(this->getPos())) return;
+    object->addKeyframeAt(this->getPos());
+    object->resizeImage(this->getPos(), editor->width(), editor->height());
+    editor->setPos(this->getPos());
     update();
     editor->update();
 }
@@ -78,14 +84,13 @@ void Timeline::addKeyframe()
 void Timeline::removeKeyframe()
 {
     if (editor->isScribbling()) return;
-    if (!object->isKeyframe(timelinePos)) return;
-    object->removeKeyframeAt(timelinePos);
-    if (timelinePos == 0)
+    if (!object->isKeyframe(this->getPos())) return;
+    object->removeKeyframeAt(this->getPos());
+    if (this->getPos() == 0)
     {
-        object->addKeyframeAt(0);
-        object->resizeImage(0, editor->width(), editor->height());
+        object->addKeyframeAt(0, QImage(editor->width(), editor->height(), QImage::Format_ARGB32));
     }
-    object->setPos(object->getPrevKeyframePos(timelinePos));
+    editor->setPos(object->getPrevKeyframePos(this->getPos()));
     update();
     editor->update();
 }
@@ -93,13 +98,13 @@ void Timeline::removeKeyframe()
 void Timeline::insertFrame()
 {
     if (editor->isScribbling()) return;
-    if (timelinePos >= object->getLastKeyframePos()) return;
+    if (this->getPos() >= object->getLastKeyframePos()) return;
     object->foreachKeyframeRevert([this](int i){
             QImage img = object->getKeyframeImageAt(i)->copy();
             object->addKeyframeAt(i + 1, img);
             object->removeKeyframeAt(i);
-    }, object->isKeyframe(timelinePos) ? timelinePos + 1 : timelinePos);
-    if (!object->isKeyframe(timelinePos)) object->setPos(object->getPrevKeyframePos(timelinePos));
+    }, object->isKeyframe(this->getPos()) ? this->getPos() + 1 : this->getPos());
+    if (!object->isKeyframe(this->getPos())) editor->setPos(object->getPrevKeyframePos(this->getPos()));
     update();
     editor->update();
 }
@@ -107,36 +112,36 @@ void Timeline::insertFrame()
 void Timeline::removeFrame()
 {
     if (editor->isScribbling()) return;
-    if (timelinePos >= object->getLastKeyframePos()) return;
-    if (object->isKeyframe(timelinePos + 1)) return;
+    if (this->getPos() >= object->getLastKeyframePos()) return;
+    if (object->isKeyframe(this->getPos() + 1)) return;
     object->foreachKeyframe([this](int i){
             QImage img = object->getKeyframeImageAt(i)->copy();
             object->removeKeyframeAt(i);
             object->addKeyframeAt(i - 1, img);
-    }, object->isKeyframe(timelinePos) ? timelinePos + 1 : timelinePos);
-    if (!object->isKeyframe(timelinePos)) object->setPos(object->getPrevKeyframePos(timelinePos));
+    }, object->isKeyframe(this->getPos()) ? this->getPos() + 1 : this->getPos());
+    if (!object->isKeyframe(this->getPos())) editor->setPos(object->getPrevKeyframePos(this->getPos()));
     update();
     editor->update();
 }
 
 void Timeline::copyFrame()
 {
-    if (!object->isKeyframe(timelinePos)) return;
-    clipboard = object->getKeyframeImageAt(timelinePos)->copy();
+    if (!object->isKeyframe(this->getPos())) return;
+    clipboard = object->getKeyframeImageAt(this->getPos())->copy();
 }
 
 void Timeline::cutFrame()
 {
-    if (!object->isKeyframe(timelinePos)) return;
-    clipboard = object->getKeyframeImageAt(timelinePos)->copy();
+    if (!object->isKeyframe(this->getPos())) return;
+    clipboard = object->getKeyframeImageAt(this->getPos())->copy();
     removeFrame();
 }
 
 void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
-    object->addKeyframeAt(timelinePos, clipboard.copy());
-    object->setPos(timelinePos);
+    object->addKeyframeAt(this->getPos(), clipboard.copy());
+    editor->setPos(this->getPos());
     update();
     editor->update();
 }
