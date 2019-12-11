@@ -26,3 +26,5 @@ void Preview::play()
     if (currentPosition > object->getLastKeyframePos()) currentPosition = 0;
     update();
 }
+
+void Preview::pause(){}

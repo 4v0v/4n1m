@@ -20,7 +20,7 @@ void Timeline::paintEvent(QPaintEvent*) {
     for (int i = 0; i < 32; ++i) {
         QPainterPath path;
 
-        path.addRect(i* 20, 0, 15, height() - 1);
+        path.addRect(i* 20, 0, 15, (height()-1)/2);
         QPen pen(Qt::black);
         painter.setPen(pen);
         painter.fillPath(path, object->isKeyframe(i) ? Qt::black : Qt::white );
@@ -28,7 +28,7 @@ void Timeline::paintEvent(QPaintEvent*) {
 
         if (i == this->getPos())
         {
-            path.addRect(i* 20, 0, 15, height() - 1);
+            path.addRect(i* 20, 0, 15, (height()-1)/2);
             QPen pen(Qt::red);
             pen.setWidth(4);
             painter.setPen(pen);
@@ -134,7 +134,7 @@ void Timeline::cutFrame()
 {
     if (!object->isKeyframe(this->getPos())) return;
     clipboard = object->getKeyframeImageAt(this->getPos())->copy();
-    removeFrame();
+    this->removeKeyframe();
 }
 
 void Timeline::pasteFrame()

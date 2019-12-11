@@ -35,8 +35,12 @@ public:
     QColor getBackgroundColor(){ return backgroundColor; }
     QPen* getLinePen() { return &linePen; }
     QBrush* getLassoFillBrush() { return &lassoBrush; }
+    void drawPenStroke();
+    void drawLassoFill();
+    void drawEraserStroke();
 
 public slots:
+    void clearImage();
     void toggleOnionskin();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
@@ -49,10 +53,6 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
-    void drawPenStroke();
-    void drawLassoFill();
-    void clearImage();
-
     Object* object;
     Timeline* timeline;
     QUndoStack* undoStack;

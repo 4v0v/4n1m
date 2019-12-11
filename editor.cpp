@@ -41,6 +41,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
             lassoFill.clear();
             break;
         case Tool::ERASER:
+            this->drawEraserStroke();
             eraserStroke.clear();
             break;
     }
@@ -180,6 +181,23 @@ void Editor::drawLassoFill()
     QPainterPath path;
     path.addPolygon(lassoFill);
     painter.fillPath(path, lassoBrush);
+
+    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+}
+
+void Editor::drawEraserStroke()
+{
+    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage k = object->getKeyframeImageAt(this->getPos())->copy();
+    k.fill(Qt::transparent);
+    QPainter painter(&k);
+    painter.setPen(eraserPen);
+    painter.drawPolyline(eraserStroke);
+
+    QPainter painter2(&j);
+    painter2.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    painter2.drawImage(QPoint(0,0), k);
 
     undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
 }

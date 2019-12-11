@@ -14,6 +14,7 @@ public:
 
 public slots:
     void play();
+    void pause();
 
 protected:
     void paintEvent(QPaintEvent *event) override;
