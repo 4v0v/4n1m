@@ -9,13 +9,14 @@ Editor::Editor(Object *o, QUndoStack* u, QWidget* parent): QWidget(parent)
     undoStack = u;
     object = o;
     this->setCursor(Qt::CrossCursor);
-    object->addKeyframeAt(0, QImage(this->width(), this->height(), QImage::Format_ARGB32));
+    object->addKeyframeAt(0, 0, QImage(this->width(), this->height(), QImage::Format_ARGB32));
+    object->addKeyframeAt(1, 0, QImage(this->width(), this->height(), QImage::Format_ARGB32));
     this->update();
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
-    if (!object->isKeyframe(timeline->getPos())) timeline->addKeyframe();
+    if (!object->isKeyframe(timeline->getLayer(), timeline->getPos())) timeline->addKeyframe();
 
     scribbling = true;
     switch (currentTool)
@@ -72,24 +73,24 @@ void Editor::paintEvent(QPaintEvent* event)
     // Onionskin
     if (onionskinVisible)
     {
-        int prev = object->getPrevKeyframePos(this->getPos());
-        int next = object->getNextKeyframePos(this->getPos());
+        int prev = object->getPrevKeyframePos(timeline->getLayer(), this->getPos());
+        int next = object->getNextKeyframePos(timeline->getLayer(), this->getPos());
         QPainterPath path;
         path.addRect(0, 0, width(), height());
 
         if (prev < this->getPos())
         {
             painter.setOpacity(0.3);
-            QImage img = *object->getKeyframeImageAt(prev);
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), prev);
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::red);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getPrevKeyframePos(prev) < this->getPos())
+        if (object->getPrevKeyframePos(timeline->getLayer(), prev) < this->getPos())
         {
             painter.setOpacity(0.1);
-            QImage img = *object->getKeyframeImageAt(object->getPrevKeyframePos(prev));
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), object->getPrevKeyframePos(timeline->getLayer(), prev));
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::red);
@@ -98,34 +99,34 @@ void Editor::paintEvent(QPaintEvent* event)
         if (next > this->getPos())
         {
             painter.setOpacity(0.3);
-            QImage img = *object->getKeyframeImageAt(next);
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), next);
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::blue);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (object->getNextKeyframePos(next) > this->getPos())
+        if (object->getNextKeyframePos(timeline->getLayer(), next) > this->getPos())
         {
             painter.setOpacity(0.1);
-            QImage img = *object->getKeyframeImageAt(object->getNextKeyframePos(next));
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), object->getNextKeyframePos(timeline->getLayer(), next));
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::blue);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (this->getPos() == object->getFirstKeyframePos() && object->getKeyframesCount() > 3)
+        if (this->getPos() == object->getFirstKeyframePos(timeline->getLayer()) && object->getKeyframesCount(timeline->getLayer()) > 3)
         {
             painter.setOpacity(0.3);
-            QImage img = *object->getKeyframeImageAt(object->getLastKeyframePos());
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), object->getLastKeyframePos(timeline->getLayer()));
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::darkGreen);
             painter.drawImage(event->rect(), img, event->rect());
         }
-        if (this->getPos() == object->getLastKeyframePos() && object->getKeyframesCount() > 3)
+        if (this->getPos() == object->getLastKeyframePos(timeline->getLayer()) && object->getKeyframesCount(timeline->getLayer()) > 3)
         {
             painter.setOpacity(0.3);
-            QImage img = *object->getKeyframeImageAt(object->getFirstKeyframePos());
+            QImage img = *object->getKeyframeImageAt(timeline->getLayer(), object->getFirstKeyframePos(timeline->getLayer()));
             QPainter p(&img);
             p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
             p.fillPath(path, Qt::darkGreen);
@@ -136,7 +137,8 @@ void Editor::paintEvent(QPaintEvent* event)
     }
 
     // Current image
-    painter.drawImage(event->rect(), *object->getKeyframeImageAt(this->getPos()), event->rect());
+    QImage currentImg = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    painter.drawImage(event->rect(), currentImg, event->rect());
 
     // Tool previews
     switch (currentTool) {
@@ -164,32 +166,32 @@ void Editor::paintEvent(QPaintEvent* event)
 
 void Editor::drawPenStroke()
 {
-    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
-    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage i = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     QPainter painter(&j);
     painter.setPen(linePen);
     painter.drawPolyline(penStroke);
 
-    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+    undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
 }
 
 void Editor::drawLassoFill()
 {
-    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
-    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage i = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     QPainter painter(&j);
     QPainterPath path;
     path.addPolygon(lassoFill);
     painter.fillPath(path, lassoBrush);
 
-    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+    undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
 }
 
 void Editor::drawEraserStroke()
 {
-    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
-    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
-    QImage k = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage i = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    QImage k = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     k.fill(Qt::transparent);
     QPainter painter(&k);
     painter.setPen(eraserPen);
@@ -199,17 +201,17 @@ void Editor::drawEraserStroke()
     painter2.setCompositionMode(QPainter::CompositionMode_DestinationOut);
     painter2.drawImage(QPoint(0,0), k);
 
-    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+    undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
 }
 
 void Editor::clearImage()
 {
     if (scribbling) return;
-    QImage i = object->getKeyframeImageAt(this->getPos())->copy();
-    QImage j = object->getKeyframeImageAt(this->getPos())->copy();
+    QImage i = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
+    QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     j.fill(Qt::transparent);
 
-    undoStack->push(new ModifyImageCommand(i, j, this->getPos(), this->object));
+    undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
 }
 
 void Editor::toggleOnionskin()

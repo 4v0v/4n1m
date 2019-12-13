@@ -17,6 +17,8 @@ public:
     Editor* getEditor() { return editor; }
     int getPos() { return timelinePos; }
     void setPos(int i) { timelinePos = i; }
+    int getLayer() { return timelineLayer; }
+    void setLayer(int i) { timelineLayer = i; }
 
 signals:
     void changeFrameUndo(int, int, Timeline*);
@@ -26,7 +28,9 @@ signals:
 public slots:
     void gotoNextFrame();
     void gotoPrevFrame();
-    void gotoFrame(int);
+    void gotoNextLayer();
+    void gotoPrevLayer();
+    void gotoFrame(int layer, int pos);
     void addKeyframe();
     void removeKeyframe();
     void insertFrame();
@@ -48,6 +52,7 @@ private:
     QUndoStack* undoStack;
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
+    int timelineLayer = 0;
 };
 
 #endif

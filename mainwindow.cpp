@@ -41,8 +41,10 @@ MainWindow::MainWindow()
     QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
     QAction *setToolAsEraserAct = new QAction(tr("Eraser"), this);
     QAction *clearScreenAct = new QAction(tr("Clear Screen"), this);
-    QAction *gotoNextFrameAct = new QAction(tr("Next"), this);
-    QAction *gotoPreviousFrameAct = new QAction(tr("Prev"), this);
+    QAction *gotoNextFrameAct = new QAction(tr("Next frame"), this);
+    QAction *gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
+    QAction *gotoNextLayerAct = new QAction(tr("Next layer"), this);
+    QAction *gotoPrevLayerAct = new QAction(tr("Prev layer"), this);
     QAction *addKeyframeAct = new QAction(tr("Add Key"), this);
     QAction *removeKeyframeAct = new QAction(tr("Remove Key"), this);
     QAction *insertFrameAct = new QAction(tr("Insert frame"), this);
@@ -65,7 +67,9 @@ MainWindow::MainWindow()
     changeLassoFillStyleAct->setShortcut(Qt::Key_6);
     changeBackgroundColorAct->setShortcut(Qt::Key_7);
     gotoNextFrameAct->setShortcut(Qt::Key_Right);
-    gotoPreviousFrameAct->setShortcut(Qt::Key_Left);
+    gotoPrevFrameAct->setShortcut(Qt::Key_Left);
+    gotoNextLayerAct->setShortcut(Qt::Key_Down);
+    gotoPrevLayerAct->setShortcut(Qt::Key_Up);
     clearScreenAct->setShortcut(tr("Z"));
     removeKeyframeAct->setShortcut(tr("W"));
     addKeyframeAct->setShortcut(tr("X"));
@@ -93,7 +97,9 @@ MainWindow::MainWindow()
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
     connect(gotoNextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
-    connect(gotoPreviousFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
+    connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
+    connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));
+    connect(gotoPrevLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevLayer()));
     connect(addKeyframeAct, SIGNAL(triggered()), timeline, SLOT(addKeyframe()));
     connect(removeKeyframeAct, SIGNAL(triggered()), timeline, SLOT(removeKeyframe()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
@@ -105,7 +111,9 @@ MainWindow::MainWindow()
     // Create Menus
     QMenu *optionMenu = new QMenu(tr("Menu"), this);
     optionMenu->addAction(gotoNextFrameAct);
-    optionMenu->addAction(gotoPreviousFrameAct);
+    optionMenu->addAction(gotoPrevFrameAct);
+    optionMenu->addAction(gotoNextLayerAct);
+    optionMenu->addAction(gotoPrevLayerAct);
     optionMenu->addAction(addKeyframeAct);
     optionMenu->addAction(removeKeyframeAct);
     optionMenu->addAction(insertFrameAct);

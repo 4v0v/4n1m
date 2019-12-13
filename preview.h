@@ -23,6 +23,7 @@ protected:
 private:
     Object* object;
     int currentPosition = 0;
+    int currentLayer = 0;
 };
 
 
