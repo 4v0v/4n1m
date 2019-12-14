@@ -57,3 +57,25 @@ void Object::foreachKeyframeRevert(int layer, std::function<void(int)> action, i
         if(isKeyframe(layer, i)) action(i);
     }
 }
+
+void Object::foreachLayer(std::function<void(int)> action, int begin, int end)
+{
+    if (end == 0) end = keyframes.lastKey();
+    if (begin > end) begin = keyframes.lastKey();
+
+    for (int i = begin; i < end + 1; ++i)
+    {
+        if(isLayer(i)) action(i);
+    }
+}
+
+void Object::foreachLayerRevert(std::function<void(int)> action, int begin, int end)
+{
+    if (end == 0) end = keyframes.lastKey();
+    if (begin > end) begin = keyframes.lastKey();
+
+    for (int i = end; i > begin - 1; --i)
+    {
+        if(isLayer(i)) action(i);
+    }
+}

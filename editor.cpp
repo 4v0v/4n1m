@@ -17,14 +17,8 @@ Editor::Editor(Object *o, QUndoStack* u, QWidget* parent): QWidget(parent)
 void Editor::mousePressEvent(QMouseEvent *event)
 {
     if (!object->isKeyframe(timeline->getLayer(), timeline->getPos())) timeline->addKeyframe();
-
     scribbling = true;
-    switch (currentTool)
-    {
-        case Tool::PEN: penStroke << QPoint(event->pos().x(), event->pos().y()); break;
-        case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
-        case Tool::ERASER: eraserStroke << QPoint(event->pos().x(), event->pos().y()); break;
-    }
+    stroke << QPoint(event->pos().x(), event->pos().y());
     this->update();
 }
 
@@ -33,31 +27,18 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
     scribbling = false;
     switch (currentTool)
     {
-        case Tool::PEN:
-            this->drawPenStroke();
-            penStroke.clear();
-            break;
-        case Tool::LASSOFILL:
-            this->drawLassoFill();
-            lassoFill.clear();
-            break;
-        case Tool::ERASER:
-            this->drawEraserStroke();
-            eraserStroke.clear();
-            break;
+        case Tool::PEN: this->drawPenStroke(); break;
+        case Tool::LASSOFILL: this->drawLassoFill(); break;
+        case Tool::ERASER: this->drawEraserStroke(); break;
     }
+    stroke.clear();
     this->update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (!scribbling) return;
-    switch (currentTool)
-    {
-        case Tool::PEN: penStroke << QPoint(event->pos().x(), event->pos().y()); break;
-        case Tool::LASSOFILL: lassoFill << QPoint(event->pos().x(), event->pos().y()); break;
-        case Tool::ERASER: eraserStroke << QPoint(event->pos().x(), event->pos().y()); break;
-    }
+    stroke << QPoint(event->pos().x(), event->pos().y());
     this->update();
 }
 
@@ -73,10 +54,10 @@ void Editor::paintEvent(QPaintEvent* event)
     // Onionskin
     if (onionskinVisible)
     {
-        int prev = object->getPrevKeyframePos(timeline->getLayer(), this->getPos());
-        int next = object->getNextKeyframePos(timeline->getLayer(), this->getPos());
         QPainterPath path;
         path.addRect(0, 0, width(), height());
+        int prev = object->getPrevKeyframePos(timeline->getLayer(), this->getPos());
+        int next = object->getNextKeyframePos(timeline->getLayer(), this->getPos());
 
         if (prev < this->getPos())
         {
@@ -136,32 +117,39 @@ void Editor::paintEvent(QPaintEvent* event)
         painter.setOpacity(1.00);
     }
 
-    // Current image
-    QImage currentImg = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
-    painter.drawImage(event->rect(), currentImg, event->rect());
 
-    // Tool previews
-    switch (currentTool) {
-        case Tool::PEN:
-        {
-            painter.setPen(linePen);
-            painter.drawPolyline(penStroke);
-            break;
+    // Draw editor from layers
+    object->foreachLayerRevert([&painter, &event, this](int i){
+        QImage img = object->getKeyframeImageAt(i, this->getPos(i))->copy();
+        if (i != timeline->getLayer()) painter.setOpacity(0.6);
+        painter.drawImage(event->rect(), img, event->rect());
+        painter.setOpacity(1.00);
+
+        // Tool previews
+        if (i == timeline->getLayer()){
+            switch (currentTool) {
+                case Tool::PEN:
+                {
+                    painter.setPen(linePen);
+                    painter.drawPolyline(stroke);
+                    break;
+                }
+                case Tool::LASSOFILL:
+                {
+                    QPainterPath path;
+                    path.addPolygon(stroke);
+                    painter.fillPath(path, lassoBrush);
+                    break;
+                }
+                case Tool::ERASER:
+                {
+                    painter.setPen(eraserPen);
+                    painter.drawPolyline(stroke);
+                    break;
+                }
+            }
         }
-        case Tool::LASSOFILL:
-        {
-            QPainterPath path;
-            path.addPolygon(lassoFill);
-            painter.fillPath(path, lassoBrush);
-            break;
-        }
-        case Tool::ERASER:
-        {
-            painter.setPen(eraserPen);
-            painter.drawPolyline(eraserStroke);
-            break;
-        }
-    }
+    });
 }
 
 void Editor::drawPenStroke()
@@ -170,7 +158,7 @@ void Editor::drawPenStroke()
     QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     QPainter painter(&j);
     painter.setPen(linePen);
-    painter.drawPolyline(penStroke);
+    painter.drawPolyline(stroke);
 
     undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
 }
@@ -181,7 +169,7 @@ void Editor::drawLassoFill()
     QImage j = object->getKeyframeImageAt(timeline->getLayer(), this->getPos())->copy();
     QPainter painter(&j);
     QPainterPath path;
-    path.addPolygon(lassoFill);
+    path.addPolygon(stroke);
     painter.fillPath(path, lassoBrush);
 
     undoStack->push(new ModifyImageCommand(i, j, timeline->getLayer(), this->getPos(), this->object));
@@ -195,7 +183,7 @@ void Editor::drawEraserStroke()
     k.fill(Qt::transparent);
     QPainter painter(&k);
     painter.setPen(eraserPen);
-    painter.drawPolyline(eraserStroke);
+    painter.drawPolyline(stroke);
 
     QPainter painter2(&j);
     painter2.setCompositionMode(QPainter::CompositionMode_DestinationOut);
@@ -218,4 +206,12 @@ void Editor::toggleOnionskin()
 {
     onionskinVisible = !onionskinVisible;
     this->update();
+}
+
+int Editor::getPos(int layer)
+{
+    if (layer == -1) layer = timeline->getLayer();
+    return object->isKeyframe(layer, timeline->getPos()) ?
+    timeline->getPos() :
+    object->getPrevKeyframePos(layer, timeline->getPos());
 }

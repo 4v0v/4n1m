@@ -13,9 +13,12 @@ Preview::Preview(Object *o, QWidget *parent) : QWidget(parent)
 void Preview::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
-    object->isKeyframe(currentLayer, currentPosition) ?
-    painter.drawImage(event->rect(), *object->getKeyframeImageAt(currentLayer, currentPosition), event->rect()) :
-    painter.drawImage(event->rect(), *object->getKeyframeImageAt(currentLayer, object->getPrevKeyframePos(currentLayer, currentPosition)), event->rect());
+    object->foreachLayerRevert([&painter, &event, this](int i){
+        QImage img = object->isKeyframe(i, currentPosition) ?
+                    *object->getKeyframeImageAt(i, currentPosition) :
+                    *object->getKeyframeImageAt(i, object->getPrevKeyframePos(i, currentPosition));
+        painter.drawImage(event->rect(), img, event->rect());
+    });
 }
 
 void Preview::focusOutEvent(QFocusEvent*){}
@@ -23,7 +26,9 @@ void Preview::focusOutEvent(QFocusEvent*){}
 void Preview::play()
 {
     currentPosition += 1;
-    if (currentPosition > object->getLastKeyframePos(currentLayer)) currentPosition = 0;
+
+    int maxFrame = object->getLastKeyframePos(0) > object->getLastKeyframePos(1) ? object->getLastKeyframePos(0) : object->getLastKeyframePos(1);
+    if (currentPosition > maxFrame) currentPosition = 0;
     update();
 }
 

@@ -29,8 +29,7 @@ public:
     Timeline* getTimeline() { return timeline; }
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }
-    int getPos() { return editorPosition; }
-    void setPos(int i) { editorPosition = i; }
+    int getPos(int layer = -1);
     void setBackgroundColor(QColor &newColor){ backgroundColor = newColor; }
     QColor getBackgroundColor(){ return backgroundColor; }
     QPen* getLinePen() { return &linePen; }
@@ -57,15 +56,12 @@ private:
     Timeline* timeline;
     QUndoStack* undoStack;
 
-    int editorPosition = 0;
+    QColor backgroundColor = qRgba(238, 198, 148, 255);
     bool scribbling = false;
     bool onionskinVisible = true;
-    int currentTool = Tool::PEN;
-    QPolygon lassoFill;
-    QPolygon penStroke;
-    QPolygon eraserStroke;
-    QColor backgroundColor = qRgba(238, 198, 148, 255);
 
+    int currentTool = Tool::PEN;
+    QPolygon stroke;
     QPen linePen = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserPen = QPen(Qt::blue, 15, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassoBrush = QBrush(Qt::black, Qt::SolidPattern);
