@@ -138,7 +138,19 @@ void Timeline::cutFrame()
 void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
-    object->addKeyframeAt(this->getLayer(), this->getPos(), clipboard.copy());
+
+    if (object->isKeyframe(this->getLayer(), this->getPos()))
+    {
+        QImage currentImg = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
+        QPainter p(&currentImg);
+        p.drawImage(QPoint(0, 0), clipboard.copy());
+        object->addKeyframeAt(this->getLayer(), this->getPos(), currentImg);
+    }
+    else
+    {
+        object->addKeyframeAt(this->getLayer(), this->getPos(), clipboard.copy());
+    }
+
     this->update();
     editor->update();
 }

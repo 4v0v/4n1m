@@ -121,7 +121,7 @@ void Editor::paintEvent(QPaintEvent* event)
     // Draw editor from layers
     object->foreachLayerRevert([&painter, &event, this](int i){
         QImage img = object->getKeyframeImageAt(i, this->getPos(i))->copy();
-        if (i != timeline->getLayer()) painter.setOpacity(0.6);
+        if (layerTransparencyVisible &&i != timeline->getLayer()) painter.setOpacity(layerTransparency);
         painter.drawImage(event->rect(), img, event->rect());
         painter.setOpacity(1.00);
 
@@ -205,6 +205,12 @@ void Editor::clearImage()
 void Editor::toggleOnionskin()
 {
     onionskinVisible = !onionskinVisible;
+    this->update();
+}
+
+void Editor::toggleLayerTransparency()
+{
+    layerTransparencyVisible = !layerTransparencyVisible;
     this->update();
 }
 
