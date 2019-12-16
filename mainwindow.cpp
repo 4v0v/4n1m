@@ -19,14 +19,14 @@ MainWindow::MainWindow()
     object->setEditor(editor);
     object->setTimeline(timeline);
 
-    //Init Layout
+    // Init Layout
     QGridLayout *layout = new QGridLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(editor, 0, 0, 6, 1);
     layout->addWidget(timeline, 7, 0, 1, 1);
 
-    //Init Window
+    // Init Window
     QWidget *window = new QWidget();
     window->setLayout(layout);
     setCentralWidget(window);
@@ -159,11 +159,9 @@ void MainWindow::openBackgroundColorWindow()
 void MainWindow::openPenColorWindow()
 {
     QColor newColor = QColorDialog::getColor(editor->getLinePen()->color());
-    if (newColor.isValid())
-    {
-        editor->getLinePen()->setColor(newColor);
-        editor->getLassoFillBrush()->setColor(newColor);
-    }
+    if (!newColor.isValid()) return;
+    editor->getLinePen()->setColor(newColor);
+    editor->getLassoFillBrush()->setColor(newColor);
 }
 
 void MainWindow::openPenWidthWindow()
@@ -185,14 +183,14 @@ void MainWindow::openPreviewWindow()
     if (preview) preview->close();
     preview = new Preview(object);
     preview->setWindowTitle(tr("Preview"));
-    preview->show();
     preview->setAttribute(Qt::WA_QuitOnClose, false);
+    preview->show();
 }
 
 void MainWindow::openUndoStackWindow()
 {
     undoView = new QUndoView(undoStack);
     undoView->setWindowTitle(tr("Undo Stack"));
-    undoView->show();
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
+    undoView->show();
 }

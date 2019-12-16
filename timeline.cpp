@@ -2,6 +2,7 @@
 #include "timeline.h"
 #include "editor.h"
 #include "object.h"
+#include "commands.h"
 
 Timeline::Timeline(Object* o, QUndoStack* u, QWidget* parent): QWidget(parent)
 {
@@ -139,19 +140,15 @@ void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
 
-    if (object->isKeyframe(this->getLayer(), this->getPos()))
-    {
-        QImage currentImg = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
-        QPainter p(&currentImg);
-        p.drawImage(QPoint(0, 0), clipboard.copy());
-        object->addKeyframeAt(this->getLayer(), this->getPos(), currentImg);
-    }
-    else
-    {
-        object->addKeyframeAt(this->getLayer(), this->getPos(), clipboard.copy());
-    }
+    QImage i;
+    if (object->isKeyframe(this->getLayer(), this->getPos())) i = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
+    else i = QImage(editor->width(), editor->height(), QImage::Format_ARGB32);
+    QImage j = QImage(editor->width(), editor->height(), QImage::Format_ARGB32);
+    QPainter p(&j);
 
-    this->update();
-    editor->update();
+    p.drawImage(QPoint(0,0), i);
+    p.drawImage(QPoint(0,0), clipboard.copy());
+
+    undoStack->push(new ModifyImageCommand(i, j, this->getLayer(), this->getPos(), this->object));
 }
 
