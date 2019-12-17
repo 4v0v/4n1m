@@ -128,8 +128,7 @@ void Timeline::copyFrame()
 
 void Timeline::cutFrame()
 {
-    if (!object->isKeyframe(this->getLayer(), this->getPos())) return;
-    clipboard = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
+    this->copyFrame();
     this->removeKeyframe();
 }
 
