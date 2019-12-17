@@ -22,4 +22,18 @@ private:
     int pos;
 };
 
+class AddImageCommand : public QUndoCommand
+{
+public:
+    AddImageCommand(QImage, int, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object *object;
+    QImage newImg;
+    int layer;
+    int pos;
+};
+
 #endif

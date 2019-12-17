@@ -40,42 +40,26 @@ void Object::foreachKeyframe(int layer, std::function<void(int)> action, int beg
 {
     if (end == 0) end = keyframes[layer].lastKey();
     if (begin > end) begin = keyframes[layer].lastKey();
-
-    for (int i = begin; i < end + 1; ++i)
-    {
-        if(isKeyframe(layer, i)) action(i);
-    }
+    for (int i = begin; i < end + 1; ++i) if(isKeyframe(layer, i)) action(i);
 }
 
 void Object::foreachKeyframeRevert(int layer, std::function<void(int)> action, int begin, int end)
 {
     if (end == 0) end = keyframes[layer].lastKey();
     if (begin > end) begin = keyframes[layer].lastKey();
-
-    for (int i = end; i > begin - 1; --i)
-    {
-        if(isKeyframe(layer, i)) action(i);
-    }
+    for (int i = end; i > begin - 1; --i) if(isKeyframe(layer, i)) action(i);
 }
 
 void Object::foreachLayer(std::function<void(int)> action, int begin, int end)
 {
     if (end == 0) end = keyframes.lastKey();
     if (begin > end) begin = keyframes.lastKey();
-
-    for (int i = begin; i < end + 1; ++i)
-    {
-        if(isLayer(i)) action(i);
-    }
+    for (int i = begin; i < end + 1; ++i) if(isLayer(i)) action(i);
 }
 
 void Object::foreachLayerRevert(std::function<void(int)> action, int begin, int end)
 {
     if (end == 0) end = keyframes.lastKey();
     if (begin > end) begin = keyframes.lastKey();
-
-    for (int i = end; i > begin - 1; --i)
-    {
-        if(isLayer(i)) action(i);
-    }
+    for (int i = end; i > begin - 1; --i) if(isLayer(i)) action(i);
 }

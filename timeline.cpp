@@ -11,11 +11,6 @@ Timeline::Timeline(Object* o, QUndoStack* u, QWidget* parent): QWidget(parent)
     update();
 }
 
-void Timeline::mousePressEvent(QMouseEvent*){}
-void Timeline::mouseReleaseEvent(QMouseEvent*){}
-void Timeline::mouseMoveEvent(QMouseEvent*){}
-void Timeline::resizeEvent(QResizeEvent *){}
-
 void Timeline::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     for (int j = 0; j < object->getLastLayerPos()+1; ++j) {
@@ -81,10 +76,7 @@ void Timeline::gotoFrame(int layer, int pos)
 void Timeline::addKeyframe()
 {
     if (editor->isScribbling() || object->isKeyframe(this->getLayer(), this->getPos())) return;
-    object->addKeyframeAt(this->getLayer(), this->getPos());
-    object->resizeImage(this->getLayer(), this->getPos(), editor->width(), editor->height());
-    this->update();
-    editor->update();
+    undoStack->push(new AddImageCommand(QImage(editor->width(), editor->height(), QImage::Format_ARGB32), this->getLayer(), this->getPos(), this->object));
 }
 
 void Timeline::removeKeyframe()
@@ -139,16 +131,15 @@ void Timeline::cutFrame()
 void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
-
-    QImage i;
-    if (object->isKeyframe(this->getLayer(), this->getPos())) i = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
-    else i = QImage(editor->width(), editor->height(), QImage::Format_ARGB32);
-    QImage j = QImage(editor->width(), editor->height(), QImage::Format_ARGB32);
-    QPainter p(&j);
-
-    p.drawImage(QPoint(0,0), i);
-    p.drawImage(QPoint(0,0), clipboard.copy());
-
-    undoStack->push(new ModifyImageCommand(i, j, this->getLayer(), this->getPos(), this->object));
+   
+    if (object->isKeyframe(this->getLayer(), this->getPos()))
+    {
+        QImage i = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
+        QImage j = i.copy();
+        QPainter p(&j);
+        p.drawImage(QPoint(0,0), clipboard.copy());
+        undoStack->push(new ModifyImageCommand(i, j, this->getLayer(), this->getPos(), this->object));
+    }
+    else undoStack->push(new AddImageCommand(clipboard.copy(), this->getLayer(), this->getPos(), this->object));
 }
 
