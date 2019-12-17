@@ -50,3 +50,26 @@ void AddImageCommand::redo()
     object->getTimeline()->update();
     setText("add image");
 }
+
+RemoveImageCommand::RemoveImageCommand(QImage i, int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
+{
+    oldImg = i;
+    pos = p;
+    layer = l;
+    object = o;
+}
+
+void RemoveImageCommand::undo()
+{
+    object->addKeyframeAt(layer, pos, oldImg);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+}
+
+void RemoveImageCommand::redo()
+{
+    object->removeKeyframeAt(layer, pos);
+    object->getEditor()->update();
+    object->getTimeline()->update();
+    setText("remove image");
+}

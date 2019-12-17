@@ -36,4 +36,18 @@ private:
     int pos;
 };
 
+class RemoveImageCommand : public QUndoCommand
+{
+public:
+    RemoveImageCommand(QImage, int, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object *object;
+    QImage oldImg;
+    int layer;
+    int pos;
+};
+
 #endif

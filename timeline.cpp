@@ -8,7 +8,7 @@ Timeline::Timeline(Object* o, QUndoStack* u, QWidget* parent): QWidget(parent)
 {
     undoStack = u;
     object = o;
-    update();
+    this->update();
 }
 
 void Timeline::paintEvent(QPaintEvent*) {
@@ -63,7 +63,6 @@ void Timeline::gotoPrevLayer()
     editor->update();
 }
 
-
 void Timeline::gotoFrame(int layer, int pos)
 {
     if (editor->isScribbling()) return;
@@ -82,8 +81,14 @@ void Timeline::addKeyframe()
 void Timeline::removeKeyframe()
 {
     if (editor->isScribbling() || !object->isKeyframe(this->getLayer(), this->getPos())) return;
-    object->removeKeyframeAt(this->getLayer(), this->getPos());
-    if (this->getPos() == 0) object->addKeyframeAt(this->getLayer(), 0, QImage(editor->width(), editor->height(), QImage::Format_ARGB32));
+    if (this->getPos() != 0)
+    {
+        QImage i = object->getKeyframeImageAt(this->getLayer(), this->getPos())->copy();
+        undoStack->push(new RemoveImageCommand(i, this->getLayer(), this->getPos(), this->object));
+    } else {
+        object->removeKeyframeAt(this->getLayer(), this->getPos());
+        object->addKeyframeAt(this->getLayer(), 0, QImage(editor->width(), editor->height(), QImage::Format_ARGB32));
+    }
     this->update();
     editor->update();
 }
