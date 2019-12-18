@@ -20,6 +20,7 @@ public slots:
     void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
+    void openOpacityWindow();
     void openFillStyleWindow();
     void openPreviewWindow();
     void openUndoStackWindow();

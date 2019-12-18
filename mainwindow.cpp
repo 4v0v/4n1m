@@ -37,6 +37,7 @@ MainWindow::MainWindow()
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
+    QAction *changeOpacityAct = new QAction(tr("Opacity..."), this);
     QAction *setToolAsPenAct = new QAction(tr("Pen"), this);
     QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
     QAction *setToolAsEraserAct = new QAction(tr("Eraser"), this);
@@ -91,6 +92,7 @@ MainWindow::MainWindow()
     connect(changePenWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
     connect(changeBackgroundColorAct, SIGNAL(triggered()), this, SLOT(openBackgroundColorWindow()));
     connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
+    connect(changeOpacityAct, SIGNAL(triggered()), this, SLOT(openOpacityWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(setToolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
@@ -139,6 +141,7 @@ MainWindow::MainWindow()
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeLassoFillStyleAct);
     toolsMenu->addAction(changeBackgroundColorAct);
+    toolsMenu->addAction(changeOpacityAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(setToolAsPenAct);
     toolsMenu->addAction(setToolAsLassoFillAct);
@@ -151,14 +154,14 @@ MainWindow::MainWindow()
 
 void MainWindow::openBackgroundColorWindow()
 {
-    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor());
+    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
     if (newColor.isValid()) editor->setBackgroundColor(newColor);
     editor->update();
 }
 
 void MainWindow::openPenColorWindow()
 {
-    QColor newColor = QColorDialog::getColor(editor->getLinePen()->color());
+    QColor newColor = QColorDialog::getColor(editor->getLinePen()->color(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
     if (!newColor.isValid()) return;
     editor->getLinePen()->setColor(newColor);
     editor->getLassoFillBrush()->setColor(newColor);
@@ -176,6 +179,14 @@ void MainWindow::openFillStyleWindow()
     bool ok;
     int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Select fill style"), editor->getLassoFillBrush()->style(), 1, 14, 1, &ok);
     if (ok) editor->getLassoFillBrush()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+}
+
+void MainWindow::openOpacityWindow()
+{
+    bool ok;
+    double d = QInputDialog::getDouble(this, tr("QInputDialog::getDouble()"), tr("Amount:"), 1.0, 0, 1.0, 2, &ok);
+    if (ok) setWindowOpacity(d);
+
 }
 
 void MainWindow::openPreviewWindow()
