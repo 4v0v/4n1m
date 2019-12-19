@@ -13,6 +13,12 @@ Timeline::Timeline(Object* o, QUndoStack* u, QWidget* parent): QWidget(parent)
 
 void Timeline::paintEvent(QPaintEvent*) {
     QPainter painter(this);
+    QPainterPath path;
+
+    path.addRect(0, 0, this->width(), this->height());
+    painter.fillPath(path, Qt::gray);
+    painter.drawPath(path);
+
     for (int j = 0; j < object->getLastLayerPos()+1; ++j) {
         for (int i = 0; i < 32; ++i) {
             QPainterPath path;
@@ -147,3 +153,22 @@ void Timeline::pasteFrame()
     else undoStack->push(new AddImageCommand(clipboard.copy(), this->getLayer(), this->getPos(), this->object));
 }
 
+void Timeline::mousePressEvent(QMouseEvent *event)
+{
+    p = event->pos();
+    isDown = true;
+}
+
+void Timeline::mouseReleaseEvent(QMouseEvent*)
+{
+    isDown = false;
+}
+
+void Timeline::mouseMoveEvent(QMouseEvent *event)
+{
+    if(isDown)
+    {
+        QPoint diff= event->pos() - p;
+        window()->move(window()->pos()+diff);
+    }
+}

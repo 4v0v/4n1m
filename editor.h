@@ -21,7 +21,8 @@ public:
     enum Tool {
         PEN,
         LASSOFILL,
-        ERASER
+        ERASER,
+        LINE
     };
 
     Editor(Object* = nullptr, QUndoStack* = nullptr, QWidget* = nullptr);
@@ -37,12 +38,14 @@ public:
     void drawPenStroke();
     void drawLassoFill();
     void drawEraserStroke();
+    void drawLine();
 
 public slots:
     void clearImage();
     void toggleOnionskin();
     void toggleLayerTransparency();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
+    void setToolAsLine() { if (!scribbling) currentTool = Tool::LINE; }
     void setToolAsLassoFill() { if (!scribbling) currentTool = Tool::LASSOFILL; }
     void setToolAsEraser() { if (!scribbling) currentTool = Tool::ERASER; }
 
@@ -57,7 +60,7 @@ private:
     Timeline* timeline;
     QUndoStack* undoStack;
 
-    QColor backgroundColor = qRgba(238, 198, 148, 255);
+    QColor backgroundColor = QColor(238, 198, 148, 255);
     bool scribbling = false;
     bool onionskinVisible = true;
     bool layerTransparencyVisible = true;

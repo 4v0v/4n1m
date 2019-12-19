@@ -20,10 +20,10 @@ public slots:
     void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
-    void openOpacityWindow();
     void openFillStyleWindow();
     void openPreviewWindow();
     void openUndoStackWindow();
+    void toggleStayOnTop();
 
 private:
     Editor *editor;
@@ -32,6 +32,9 @@ private:
     Preview *preview;
     QUndoStack *undoStack;
     QUndoView *undoView;
+    QAction *toggleStayOnTopAct;
+    QAction *toggleOnionskinAct;
+    QAction *toggleLayerTransparencyAct;
 };
 
 #endif

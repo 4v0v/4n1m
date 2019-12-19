@@ -18,12 +18,17 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-    void focusOutEvent(QFocusEvent *event) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
     Object* object;
     int currentPosition = 0;
     int currentLayer = 0;
+
+    QPoint p;
+    int isDown = false;
 };
 
 

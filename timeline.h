@@ -36,6 +36,9 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
     Object* object;
@@ -44,6 +47,9 @@ private:
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
     int timelineLayer = 0;
+
+    QPoint p;
+    int isDown = false;
 };
 
 #endif

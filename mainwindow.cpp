@@ -19,6 +19,9 @@ MainWindow::MainWindow()
     object->setEditor(editor);
     object->setTimeline(timeline);
 
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
+
     // Init Layout
     QGridLayout *layout = new QGridLayout;
     layout->setSpacing(0);
@@ -37,8 +40,8 @@ MainWindow::MainWindow()
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
-    QAction *changeOpacityAct = new QAction(tr("Opacity..."), this);
     QAction *setToolAsPenAct = new QAction(tr("Pen"), this);
+    QAction *setToolAsLineAct = new QAction(tr("Line"), this);
     QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
     QAction *setToolAsEraserAct = new QAction(tr("Eraser"), this);
     QAction *clearScreenAct = new QAction(tr("Clear Screen"), this);
@@ -55,19 +58,26 @@ MainWindow::MainWindow()
     QAction *copyFrameAct = new QAction(tr("Copy frame"), this);
     QAction *cutFrameAct = new QAction(tr("Cut frame"), this);
     QAction *pasteFrameAct = new QAction(tr("Paste frame"), this);
-    QAction *toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
-    QAction *toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
     QAction *undoAct = undoStack->createUndoAction(this, tr("&Undo"));
     QAction *redoAct = undoStack->createRedoAction(this, tr("&Redo"));
+    toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
+    toggleOnionskinAct->setCheckable(true);
+    toggleOnionskinAct->setChecked(true);
+    toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
+    toggleLayerTransparencyAct->setCheckable(true);
+    toggleLayerTransparencyAct->setChecked(true);
+    toggleStayOnTopAct = new QAction("Stay on top", this);
+    toggleStayOnTopAct->setCheckable(true);
 
     // Shortcuts
     setToolAsPenAct->setShortcut(Qt::Key_1);
     setToolAsLassoFillAct->setShortcut(Qt::Key_2);
     setToolAsEraserAct->setShortcut(Qt::Key_3);
-    changePenColorAct->setShortcut(Qt::Key_4);
-    changePenWidthAct->setShortcut(Qt::Key_5);
-    changeLassoFillStyleAct->setShortcut(Qt::Key_6);
-    changeBackgroundColorAct->setShortcut(Qt::Key_7);
+    setToolAsLineAct->setShortcut(Qt::Key_4);
+    changePenColorAct->setShortcut(Qt::Key_5);
+    changePenWidthAct->setShortcut(Qt::Key_6);
+    changeLassoFillStyleAct->setShortcut(Qt::Key_7);
+    changeBackgroundColorAct->setShortcut(Qt::Key_8);
     gotoNextFrameAct->setShortcut(Qt::Key_Right);
     gotoPrevFrameAct->setShortcut(Qt::Key_Left);
     gotoNextLayerAct->setShortcut(Qt::Key_Down);
@@ -81,6 +91,7 @@ MainWindow::MainWindow()
     openUndoStackWindowAct->setShortcut(tr("O"));
     toggleOnionskinAct->setShortcut(tr("Y"));
     toggleLayerTransparencyAct->setShortcut(tr("T"));
+    toggleStayOnTopAct->setShortcut(tr("U"));
     copyFrameAct->setShortcut(QKeySequence::Copy);
     cutFrameAct->setShortcut(QKeySequence::Cut);
     pasteFrameAct->setShortcut(QKeySequence::Paste);
@@ -92,10 +103,11 @@ MainWindow::MainWindow()
     connect(changePenWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
     connect(changeBackgroundColorAct, SIGNAL(triggered()), this, SLOT(openBackgroundColorWindow()));
     connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
-    connect(changeOpacityAct, SIGNAL(triggered()), this, SLOT(openOpacityWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
+    connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
     connect(setToolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
+    connect(setToolAsLineAct, SIGNAL(triggered()), editor, SLOT(setToolAsLine()));
     connect(setToolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(setToolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
@@ -125,9 +137,6 @@ MainWindow::MainWindow()
     optionMenu->addAction(removeFrameAct);
     optionMenu->addAction(clearScreenAct);
     optionMenu->addSeparator();
-    optionMenu->addAction(openPreviewWindowAct);
-    optionMenu->addAction(openUndoStackWindowAct);
-    optionMenu->addSeparator();
     optionMenu->addAction(copyFrameAct);
     optionMenu->addAction(cutFrameAct);
     optionMenu->addAction(pasteFrameAct);
@@ -141,14 +150,18 @@ MainWindow::MainWindow()
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeLassoFillStyleAct);
     toolsMenu->addAction(changeBackgroundColorAct);
-    toolsMenu->addAction(changeOpacityAct);
+    toolsMenu->addSeparator();
+    toolsMenu->addAction(openPreviewWindowAct);
+    toolsMenu->addAction(openUndoStackWindowAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(setToolAsPenAct);
+    toolsMenu->addAction(setToolAsLineAct);
     toolsMenu->addAction(setToolAsLassoFillAct);
     toolsMenu->addAction(setToolAsEraserAct);
     toolsMenu->addSeparator();
-    optionMenu->addAction(toggleOnionskinAct);
-    optionMenu->addAction(toggleLayerTransparencyAct);
+    toolsMenu->addAction(toggleOnionskinAct);
+    toolsMenu->addAction(toggleLayerTransparencyAct);
+    toolsMenu->addAction(toggleStayOnTopAct);
     menuBar()->addMenu(toolsMenu);
 }
 
@@ -181,14 +194,6 @@ void MainWindow::openFillStyleWindow()
     if (ok) editor->getLassoFillBrush()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
 }
 
-void MainWindow::openOpacityWindow()
-{
-    bool ok;
-    double d = QInputDialog::getDouble(this, tr("QInputDialog::getDouble()"), tr("Amount:"), 1.0, 0, 1.0, 2, &ok);
-    if (ok) setWindowOpacity(d);
-
-}
-
 void MainWindow::openPreviewWindow()
 {
     if (preview) preview->close();
@@ -204,4 +209,11 @@ void MainWindow::openUndoStackWindow()
     undoView->setWindowTitle(tr("Undo Stack"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
     undoView->show();
+}
+
+void MainWindow::toggleStayOnTop()
+{
+    if (toggleStayOnTopAct->isChecked()) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+    show();
 }

@@ -8,6 +8,9 @@ Preview::Preview(Object *o, QWidget *parent) : QWidget(parent)
     QTimer *timer = new QTimer();
     timer->connect(timer, SIGNAL(timeout()), this, SLOT(play()));
     timer->start(48);
+
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
 }
 
 void Preview::paintEvent(QPaintEvent* event)
@@ -21,8 +24,6 @@ void Preview::paintEvent(QPaintEvent* event)
     });
 }
 
-void Preview::focusOutEvent(QFocusEvent*){}
-
 void Preview::play()
 {
     currentPosition += 1;
@@ -33,3 +34,23 @@ void Preview::play()
 }
 
 void Preview::pause(){}
+
+void Preview::mousePressEvent(QMouseEvent *event)
+{
+    p = event->pos();
+    isDown = true;
+}
+
+void Preview::mouseReleaseEvent(QMouseEvent*)
+{
+    isDown = false;
+}
+
+void Preview::mouseMoveEvent(QMouseEvent *event)
+{
+    if(isDown)
+    {
+        QPoint diff= event->pos() - p;
+        window()->move(window()->pos()+diff);
+    }
+}
