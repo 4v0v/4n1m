@@ -213,7 +213,13 @@ void MainWindow::openUndoStackWindow()
 
 void MainWindow::toggleStayOnTop()
 {
-    if (toggleStayOnTopAct->isChecked()) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-    else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
-    show();
+    #ifdef Q_OS_WIN
+        #include <windows.h>
+        if (toggleStayOnTopAct->isChecked()) SetWindowPos(reinterpret_cast<HWND>(this->winId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        else SetWindowPos(reinterpret_cast<HWND>(this->winId()), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    #else
+        if (toggleStayOnTopAct->isChecked()) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
+        show();
+    #endif
 }
