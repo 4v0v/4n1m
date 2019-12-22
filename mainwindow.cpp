@@ -17,9 +17,6 @@ MainWindow::MainWindow()
     editor = new Editor(this);
     timeline = new Timeline(this);
 
-    setWindowFlags(Qt::FramelessWindowHint);
-    setAttribute(Qt::WA_TranslucentBackground, true);
-
     // Init Layout
     QGridLayout *layout = new QGridLayout;
     layout->setSpacing(0);
@@ -33,6 +30,8 @@ MainWindow::MainWindow()
     QWidget *window = new QWidget();
     window->setLayout(layout);
     setCentralWidget(window);
+    setWindowFlags(Qt::FramelessWindowHint);
+    setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowTitle(tr("4n1m"));
 
     // Create Actions
