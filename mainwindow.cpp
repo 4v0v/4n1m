@@ -106,13 +106,13 @@ MainWindow::MainWindow()
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
+    connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
+    connect(toggleLayerTransparencyAct, SIGNAL(triggered()), editor, SLOT(toggleLayerTransparency()));
     connect(setToolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
     connect(setToolAsLineAct, SIGNAL(triggered()), editor, SLOT(setToolAsLine()));
     connect(setToolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(setToolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
-    connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
-    connect(toggleLayerTransparencyAct, SIGNAL(triggered()), editor, SLOT(toggleLayerTransparency()));
     connect(gotoNextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
     connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
     connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));

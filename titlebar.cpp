@@ -8,6 +8,47 @@
 
 Titlebar::Titlebar(QWidget* parent): QWidget(parent)
 {
+    QHBoxLayout* layout = new QHBoxLayout(this);
+
+    layout->setMargin(0);
+    layout->setSpacing(0);
+
+    QLabel* titleLabel = new QLabel(tr("4n1m"));
+    titleLabel->setStyleSheet(
+                "QLabel"
+                "{"
+                    "color: lightgray;"
+                    "font-size: 15px;"
+                "}"
+            );
+
+    layout->addWidget(titleLabel);
+    layout->setAlignment(titleLabel, Qt::AlignCenter);
+
+    QPushButton* closeButton = new QPushButton(tr("X"));
+    closeButton->setStyleSheet(
+                "QPushButton"
+                "{"
+                    "width: 80px;"
+                    "height: 25px;"
+                    "background-color: rgb(50,50,51);"
+                    "color: lightgray;"
+                    "font-size: 15px;"
+                "}"
+                "QPushButton:hover:!pressed"
+                "{"
+                    "color: white;"
+                    "background-color: red;"
+                    "border: 1px solid red;"
+                "}"
+            );
+    layout->addWidget(closeButton);
+    layout->setAlignment(closeButton, Qt::AlignRight);
+
+
+
+    connect(closeButton, &QPushButton::clicked, this, &Titlebar::CloseWindow);
+
     update();
 }
 

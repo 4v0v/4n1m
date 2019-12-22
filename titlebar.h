@@ -16,9 +16,15 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
     void paintEvent(QPaintEvent*) override;
 
+public slots:
+    void CloseWindow() { window()->close(); }
+
 private:
     QPoint p;
     int isDown = false;
+
+
+    
 };
 
 #endif

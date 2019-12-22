@@ -20,7 +20,7 @@ public:
     bool isLayer(int layer) { return keyframes.contains(layer); }
     int getFirstKeyframePos(int layer) { return keyframes[layer].firstKey(); }
     int getLastKeyframePos(int layer) { return keyframes[layer].lastKey(); }
-    int getKeyframesCount(int layer) { return keyframes[layer].size(); }
+    int getKeyframesCount(int layer) { return keyframes[layer].count(); }
     int getFirstLayerPos() { return keyframes.firstKey(); }
     int getLastLayerPos() { return keyframes.lastKey(); }
     void foreachKeyframe(int layer, std::function<void(int)>, int = 0, int = 0);
@@ -32,8 +32,9 @@ public:
     void foreachLayerRevert(std::function<void(int)>, int = 0, int = 0);
     
 private:
-    QMap<int, QMap<int, QImage>> keyframes;
     MainWindow* parent;
+
+    QMap<int, QMap<int, QImage>> keyframes;
 };
 
 #endif
