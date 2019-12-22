@@ -1,9 +1,7 @@
 #ifndef MENUBAR_H
 #define MENUBAR_H
 
-#include <QObject>
-#include <QWidget>
-#include <QMenuBar>
+#include "mainwindow.h"
 
 class Menubar : public QMenuBar
 {

@@ -1,8 +1,6 @@
 #ifndef PREVIEW_H
 #define PREVIEW_H
 
-#include <QWidget>
-#include <QUndoStack>
 #include "mainwindow.h"
 
 class Preview : public QWidget

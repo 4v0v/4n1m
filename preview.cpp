@@ -1,7 +1,10 @@
-#include <QtWidgets>
-#include "preview.h"
 #include "object.h"
-#include "mainwindow.h"
+#include "editor.h"
+#include "timeline.h"
+#include "preview.h"
+#include "commands.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 Preview::Preview(MainWindow* mainwindow) : QWidget(mainwindow)
 {

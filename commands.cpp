@@ -1,8 +1,10 @@
-#include "commands.h"
 #include "object.h"
-#include "timeline.h"
 #include "editor.h"
-#include <QDebug>
+#include "timeline.h"
+#include "preview.h"
+#include "commands.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
 {

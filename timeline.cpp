@@ -1,9 +1,10 @@
-#include <QtWidgets>
-#include "timeline.h"
-#include "editor.h"
 #include "object.h"
+#include "editor.h"
+#include "timeline.h"
+#include "preview.h"
 #include "commands.h"
-#include "mainwindow.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 Timeline::Timeline(MainWindow* mainwindow): QWidget(mainwindow)
 {

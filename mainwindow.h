@@ -1,13 +1,30 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+
+#include <QtWidgets>
+#include <QApplication>
+#include <QWindow>
+#include <QDesktopWidget>
+#include <QStyle>
 #include <QMainWindow>
 #include <QUndoView>
+#include <QMap>
+#include <QString>
+#include <QImage>
+#include <QPoint>
+#include <QDebug>
+#include <QUndoStack>
+#include <QUndoCommand>
+#include <QPainter>
+#include <QObject>
+#include <QWidget>
+#include <QMenuBar>
+#include <QColor>
 
 class Editor;
 class Timeline;
 class Object;
 class Preview;
-class QUndoStack;
 class Titlebar;
 class Menubar;
 

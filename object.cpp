@@ -1,8 +1,10 @@
-#include <QtWidgets>
 #include "object.h"
-#include "timeline.h"
 #include "editor.h"
-#include "mainwindow.h"
+#include "timeline.h"
+#include "preview.h"
+#include "commands.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 Object::Object(MainWindow* mainwindow): QWidget(mainwindow)
 {

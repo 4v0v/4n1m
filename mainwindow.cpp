@@ -1,5 +1,3 @@
-#include <QtWidgets>
-#include <QWindow>
 #include "mainwindow.h"
 #include "object.h"
 #include "editor.h"

@@ -1,8 +1,7 @@
 #ifndef TITLEBAR_H
 #define TITLEBAR_H
 
-#include <QObject>
-#include <QWidget>
+#include "mainwindow.h"
 
 class Titlebar : public QWidget
 {
@@ -20,7 +19,6 @@ protected:
 private:
     QPoint p;
     int isDown = false;
-
 };
 
 #endif

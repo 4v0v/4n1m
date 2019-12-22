@@ -1,15 +1,6 @@
 #ifndef SCRIBBLEAREA_H
 #define SCRIBBLEAREA_H
 
-#include <QMap>
-#include <QString>
-#include <QColor>
-#include <QImage>
-#include <QPoint>
-#include <QWidget>
-#include <QDebug>
-#include <QUndoStack>
-#include <QPainter>
 #include "mainwindow.h"
 
 class Editor : public QWidget

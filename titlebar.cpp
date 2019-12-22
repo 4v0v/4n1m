@@ -1,5 +1,10 @@
-#include <QtWidgets>
+#include "object.h"
+#include "editor.h"
+#include "timeline.h"
+#include "preview.h"
+#include "commands.h"
 #include "titlebar.h"
+#include "menubar.h"
 
 Titlebar::Titlebar(QWidget* parent): QWidget(parent)
 {

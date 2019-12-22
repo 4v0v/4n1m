@@ -1,8 +1,6 @@
 #ifndef TIMELINE_H
 #define TIMELINE_H
 
-#include <QWidget>
-#include <QUndoStack>
 #include "mainwindow.h"
 
 class Timeline : public QWidget

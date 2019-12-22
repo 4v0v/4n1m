@@ -1,9 +1,10 @@
-#include <QtWidgets>
+#include "object.h"
 #include "editor.h"
 #include "timeline.h"
-#include "object.h"
+#include "preview.h"
 #include "commands.h"
-#include "mainwindow.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 Editor::Editor(MainWindow* mainwindow): QWidget(mainwindow)
 {

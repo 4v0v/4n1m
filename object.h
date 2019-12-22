@@ -1,13 +1,6 @@
 #ifndef OBJECT_H
 #define OBJECT_H
 
-#include <QMap>
-#include <QString>
-#include <QColor>
-#include <QImage>
-#include <QDebug>
-#include <QWidget>
-#include <QUndoStack>
 #include "mainwindow.h"
 
 class Object: public QWidget

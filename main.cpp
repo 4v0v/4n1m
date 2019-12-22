@@ -1,9 +1,4 @@
 #include "mainwindow.h"
-#include <QApplication>
-#include <QWindow>
-#include <QDesktopWidget>
-#include <QDebug>
-#include <QStyle>
 
 int main(int argc, char *argv[])
 {

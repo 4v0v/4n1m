@@ -1,8 +1,7 @@
 #ifndef COMMANDS_H
 #define COMMANDS_H
 
-#include <QUndoCommand>
-#include <QImage>
+#include "mainwindow.h"
 
 class Object;
 class Timeline;
