@@ -10,24 +10,18 @@
 #include <QDebug>
 #include <QUndoStack>
 #include <QPainter>
+#include "mainwindow.h"
 
-class Timeline;
-class Object;
 class Editor : public QWidget
 {
     Q_OBJECT
 
 public:
-    enum Tool {
-        PEN,
-        LASSOFILL,
-        ERASER,
-        LINE
-    };
+    Editor(MainWindow*);
+    Timeline* timeline() { return parent->getTimeline(); }
+    Object* object() { return parent->getObject(); }
+    QUndoStack* undostack() { return parent->getUndoStack(); }
 
-    Editor(Object* = nullptr, QUndoStack* = nullptr, QWidget* = nullptr);
-    void setTimeline(Timeline* t) { timeline = t; }
-    Timeline* getTimeline() { return timeline; }
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }
     int getPos(int layer = -1);
@@ -56,11 +50,9 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
-    Object* object;
-    Timeline* timeline;
-    QUndoStack* undoStack;
+    MainWindow* parent;
 
-    QColor backgroundColor = QColor(238, 198, 148, 255);
+    QColor backgroundColor = QColor(243, 200, 149, 255);
     bool scribbling = false;
     bool onionskinVisible = true;
     bool layerTransparencyVisible = true;

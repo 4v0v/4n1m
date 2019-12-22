@@ -8,19 +8,17 @@
 #include <QDebug>
 #include <QWidget>
 #include <QUndoStack>
+#include "mainwindow.h"
 
-class Editor;
-class Timeline;
 class Object: public QWidget
 {
     Q_OBJECT
 
 public:
-    Object(QUndoStack* = nullptr, QWidget* = nullptr);
-    void setEditor(Editor* e) { editor = e; }
-    void setTimeline(Timeline* t) { timeline = t; }
-    Editor* getEditor() { return editor; }
-    Timeline* getTimeline() { return timeline; }
+    Object(MainWindow*);
+    Timeline* timeline() { return parent->getTimeline(); }
+    Editor* editor() { return parent->getEditor(); }
+    QUndoStack* undostack() { return parent->getUndoStack(); }
 
     QImage* getKeyframeImageAt(int layer, int pos) { return &keyframes[layer][pos]; }
     void addKeyframeAt(int layer, int pos, QImage img = QImage(1, 1, QImage::Format_ARGB32)) { keyframes[layer].insert(pos, img); }
@@ -42,10 +40,7 @@ public:
     
 private:
     QMap<int, QMap<int, QImage>> keyframes;
-    Editor* editor;
-    Timeline* timeline;
-    QUndoStack* undoStack;
-
+    MainWindow* parent;
 };
 
 #endif

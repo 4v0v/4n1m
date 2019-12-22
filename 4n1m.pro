@@ -20,17 +20,21 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     editor.cpp \
+    menubar.cpp \
     object.cpp \
     preview.cpp \
-    timeline.cpp
+    timeline.cpp \
+    titlebar.cpp
 
 HEADERS += \
     commands.h \
     mainwindow.h \
     editor.h \
+    menubar.h \
     object.h \
     preview.h \
-    timeline.h
+    timeline.h \
+    titlebar.h
 
 FORMS += \
     mainwindow.ui

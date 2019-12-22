@@ -2,15 +2,19 @@
 #define PREVIEW_H
 
 #include <QWidget>
+#include <QUndoStack>
+#include "mainwindow.h"
 
-class Object;
 class Preview : public QWidget
 {
     Q_OBJECT
 
 public:
-    Preview(Object *o = nullptr, QWidget *parent = nullptr);
-    void setObject(Object* o) { object = o; }
+    Preview(MainWindow*);
+    Timeline* timeline() { return parent->getTimeline(); }
+    Editor* editor() { return parent->getEditor(); }
+    Object* object() { return parent->getObject(); }
+    QUndoStack* undostack() { return parent->getUndoStack(); }
 
 public slots:
     void play();
@@ -23,10 +27,10 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
-    Object* object;
+    MainWindow* parent;
+
     int currentPosition = 0;
     int currentLayer = 0;
-
     QPoint p;
     int isDown = false;
 };

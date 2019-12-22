@@ -2,10 +2,14 @@
 #include "object.h"
 #include "timeline.h"
 #include "editor.h"
+#include "mainwindow.h"
 
-Object::Object(QUndoStack* u, QWidget* parent): QWidget(parent)
+Object::Object(MainWindow* mainwindow): QWidget(mainwindow)
 {
-    undoStack = u;
+    parent = mainwindow;
+
+    keyframes.insert(0, QMap<int, QImage>());
+    keyframes.insert(1, QMap<int, QImage>());
 }
 
 void Object::resizeImage(int layer, int pos, int width , int height)

@@ -6,18 +6,18 @@
 #include "timeline.h"
 #include "preview.h"
 #include "commands.h"
+#include "titlebar.h"
+#include "menubar.h"
 
 MainWindow::MainWindow()
 {
-    // Init UndoStack & Widgets
-    undoStack = new QUndoStack(this);
-    object = new Object(undoStack);
-    editor = new Editor(object, undoStack);
-    timeline = new Timeline(object, undoStack);
-    editor->setTimeline(timeline);
-    timeline->setEditor(editor);
-    object->setEditor(editor);
-    object->setTimeline(timeline);
+    // Init Widgets
+    undostack = new QUndoStack(this);
+    titlebar = new Titlebar(this);
+    menubar = new Menubar(this);
+    object = new Object(this);
+    editor = new Editor(this);
+    timeline = new Timeline(this);
 
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
@@ -26,8 +26,10 @@ MainWindow::MainWindow()
     QGridLayout *layout = new QGridLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(editor, 0, 0, 6, 1);
-    layout->addWidget(timeline, 7, 0, 1, 1);
+    layout->addWidget(titlebar, 0, 0, 1, 1);
+    layout->addWidget(menubar, 1, 0, 1, 1);
+    layout->addWidget(editor, 2, 0, 16, 1);
+    layout->addWidget(timeline, 18, 0, 3, 1);
 
     // Init Window
     QWidget *window = new QWidget();
@@ -58,16 +60,17 @@ MainWindow::MainWindow()
     QAction *copyFrameAct = new QAction(tr("Copy frame"), this);
     QAction *cutFrameAct = new QAction(tr("Cut frame"), this);
     QAction *pasteFrameAct = new QAction(tr("Paste frame"), this);
-    QAction *undoAct = undoStack->createUndoAction(this, tr("&Undo"));
-    QAction *redoAct = undoStack->createRedoAction(this, tr("&Redo"));
+    QAction *undoAct = undostack->createUndoAction(this, tr("&Undo"));
+    QAction *redoAct = undostack->createRedoAction(this, tr("&Redo"));
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
-    toggleOnionskinAct->setCheckable(true);
-    toggleOnionskinAct->setChecked(true);
-    toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
-    toggleLayerTransparencyAct->setCheckable(true);
-    toggleLayerTransparencyAct->setChecked(true);
     toggleStayOnTopAct = new QAction("Stay on top", this);
+    toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
+
+    toggleOnionskinAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
+    toggleLayerTransparencyAct->setCheckable(true);
+    toggleOnionskinAct->setChecked(true);
+    toggleLayerTransparencyAct->setChecked(true);
 
     // Shortcuts
     setToolAsPenAct->setShortcut(Qt::Key_1);
@@ -143,7 +146,7 @@ MainWindow::MainWindow()
     optionMenu->addAction(undoAct);
     optionMenu->addAction(redoAct);
     optionMenu->addSeparator();
-    menuBar()->addMenu(optionMenu);
+    menubar->addMenu(optionMenu);
 
     QMenu *toolsMenu = new QMenu(tr("Tools"), this);
     toolsMenu->addAction(changePenColorAct);
@@ -162,7 +165,7 @@ MainWindow::MainWindow()
     toolsMenu->addAction(toggleOnionskinAct);
     toolsMenu->addAction(toggleLayerTransparencyAct);
     toolsMenu->addAction(toggleStayOnTopAct);
-    menuBar()->addMenu(toolsMenu);
+    menubar->addMenu(toolsMenu);
 }
 
 void MainWindow::openBackgroundColorWindow()
@@ -197,7 +200,7 @@ void MainWindow::openFillStyleWindow()
 void MainWindow::openPreviewWindow()
 {
     if (preview) preview->close();
-    preview = new Preview(object);
+    preview = new Preview(this);
     preview->setWindowTitle(tr("Preview"));
     preview->setAttribute(Qt::WA_QuitOnClose, false);
     preview->show();
@@ -205,7 +208,7 @@ void MainWindow::openPreviewWindow()
 
 void MainWindow::openUndoStackWindow()
 {
-    undoView = new QUndoView(undoStack);
+    undoView = new QUndoView(undostack);
     undoView->setWindowTitle(tr("Undo Stack"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
     undoView->show();
@@ -214,8 +217,8 @@ void MainWindow::openUndoStackWindow()
 void MainWindow::toggleStayOnTop()
 {
     #ifdef Q_OS_WIN
-        if (toggleStayOnTopAct->isChecked()) SetWindowPos(reinterpret_cast<HWND>(this->winId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        else SetWindowPos(reinterpret_cast<HWND>(this->winId()), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        if (toggleStayOnTopAct->isChecked()) SetWindowPos(reinterpret_cast<HWND>(winId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        else SetWindowPos(reinterpret_cast<HWND>(winId()), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     #else
         if (toggleStayOnTopAct->isChecked()) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);

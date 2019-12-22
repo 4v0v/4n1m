@@ -16,15 +16,15 @@ ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int l, int p, Object*
 void ModifyImageCommand::undo()
 {
     object->addKeyframeAt(layer, pos, oldImg);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
 }
 
 void ModifyImageCommand::redo()
 {
     object->addKeyframeAt(layer, pos, newImg);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
     setText("modify image");
 }
 
@@ -39,15 +39,15 @@ AddImageCommand::AddImageCommand(QImage i, int l, int p, Object* o, QUndoCommand
 void AddImageCommand::undo()
 {
     object->removeKeyframeAt(layer, pos);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
 }
 
 void AddImageCommand::redo()
 {
     object->addKeyframeAt(layer, pos, newImg);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
     setText("add image");
 }
 
@@ -62,14 +62,14 @@ RemoveImageCommand::RemoveImageCommand(QImage i, int l, int p, Object* o, QUndoC
 void RemoveImageCommand::undo()
 {
     object->addKeyframeAt(layer, pos, oldImg);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
 }
 
 void RemoveImageCommand::redo()
 {
     object->removeKeyframeAt(layer, pos);
-    object->getEditor()->update();
-    object->getTimeline()->update();
+    object->editor()->update();
+    object->timeline()->update();
     setText("remove image");
 }

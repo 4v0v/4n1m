@@ -8,6 +8,15 @@ class Timeline;
 class Object;
 class Preview;
 class QUndoStack;
+class Titlebar;
+class Menubar;
+
+enum Tool {
+    PEN,
+    LASSOFILL,
+    ERASER,
+    LINE
+};
 
 class MainWindow : public QMainWindow
 {
@@ -15,6 +24,13 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
+    Editor* getEditor() { return editor; }
+    Timeline* getTimeline() { return timeline; }
+    Object* getObject() { return object; }
+    Preview* getPreview() { return preview; }
+    Titlebar* getTitlebar() { return titlebar; }
+    Menubar* getMenubar() { return menubar; }
+    QUndoStack* getUndoStack() { return undostack; }
 
 public slots:
     void openBackgroundColorWindow();
@@ -26,15 +42,17 @@ public slots:
     void toggleStayOnTop();
 
 private:
-    Editor *editor;
-    Timeline *timeline;
-    Object *object;
-    Preview *preview;
-    QUndoStack *undoStack;
-    QUndoView *undoView;
-    QAction *toggleStayOnTopAct;
-    QAction *toggleOnionskinAct;
-    QAction *toggleLayerTransparencyAct;
+    Editor* editor;
+    Timeline* timeline;
+    Object* object;
+    Preview* preview;
+    Titlebar* titlebar;
+    Menubar* menubar;
+    QUndoStack* undostack;
+    QUndoView* undoView;
+    QAction* toggleStayOnTopAct;
+    QAction* toggleOnionskinAct;
+    QAction* toggleLayerTransparencyAct;
 };
 
 #endif

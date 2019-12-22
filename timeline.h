@@ -3,18 +3,18 @@
 
 #include <QWidget>
 #include <QUndoStack>
+#include "mainwindow.h"
 
-class Editor;
-class Object;
 class Timeline : public QWidget
 {
     Q_OBJECT
 
 public:
-    Timeline(Object* = nullptr, QUndoStack* = nullptr, QWidget* = nullptr);
-    Object* getObject() { return object; }
-    Editor* getEditor() { return editor; }
-    void setEditor(Editor* e) { editor = e; }
+    Timeline(MainWindow*);
+    Editor* editor() { return parent->getEditor(); }
+    Object* object() { return parent->getObject(); }
+    QUndoStack* undostack() { return parent->getUndoStack(); }
+
     int getPos() { return timelinePos; }
     void setPos(int i) { timelinePos = i; }
     int getLayer() { return timelineLayer; }
@@ -36,20 +36,13 @@ public slots:
 
 protected:
     void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
-    Object* object;
-    Editor* editor;
-    QUndoStack* undoStack;
+    MainWindow* parent;
+
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
     int timelineLayer = 0;
-
-    QPoint p;
-    int isDown = false;
 };
 
 #endif
