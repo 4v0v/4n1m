@@ -23,7 +23,7 @@ Titlebar::Titlebar(QWidget* parent): QWidget(parent)
             );
 
     layout->addWidget(titleLabel);
-    layout->setAlignment(titleLabel, Qt::AlignCenter);
+    layout->setAlignment(titleLabel, Qt::AlignRight);
 
     QPushButton* closeButton = new QPushButton(tr("X"));
     closeButton->setStyleSheet(

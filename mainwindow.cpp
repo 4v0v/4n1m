@@ -17,14 +17,18 @@ MainWindow::MainWindow()
     editor = new Editor(this);
     timeline = new Timeline(this);
 
+    titlebar->setMaximumHeight(25);
+    menubar->setMaximumHeight(20);
+    timeline->setMaximumHeight(75);
+
     // Init Layout
     QGridLayout *layout = new QGridLayout;
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(titlebar, 0, 0, 1, 1);
     layout->addWidget(menubar, 1, 0, 1, 1);
-    layout->addWidget(editor, 2, 0, 16, 1);
-    layout->addWidget(timeline, 18, 0, 3, 1);
+    layout->addWidget(editor, 2, 0, 21, 1);
+    layout->addWidget(timeline, 22, 0, 3, 1);
 
     // Init Window
     QWidget *window = new QWidget();
@@ -39,6 +43,7 @@ MainWindow::MainWindow()
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
+    QAction *changeFPSAct = new QAction(tr("FPS..."), this);
     QAction *setToolAsPenAct = new QAction(tr("Pen"), this);
     QAction *setToolAsLineAct = new QAction(tr("Line"), this);
     QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
@@ -60,10 +65,12 @@ MainWindow::MainWindow()
     QAction *undoAct = undostack->createUndoAction(this, tr("&Undo"));
     QAction *redoAct = undostack->createRedoAction(this, tr("&Redo"));
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
+    toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
     toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
 
     toggleOnionskinAct->setCheckable(true);
+    toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
     toggleLayerTransparencyAct->setCheckable(true);
     toggleOnionskinAct->setChecked(true);
@@ -78,6 +85,7 @@ MainWindow::MainWindow()
     changePenWidthAct->setShortcut(Qt::Key_6);
     changeLassoFillStyleAct->setShortcut(Qt::Key_7);
     changeBackgroundColorAct->setShortcut(Qt::Key_8);
+    changeFPSAct->setShortcut(Qt::Key_8);
     gotoNextFrameAct->setShortcut(Qt::Key_Right);
     gotoPrevFrameAct->setShortcut(Qt::Key_Left);
     gotoNextLayerAct->setShortcut(Qt::Key_Down);
@@ -90,6 +98,7 @@ MainWindow::MainWindow()
     openPreviewWindowAct->setShortcut(tr("P"));
     openUndoStackWindowAct->setShortcut(tr("O"));
     toggleOnionskinAct->setShortcut(tr("Y"));
+    toggleOnionskinloopAct->setShortcut(tr("H"));
     toggleLayerTransparencyAct->setShortcut(tr("T"));
     toggleStayOnTopAct->setShortcut(tr("U"));
     copyFrameAct->setShortcut(QKeySequence::Copy);
@@ -105,8 +114,10 @@ MainWindow::MainWindow()
     connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
+    connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
     connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
     connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
+    connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
     connect(toggleLayerTransparencyAct, SIGNAL(triggered()), editor, SLOT(toggleLayerTransparency()));
     connect(setToolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
     connect(setToolAsLineAct, SIGNAL(triggered()), editor, SLOT(setToolAsLine()));
@@ -151,8 +162,9 @@ MainWindow::MainWindow()
     toolsMenu->addAction(changeLassoFillStyleAct);
     toolsMenu->addAction(changeBackgroundColorAct);
     toolsMenu->addSeparator();
-    toolsMenu->addAction(openPreviewWindowAct);
     toolsMenu->addAction(openUndoStackWindowAct);
+    toolsMenu->addAction(openPreviewWindowAct);
+    toolsMenu->addAction(changeFPSAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(setToolAsPenAct);
     toolsMenu->addAction(setToolAsLineAct);
@@ -160,6 +172,7 @@ MainWindow::MainWindow()
     toolsMenu->addAction(setToolAsEraserAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(toggleOnionskinAct);
+    toolsMenu->addAction(toggleOnionskinloopAct);
     toolsMenu->addAction(toggleLayerTransparencyAct);
     toolsMenu->addAction(toggleStayOnTopAct);
     menubar->addMenu(toolsMenu);
@@ -187,6 +200,13 @@ void MainWindow::openPenWidthWindow()
     if (ok) editor->getLinePen()->setWidth(newWidth);
 }
 
+void MainWindow::openChangeFPSWindow()
+{
+    bool ok;
+    int newFPS = QInputDialog::getInt(this, tr("Scribble"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
+    if (ok) FPS = newFPS;
+}
+
 void MainWindow::openFillStyleWindow()
 {
     bool ok;
@@ -196,10 +216,11 @@ void MainWindow::openFillStyleWindow()
 
 void MainWindow::openPreviewWindow()
 {
-    if (preview) preview->close();
+    // if (preview) preview->close();
     preview = new Preview(this);
     preview->setWindowTitle(tr("Preview"));
     preview->setAttribute(Qt::WA_QuitOnClose, false);
+    preview->setGeometry(window()->x(), window()->y(), editor->width(), editor->height());
     preview->show();
 }
 

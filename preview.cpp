@@ -6,35 +6,57 @@
 #include "titlebar.h"
 #include "menubar.h"
 
-Preview::Preview(MainWindow* mainwindow) : QWidget(mainwindow)
+Preview::Preview(MainWindow* mainwindow)
 {
     parent = mainwindow;
 
-    QTimer *timer = new QTimer();
-    timer->connect(timer, SIGNAL(timeout()), this, SLOT(play()));
-    timer->start(48);
-
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
+
+    timer = new QTimer();
+    timer->connect(timer, SIGNAL(timeout()), this, SLOT(play()));
+    timer->start(1000/parent->getFPS());
 }
 
 void Preview::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
+    QPainterPath path;
+
     object()->foreachLayerRevert([&painter, &event, this](int i){
-        QImage img = object()->isKeyframe(i, currentPosition) ?
-                    *object()->getKeyframeImageAt(i, currentPosition) :
-                    *object()->getKeyframeImageAt(i, object()->getPrevKeyframePos(i, currentPosition));
-        painter.drawImage(event->rect(), img, event->rect());
+        if (object()->getKeyframesCount(i) > 0 )
+        {
+            QImage img = object()->isKeyframe(i, currentPosition) ?
+                        *object()->getKeyframeImageAt(i, currentPosition) :
+                        *object()->getKeyframeImageAt(i, object()->getPrevKeyframePos(i, currentPosition));
+            painter.drawImage(event->rect(), img, event->rect());
+        }
     });
+
+    path.addRect(0, 0, editor()->width()-1, editor()->height()-1);
+
+    painter.fillPath(path,QColor(0, 0, 0, 1));
+    painter.setPen(QPen(Qt::white));
+    painter.drawPath(path);
 }
 
 void Preview::play()
 {
     currentPosition += 1;
+    int maxFrame = -1;
 
-    int maxFrame = object()->getLastKeyframePos(0) > object()->getLastKeyframePos(1) ? object()->getLastKeyframePos(0) : object()->getLastKeyframePos(1);
+    object()->foreachLayerRevert([&maxFrame, this](int i){
+        if (object()->getKeyframesCount(i) > 0 )
+        {
+            maxFrame = object()->getLastKeyframePos(i) > maxFrame ?
+                        object()->getLastKeyframePos(i) :
+                        maxFrame;
+        }
+    });
+
+
     if (currentPosition > maxFrame) currentPosition = 0;
+    timer->setInterval(1000/parent->getFPS());
     update();
 }
 

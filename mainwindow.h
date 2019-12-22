@@ -48,12 +48,14 @@ public:
     Titlebar* getTitlebar() { return titlebar; }
     Menubar* getMenubar() { return menubar; }
     QUndoStack* getUndoStack() { return undostack; }
+    int getFPS() { return FPS; }
 
 public slots:
     void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
     void openFillStyleWindow();
+    void openChangeFPSWindow();
     void openPreviewWindow();
     void openUndoStackWindow();
     void toggleStayOnTop();
@@ -69,7 +71,10 @@ private:
     QUndoView* undoView;
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
+    QAction* toggleOnionskinloopAct;
     QAction* toggleLayerTransparencyAct;
+
+    int FPS = 24;
 };
 
 #endif

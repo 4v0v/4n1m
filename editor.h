@@ -28,6 +28,7 @@ public:
 public slots:
     void clearImage();
     void toggleOnionskin();
+    void toggleOnionskinloop();
     void toggleLayerTransparency();
     void setToolAsPen() { if (!scribbling) currentTool = Tool::PEN; }
     void setToolAsLine() { if (!scribbling) currentTool = Tool::LINE; }
@@ -46,8 +47,12 @@ private:
     QColor backgroundColor = QColor(243, 200, 149, 255);
     bool scribbling = false;
     bool onionskinVisible = true;
+    bool onionskinloopVisible = false;
     bool layerTransparencyVisible = true;
     double layerTransparency = 0.6;
+    double onionTransparencyFirst = 0.3;
+    double onionTransparencySecond = 0.1;
+    double onionTransparencyLoop = 0.3;
 
     int currentTool = Tool::PEN;
     QPolygon stroke;

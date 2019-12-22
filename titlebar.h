@@ -22,9 +22,6 @@ public slots:
 private:
     QPoint p;
     int isDown = false;
-
-
-    
 };
 
 #endif

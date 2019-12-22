@@ -20,16 +20,16 @@ void Timeline::paintEvent(QPaintEvent*) {
     painter.drawPath(path);
 
     for (int j = 0; j < object()->getLastLayerPos()+1; ++j) {
-        for (int i = 0; i < 32; ++i) {
+        for (int i = 0; i < 71; ++i) {
             QPainterPath path;
-            path.addRect(i* 20, j * ((height()-1)/2), 15, (height()-1)/2);
+            path.addRect(i* 12, j * ((height()-1)/2), 10, (height()-1)/2);
             painter.setPen(QPen(Qt::black));
             painter.fillPath(path, object()->isKeyframe(j, i) ? Qt::black : Qt::white );
             painter.drawPath(path);
 
             if (i == getPos() && j == getLayer())
             {
-                path.addRect(i* 20, j * ((height()-1)/2), 15, (height()-1)/2);
+                path.addRect(i* 12, j * ((height()-1)/2), 10, (height()-1)/2);
                 painter.setPen(QPen(Qt::red, 4));
                 painter.drawPath(path);
             }

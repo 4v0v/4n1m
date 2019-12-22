@@ -69,7 +69,7 @@ void Editor::paintEvent(QPaintEvent* event)
 
                 if (prev < getPos())
                 {
-                    painter.setOpacity(0.3);
+                    painter.setOpacity(onionTransparencyFirst);
                     QImage img = object()->getKeyframeImageAt(i, prev)->copy();
                     QPainter p(&img);
                     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
@@ -78,7 +78,7 @@ void Editor::paintEvent(QPaintEvent* event)
                 }
                 if (prevprev < getPos())
                 {
-                    painter.setOpacity(0.1);
+                    painter.setOpacity(onionTransparencySecond);
                     QImage img = object()->getKeyframeImageAt(i, prevprev)->copy();
                     QPainter p(&img);
                     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
@@ -87,7 +87,7 @@ void Editor::paintEvent(QPaintEvent* event)
                 }
                 if (next > getPos())
                 {
-                    painter.setOpacity(0.3);
+                    painter.setOpacity(onionTransparencyFirst);
                     QImage img = *object()->getKeyframeImageAt(i, next);
                     QPainter p(&img);
                     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
@@ -96,30 +96,34 @@ void Editor::paintEvent(QPaintEvent* event)
                 }
                 if (nextnext > getPos())
                 {
-                    painter.setOpacity(0.1);
+                    painter.setOpacity(onionTransparencySecond);
                     QImage img = object()->getKeyframeImageAt(i, nextnext)->copy();
                     QPainter p(&img);
                     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
                     p.fillPath(path, Qt::blue);
                     painter.drawImage(event->rect(), img, event->rect());
                 }
-                if (getPos() == object()->getFirstKeyframePos(i) && object()->getKeyframesCount(i) > 3)
+
+                if (onionskinloopVisible)
                 {
-                    painter.setOpacity(0.3);
-                    QImage img = object()->getKeyframeImageAt(i, object()->getLastKeyframePos(i))->copy();
-                    QPainter p(&img);
-                    p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-                    p.fillPath(path, Qt::darkGreen);
-                    painter.drawImage(event->rect(), img, event->rect());
-                }
-                if (getPos() == object()->getLastKeyframePos(i) && object()->getKeyframesCount(i) > 3)
-                {
-                    painter.setOpacity(0.3);
-                    QImage img = *object()->getKeyframeImageAt(i, object()->getFirstKeyframePos(i));
-                    QPainter p(&img);
-                    p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-                    p.fillPath(path, Qt::darkGreen);
-                    painter.drawImage(event->rect(), img, event->rect());
+                    if (getPos() == object()->getFirstKeyframePos(i) && object()->getKeyframesCount(i) > 3)
+                    {
+                        painter.setOpacity(onionTransparencyLoop);
+                        QImage img = object()->getKeyframeImageAt(i, object()->getLastKeyframePos(i))->copy();
+                        QPainter p(&img);
+                        p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+                        p.fillPath(path, Qt::darkGreen);
+                        painter.drawImage(event->rect(), img, event->rect());
+                    }
+                    if (getPos() == object()->getLastKeyframePos(i) && object()->getKeyframesCount(i) > 3)
+                    {
+                        painter.setOpacity(onionTransparencyLoop);
+                        QImage img = *object()->getKeyframeImageAt(i, object()->getFirstKeyframePos(i));
+                        QPainter p(&img);
+                        p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+                        p.fillPath(path, Qt::darkGreen);
+                        painter.drawImage(event->rect(), img, event->rect());
+                    }
                 }
                 painter.setOpacity(1.00);
             }
@@ -231,6 +235,12 @@ void Editor::clearImage()
 void Editor::toggleOnionskin()
 {
     onionskinVisible = !onionskinVisible;
+    update();
+}
+
+void Editor::toggleOnionskinloop()
+{
+    onionskinloopVisible = !onionskinloopVisible;
     update();
 }
 

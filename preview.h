@@ -27,8 +27,8 @@ protected:
 private:
     MainWindow* parent;
 
+    QTimer* timer;
     int currentPosition = 0;
-    int currentLayer = 0;
     QPoint p;
     int isDown = false;
 };
