@@ -20,6 +20,8 @@ public:
     QColor getBackgroundColor(){ return backgroundColor; }
     QPen* getLinePen() { return &linePen; }
     QBrush* getLassoFillBrush() { return &lassoBrush; }
+    int getKnockbackAmount() { return knockbackAmount; }
+    void setKnockbackAmount(int k) { knockbackAmount = k; }
     void drawPenStroke();
     void drawLassoFill();
     void drawEraserStroke();
@@ -27,6 +29,7 @@ public:
 
 public slots:
     void clearImage();
+    void knockback();
     void toggleOnionskin();
     void toggleOnionskinloop();
     void toggleLayerTransparency();
@@ -44,11 +47,12 @@ protected:
 private:
     MainWindow* parent;
 
-    QColor backgroundColor = QColor(243, 200, 149, 255);
+    QColor backgroundColor = Qt::white;
     bool scribbling = false;
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;
     bool layerTransparencyVisible = true;
+    int knockbackAmount = 100;
     double layerTransparency = 0.6;
     double onionTransparencyFirst = 0.3;
     double onionTransparencySecond = 0.1;
@@ -56,7 +60,7 @@ private:
 
     int currentTool = Tool::PEN;
     QPolygon stroke;
-    QPen linePen = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen linePen = QPen(QColor(0,0,0,150), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserPen = QPen(Qt::blue, 15, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassoBrush = QBrush(Qt::black, Qt::SolidPattern);
 };

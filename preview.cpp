@@ -56,7 +56,6 @@ void Preview::play()
 
 
     if (currentPosition > maxFrame) currentPosition = 0;
-    timer->setInterval(1000/parent->getFPS());
     update();
 }
 

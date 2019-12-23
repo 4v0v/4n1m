@@ -55,6 +55,7 @@ public slots:
     void openPenColorWindow();
     void openPenWidthWindow();
     void openFillStyleWindow();
+    void openKnockbackAmountWindow();
     void openChangeFPSWindow();
     void openPreviewWindow();
     void openUndoStackWindow();

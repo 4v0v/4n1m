@@ -43,12 +43,14 @@ MainWindow::MainWindow()
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
+    QAction *changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
     QAction *changeFPSAct = new QAction(tr("FPS..."), this);
     QAction *setToolAsPenAct = new QAction(tr("Pen"), this);
     QAction *setToolAsLineAct = new QAction(tr("Line"), this);
     QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
     QAction *setToolAsEraserAct = new QAction(tr("Eraser"), this);
     QAction *clearScreenAct = new QAction(tr("Clear Screen"), this);
+    QAction *knockbackAct = new QAction(tr("Knockback"), this);
     QAction *gotoNextFrameAct = new QAction(tr("Next frame"), this);
     QAction *gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
     QAction *gotoNextLayerAct = new QAction(tr("Next layer"), this);
@@ -78,18 +80,20 @@ MainWindow::MainWindow()
 
     // Shortcuts
     setToolAsPenAct->setShortcut(Qt::Key_1);
-    setToolAsLassoFillAct->setShortcut(Qt::Key_2);
-    setToolAsEraserAct->setShortcut(Qt::Key_3);
-    setToolAsLineAct->setShortcut(Qt::Key_4);
+    setToolAsLineAct->setShortcut(Qt::Key_2);
+    setToolAsLassoFillAct->setShortcut(Qt::Key_3);
+    setToolAsEraserAct->setShortcut(Qt::Key_4);
     changePenColorAct->setShortcut(Qt::Key_5);
     changePenWidthAct->setShortcut(Qt::Key_6);
     changeLassoFillStyleAct->setShortcut(Qt::Key_7);
+    changeKnockbackAct->setShortcut(Qt::Key_0);
     changeBackgroundColorAct->setShortcut(Qt::Key_8);
     changeFPSAct->setShortcut(Qt::Key_8);
     gotoNextFrameAct->setShortcut(Qt::Key_Right);
     gotoPrevFrameAct->setShortcut(Qt::Key_Left);
     gotoNextLayerAct->setShortcut(Qt::Key_Down);
     gotoPrevLayerAct->setShortcut(Qt::Key_Up);
+    knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
     removeKeyframeAct->setShortcut(tr("W"));
     addKeyframeAct->setShortcut(tr("X"));
@@ -112,6 +116,7 @@ MainWindow::MainWindow()
     connect(changePenWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
     connect(changeBackgroundColorAct, SIGNAL(triggered()), this, SLOT(openBackgroundColorWindow()));
     connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
+    connect(changeKnockbackAct, SIGNAL(triggered()), this, SLOT(openKnockbackAmountWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
@@ -124,6 +129,7 @@ MainWindow::MainWindow()
     connect(setToolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
     connect(setToolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
+    connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
     connect(gotoNextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
     connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
     connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));
@@ -147,6 +153,7 @@ MainWindow::MainWindow()
     optionMenu->addAction(insertFrameAct);
     optionMenu->addAction(removeFrameAct);
     optionMenu->addAction(clearScreenAct);
+    optionMenu->addAction(knockbackAct);
     optionMenu->addSeparator();
     optionMenu->addAction(copyFrameAct);
     optionMenu->addAction(cutFrameAct);
@@ -160,6 +167,7 @@ MainWindow::MainWindow()
     toolsMenu->addAction(changePenColorAct);
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeLassoFillStyleAct);
+    toolsMenu->addAction(changeKnockbackAct);
     toolsMenu->addAction(changeBackgroundColorAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(openUndoStackWindowAct);
@@ -198,6 +206,13 @@ void MainWindow::openPenWidthWindow()
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select pen width:"), editor->getLinePen()->width(), 1, 50, 1, &ok);
     if (ok) editor->getLinePen()->setWidth(newWidth);
+}
+
+void MainWindow::openKnockbackAmountWindow()
+{
+    bool ok;
+    int newK = QInputDialog::getInt(this, tr("Scribble"), tr("Select knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
+    if (ok) editor->setKnockbackAmount(newK);
 }
 
 void MainWindow::openChangeFPSWindow()

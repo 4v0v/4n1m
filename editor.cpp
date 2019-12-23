@@ -222,6 +222,23 @@ void Editor::drawEraserStroke()
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), object()));
 }
 
+void Editor::knockback()
+{
+    if (scribbling || !object()->isKeyframe(timeline()->getLayer(), getPos())) return;
+    QImage i = object()->getKeyframeImageAt(timeline()->getLayer(), getPos())->copy();
+    QImage j =  i.copy();;
+    QPainter painter(&j);
+
+    for (int y = 0; y < j.height(); y++) {
+        QRgb* rgb = (QRgb*)j.scanLine(y);
+        for (int x = 0; x < j.width(); x++) {
+            rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
+        }
+    }
+
+    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), object()));
+}
+
 void Editor::clearImage()
 {
     if (scribbling || !object()->isKeyframe(timeline()->getLayer(), getPos())) return;
