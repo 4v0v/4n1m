@@ -52,10 +52,20 @@ void Editor::paintEvent(QPaintEvent* event)
 
     // Draw editor from layers
     object()->foreachLayerRevert([&painter, &event, this](int i){
-        if (!object()->isKeyframe(i,  getPos(i))) return;
-        QImage img = object()->getKeyframeImageAt(i, getPos(i))->copy();
+        if (object()->getKeyframesCount(i) == 0) return;
+        QImage img = QImage(width(), height(), QImage::Format_ARGB32);
         QPainter p(&img);
 
+        // Draw current or previous keyframe
+        if (object()->isKeyframe(i, getPos(i)))
+        {
+            painter.drawImage(
+                QPoint(0,0),
+                object()->getKeyframeImageAt(i, getPos(i))->copy()
+            );
+        }
+
+        // Draw only on current layer
         if (i == timeline()->getLayer()){
             // Onionskin
             if (onionskinVisible)
@@ -67,7 +77,7 @@ void Editor::paintEvent(QPaintEvent* event)
                 int next = object()->getNextKeyframePos(i, getPos());
                 int nextnext = object()->getNextKeyframePos(i, next);
 
-                if (prev < getPos())
+                if (prev < getPos() && prev != -1)
                 {
                     painter.setOpacity(onionTransparencyFirst);
                     QImage img = object()->getKeyframeImageAt(i, prev)->copy();
@@ -76,7 +86,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     p.fillPath(path, Qt::red);
                     painter.drawImage(event->rect(), img, event->rect());
                 }
-                if (prevprev < getPos())
+                if (prevprev < getPos() && prevprev != -1 )
                 {
                     painter.setOpacity(onionTransparencySecond);
                     QImage img = object()->getKeyframeImageAt(i, prevprev)->copy();
@@ -103,7 +113,6 @@ void Editor::paintEvent(QPaintEvent* event)
                     p.fillPath(path, Qt::blue);
                     painter.drawImage(event->rect(), img, event->rect());
                 }
-
                 if (onionskinloopVisible)
                 {
                     if (getPos() == object()->getFirstKeyframePos(i) && object()->getKeyframesCount(i) > 3)
@@ -167,6 +176,7 @@ void Editor::paintEvent(QPaintEvent* event)
                 }
             }
         }
+
         if (layerTransparencyVisible && i != timeline()->getLayer()) painter.setOpacity(layerTransparency);
         painter.drawImage(event->rect(), img, event->rect());
         painter.setOpacity(1.00);

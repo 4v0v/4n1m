@@ -28,7 +28,7 @@ void Object::resizeImage(int layer, int pos, int width , int height)
 
 int Object::getPrevKeyframePos(int layer, int pos)
 {
-    int temp = keyframes[layer].firstKey();
+    int temp = -1;
     for (auto i = keyframes[layer].begin(); i != keyframes[layer].end(); ++i)
     {
         if (i.key() >= pos) return temp;
@@ -93,12 +93,21 @@ void Object::saveAnimation()
         foreachLayerRevert([this, &frame, &painter](int layer){
             if (getKeyframesCount(layer) > 0)
             {
-                painter.drawImage(
-                    QPoint(0, 0),
-                    isKeyframe(layer, frame) ?
-                    getKeyframeImageAt(layer, frame)->copy() :
-                    getKeyframeImageAt(layer, getPrevKeyframePos(layer, frame))->copy()
-                );
+              if (isKeyframe(layer, frame))
+              {
+                  painter.drawImage(
+                      QPoint(0, 0),
+                      getKeyframeImageAt(layer, frame)->copy()
+                  );
+              } else {
+                  if (getPrevKeyframePos(layer, frame) != -1)
+                  {
+                      painter.drawImage(
+                          QPoint(0, 0),
+                          getKeyframeImageAt(layer, getPrevKeyframePos(layer, frame))->copy()
+                      );
+                  }
+                }
             }
         });
         QString filename = QString::fromUtf8(("img_" + std::to_string(frame) + ".png").c_str());

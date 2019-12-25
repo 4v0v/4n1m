@@ -26,15 +26,27 @@ void Preview::paintEvent(QPaintEvent* event)
     object()->foreachLayerRevert([&painter, &event, this](int i){
         if (object()->getKeyframesCount(i) > 0 )
         {
-            QImage img = object()->isKeyframe(i, currentPosition) ?
-                        *object()->getKeyframeImageAt(i, currentPosition) :
-                        *object()->getKeyframeImageAt(i, object()->getPrevKeyframePos(i, currentPosition));
-            painter.drawImage(event->rect(), img, event->rect());
+            if (object()->isKeyframe(i, currentPosition))
+            {
+                painter.drawImage(
+                    event->rect(), 
+                    *object()->getKeyframeImageAt(i, currentPosition),
+                    event->rect()
+                );
+            } else {
+                if (object()->getPrevKeyframePos(i, currentPosition) != -1)
+                {
+                    painter.drawImage(
+                        event->rect(), 
+                        *object()->getKeyframeImageAt(i, object()->getPrevKeyframePos(i, currentPosition)), 
+                        event->rect()
+                    );
+                } 
+            } 
         }
     });
 
     path.addRect(0, 0, editor()->width()-1, editor()->height()-1);
-
     painter.fillPath(path,QColor(0, 0, 0, 1));
     painter.setPen(QPen(Qt::white));
     painter.drawPath(path);
