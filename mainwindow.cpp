@@ -20,6 +20,7 @@ MainWindow::MainWindow()
     titlebar->setMaximumHeight(25);
     menubar->setMaximumHeight(20);
     timeline->setMaximumHeight(75);
+    undostack->setUndoLimit(30);
 
     // Init Layout
     QGridLayout *layout = new QGridLayout;

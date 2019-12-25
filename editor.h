@@ -52,7 +52,7 @@ private:
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;
     bool layerTransparencyVisible = true;
-    int knockbackAmount = 100;
+    int knockbackAmount = 50;
     double layerTransparency = 0.6;
     double onionTransparencyFirst = 0.3;
     double onionTransparencySecond = 0.1;
