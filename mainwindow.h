@@ -60,6 +60,7 @@ public slots:
     void openPreviewWindow();
     void openUndoStackWindow();
     void toggleStayOnTop();
+    void checkTool(Tool);
 
 private:
     Editor* editor;
@@ -70,12 +71,18 @@ private:
     Menubar* menubar;
     QUndoStack* undostack;
     QUndoView* undoView;
+    
+    QAction* setToolAsPenAct;
+    QAction* setToolAsLineAct;
+    QAction* setToolAsLassoFillAct;
+    QAction* setToolAsEraserAct;
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;
     QAction* toggleLayerTransparencyAct;
 
     int FPS = 24;
+    int undostackAmount = 30;
 };
 
 #endif

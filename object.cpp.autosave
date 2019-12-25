@@ -77,7 +77,7 @@ int Object::getAnimationLength()
     foreachLayerRevert([this, &animationLength](int i){
         if (getKeyframesCount(i) > 0)
         {
-            animationLength = animationLength < getLastKeyframePos(i) ? getLastKeyframePos(i) : animationLength;
+            animationLength = getLastKeyframePos(i) > animationLength? getLastKeyframePos(i) : animationLength;
         }
     });
     if (animationLength > 0) animationLength += 1;

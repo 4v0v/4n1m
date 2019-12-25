@@ -20,7 +20,7 @@ MainWindow::MainWindow()
     titlebar->setMaximumHeight(25);
     menubar->setMaximumHeight(20);
     timeline->setMaximumHeight(75);
-    undostack->setUndoLimit(30);
+    undostack->setUndoLimit(undostackAmount);
 
     // Init Layout
     QGridLayout *layout = new QGridLayout;
@@ -40,16 +40,13 @@ MainWindow::MainWindow()
     setWindowTitle(tr("4n1m"));
 
     // Create Actions
+    QAction *saveAnimationAct = new QAction(tr("Save animation"), this);
     QAction *changePenColorAct = new QAction(tr("Color..."), this);
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
     QAction *changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
     QAction *changeFPSAct = new QAction(tr("FPS..."), this);
-    QAction *setToolAsPenAct = new QAction(tr("Pen"), this);
-    QAction *setToolAsLineAct = new QAction(tr("Line"), this);
-    QAction *setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
-    QAction *setToolAsEraserAct = new QAction(tr("Eraser"), this);
     QAction *clearScreenAct = new QAction(tr("Clear Screen"), this);
     QAction *knockbackAct = new QAction(tr("Knockback"), this);
     QAction *gotoNextFrameAct = new QAction(tr("Next frame"), this);
@@ -67,15 +64,25 @@ MainWindow::MainWindow()
     QAction *pasteFrameAct = new QAction(tr("Paste frame"), this);
     QAction *undoAct = undostack->createUndoAction(this, tr("&Undo"));
     QAction *redoAct = undostack->createRedoAction(this, tr("&Redo"));
+
+    setToolAsPenAct = new QAction(tr("Pen"), this);
+    setToolAsLineAct = new QAction(tr("Line"), this);
+    setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
+    setToolAsEraserAct = new QAction(tr("Eraser"), this);
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
     toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
 
+    setToolAsPenAct->setCheckable(true);
+    setToolAsLineAct->setCheckable(true);
+    setToolAsLassoFillAct->setCheckable(true);
+    setToolAsEraserAct->setCheckable(true);
     toggleOnionskinAct->setCheckable(true);
     toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
     toggleLayerTransparencyAct->setCheckable(true);
+    setToolAsPenAct->setChecked(true);
     toggleOnionskinAct->setChecked(true);
     toggleLayerTransparencyAct->setChecked(true);
 
@@ -122,15 +129,16 @@ MainWindow::MainWindow()
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
     connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
+    connect(saveAnimationAct, SIGNAL(triggered()), object, SLOT(saveAnimation()));
     connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
     connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
     connect(toggleLayerTransparencyAct, SIGNAL(triggered()), editor, SLOT(toggleLayerTransparency()));
-    connect(setToolAsPenAct, SIGNAL(triggered()), editor, SLOT(setToolAsPen()));
-    connect(setToolAsLineAct, SIGNAL(triggered()), editor, SLOT(setToolAsLine()));
-    connect(setToolAsLassoFillAct, SIGNAL(triggered()), editor, SLOT(setToolAsLassoFill()));
-    connect(setToolAsEraserAct, SIGNAL(triggered()), editor, SLOT(setToolAsEraser()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
+    connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
+    connect(setToolAsLineAct, &QAction::triggered, this, [this]{ editor->setToolAsLine(); checkTool(Tool::LINE); });
+    connect(setToolAsLassoFillAct, &QAction::triggered, this, [this]{ editor->setToolAsLassoFill(); checkTool(Tool::LASSOFILL); });
+    connect(setToolAsEraserAct, &QAction::triggered, this, [this]{ editor->setToolAsEraser(); checkTool(Tool::ERASER); });
     connect(gotoNextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
     connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
     connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));
@@ -165,6 +173,7 @@ MainWindow::MainWindow()
     menubar->addMenu(optionMenu);
 
     QMenu *toolsMenu = new QMenu(tr("Tools"), this);
+    toolsMenu->addAction(saveAnimationAct);
     toolsMenu->addAction(changePenColorAct);
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeLassoFillStyleAct);
@@ -258,4 +267,34 @@ void MainWindow::toggleStayOnTop()
         else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
         show();
     #endif
+}
+
+void MainWindow::checkTool(Tool t)
+{
+    switch (t) {
+        case Tool::PEN:
+            setToolAsPenAct->setChecked(true);
+            setToolAsLineAct->setChecked(false);
+            setToolAsEraserAct->setChecked(false);
+            setToolAsLassoFillAct->setChecked(false);
+            break;
+        case Tool::LINE:
+            setToolAsPenAct->setChecked(false);
+            setToolAsLineAct->setChecked(true);
+            setToolAsEraserAct->setChecked(false);
+            setToolAsLassoFillAct->setChecked(false);
+            break;
+        case Tool::LASSOFILL:
+            setToolAsPenAct->setChecked(false);
+            setToolAsLineAct->setChecked(false);
+            setToolAsEraserAct->setChecked(false);
+            setToolAsLassoFillAct->setChecked(true);
+            break;
+        case Tool::ERASER:
+            setToolAsPenAct->setChecked(false);
+            setToolAsLineAct->setChecked(false);
+            setToolAsEraserAct->setChecked(true);
+            setToolAsLassoFillAct->setChecked(false);
+            break;
+    }
 }

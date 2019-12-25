@@ -30,6 +30,10 @@ public:
     void resizeImage(int layer, int pos, int width, int height);
     void foreachLayer(std::function<void(int)>, int = 0, int = 0);
     void foreachLayerRevert(std::function<void(int)>, int = 0, int = 0);
+    int getAnimationLength();
+
+public slots:
+    void saveAnimation();
     
 private:
     MainWindow* parent;
