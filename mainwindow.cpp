@@ -196,46 +196,65 @@ MainWindow::MainWindow()
     menubar->addMenu(toolsMenu);
 }
 
-void MainWindow::openBackgroundColorWindow()
-{
-    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
-    if (newColor.isValid()) editor->setBackgroundColor(newColor);
-    editor->update();
-}
 
 void MainWindow::openPenColorWindow()
 {
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getLinePen()->color(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLinePen()->setColor(newColor);
     editor->getLassoFillBrush()->setColor(newColor);
 }
 
+void MainWindow::openBackgroundColorWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (newColor.isValid()) editor->setBackgroundColor(newColor);
+    editor->update();
+}
+
 void MainWindow::openPenWidthWindow()
 {
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select pen width:"), editor->getLinePen()->width(), 1, 50, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getLinePen()->setWidth(newWidth);
 }
 
 void MainWindow::openKnockbackAmountWindow()
 {
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
     int newK = QInputDialog::getInt(this, tr("Scribble"), tr("Select knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->setKnockbackAmount(newK);
 }
 
 void MainWindow::openChangeFPSWindow()
 {
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
     int newFPS = QInputDialog::getInt(this, tr("Scribble"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) FPS = newFPS;
 }
 
 void MainWindow::openFillStyleWindow()
 {
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
     int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Select fill style"), editor->getLassoFillBrush()->style(), 1, 14, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getLassoFillBrush()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
 }
 
