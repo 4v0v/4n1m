@@ -49,4 +49,30 @@ private:
     int pos;
 };
 
+class InsertFrameCommand : public QUndoCommand
+{
+public:
+    InsertFrameCommand(int, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object *object;
+    int layer;
+    int pos;
+};
+
+class RemoveFrameCommand : public QUndoCommand
+{
+public:
+    RemoveFrameCommand(int, int, Object*, QUndoCommand* = nullptr);
+    void undo() override;
+    void redo() override;
+
+private:
+    Object *object;
+    int layer;
+    int pos;
+};
+
 #endif

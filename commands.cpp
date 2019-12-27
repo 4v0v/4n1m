@@ -10,8 +10,8 @@ ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int l, int p, Object*
 {
     oldImg = i;
     newImg = j;
-    pos = p;
     layer = l;
+    pos = p;
     object = o;
 }
 
@@ -33,8 +33,8 @@ void ModifyImageCommand::redo()
 AddImageCommand::AddImageCommand(QImage i, int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
 {
     newImg = i;
-    pos = p;
     layer = l;
+    pos = p;
     object = o;
 }
 
@@ -56,8 +56,8 @@ void AddImageCommand::redo()
 RemoveImageCommand::RemoveImageCommand(QImage i, int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
 {
     oldImg = i;
-    pos = p;
     layer = l;
+    pos = p;
     object = o;
 }
 
@@ -75,3 +75,64 @@ void RemoveImageCommand::redo()
     object->timeline()->update();
     setText("remove image");
 }
+
+InsertFrameCommand::InsertFrameCommand(int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
+{
+    layer = l;
+    pos = p;
+    object = o;
+}
+
+void InsertFrameCommand::undo()
+{
+    object->foreachKeyframe(layer, [this](int i){
+        QImage img = object->getKeyframeImageAt(layer, i)->copy();
+        object->removeKeyframeAt(layer, i);
+        object->addKeyframeAt(layer, i - 1, img);
+    }, object->isKeyframe(layer, pos) ? pos + 1 : pos);
+    object->editor()->update();
+    object->timeline()->update();
+}
+
+void InsertFrameCommand::redo()
+{
+    object->foreachKeyframeRevert(layer, [this](int i){
+            QImage img = object->getKeyframeImageAt(layer, i)->copy();
+            object->addKeyframeAt(layer, i + 1, img);
+            object->removeKeyframeAt(layer, i);
+    }, object->isKeyframe(layer, pos) ? pos + 1 : pos);
+    object->editor()->update();
+    object->timeline()->update();
+    setText("insert frame");
+}
+
+RemoveFrameCommand::RemoveFrameCommand(int l, int p, Object* o, QUndoCommand* parent): QUndoCommand(parent)
+{
+    layer = l;
+    pos = p;
+    object = o;
+}
+
+void RemoveFrameCommand::undo()
+{
+    object->foreachKeyframeRevert(layer, [this](int i){
+        QImage img = object->getKeyframeImageAt(layer, i)->copy();
+        object->addKeyframeAt(layer, i + 1, img);
+        object->removeKeyframeAt(layer, i);
+    }, object->isKeyframe(layer, pos) ? pos + 1 : pos);
+    object->editor()->update();
+    object->timeline()->update();
+}
+
+void RemoveFrameCommand::redo()
+{
+    object->foreachKeyframe(layer, [this](int i){
+        QImage img = object->getKeyframeImageAt(layer, i)->copy();
+        object->removeKeyframeAt(layer, i);
+        object->addKeyframeAt(layer, i - 1, img);
+    }, object->isKeyframe(layer, pos) ? pos + 1 : pos);
+    object->editor()->update();
+    object->timeline()->update();
+    setText("remove frame");
+}
+

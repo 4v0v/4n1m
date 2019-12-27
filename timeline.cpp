@@ -87,12 +87,8 @@ void Timeline::addKeyframe()
 void Timeline::removeKeyframe()
 {
     if (editor()->isScribbling() || !object()->isKeyframe(getLayer(), getPos())) return;
-
     QImage i = object()->getKeyframeImageAt(getLayer(), getPos())->copy();
     undostack()->push(new RemoveImageCommand(i, getLayer(), getPos(), object()));
-
-    update();
-    editor()->update();
 }
 
 void Timeline::insertFrame()
@@ -102,14 +98,7 @@ void Timeline::insertFrame()
         object()->getKeyframesCount(getLayer()) == 0 ||
         getPos() >= object()->getLastKeyframePos(getLayer())
     ) return;
-
-    object()->foreachKeyframeRevert(getLayer(), [this](int i){
-            QImage img = object()->getKeyframeImageAt(getLayer(), i)->copy();
-            object()->addKeyframeAt(getLayer(), i + 1, img);
-            object()->removeKeyframeAt(getLayer(), i);
-    }, object()->isKeyframe(getLayer(), getPos()) ? getPos() + 1 : getPos());
-    update();
-    editor()->update();
+    undostack()->push(new InsertFrameCommand(getLayer(), getPos(), object()));
 }
 
 void Timeline::removeFrame()
@@ -120,14 +109,7 @@ void Timeline::removeFrame()
         getPos() >= object()->getLastKeyframePos(getLayer()) ||
         object()->isKeyframe(getLayer(), getPos() + 1)
     ) return;
-
-    object()->foreachKeyframe(getLayer(), [this](int i){
-            QImage img = object()->getKeyframeImageAt(getLayer(), i)->copy();
-            object()->removeKeyframeAt(getLayer(), i);
-            object()->addKeyframeAt(getLayer(), i - 1, img);
-    }, object()->isKeyframe(getLayer(), getPos()) ? getPos() + 1 : getPos());
-    update();
-    editor()->update();
+    undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), object()));
 }
 
 void Timeline::copyFrame()
@@ -138,6 +120,7 @@ void Timeline::copyFrame()
 
 void Timeline::cutFrame()
 {
+    if (editor()->isScribbling() || !object()->isKeyframe(getLayer(), getPos())) return;
     copyFrame();
     removeKeyframe();
 }
