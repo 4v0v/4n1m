@@ -16,25 +16,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    commands.cpp \
     main.cpp \
     mainwindow.cpp \
-    editor.cpp \
-    menubar.cpp \
-    object.cpp \
+    animation.cpp \
+    commands.cpp \
     preview.cpp \
-    timeline.cpp \
-    titlebar.cpp
+    mainWidgets/editor.cpp \
+    mainWidgets/menubar.cpp \
+    mainWidgets/timeline.cpp \
+    mainWidgets/titlebar.cpp
 
 HEADERS += \
-    commands.h \
     mainwindow.h \
-    editor.h \
-    menubar.h \
-    object.h \
+    animation.h \
+    commands.h \
     preview.h \
-    timeline.h \
-    titlebar.h
+    mainWidgets/editor.h \
+    mainWidgets/menubar.h \
+    mainWidgets/timeline.h \
+    mainWidgets/titlebar.h
 
 FORMS += \
     mainwindow.ui

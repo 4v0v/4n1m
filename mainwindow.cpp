@@ -1,11 +1,11 @@
 #include "mainwindow.h"
-#include "object.h"
-#include "editor.h"
-#include "timeline.h"
+#include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "titlebar.h"
-#include "menubar.h"
+#include "mainWidgets/editor.h"
+#include "mainWidgets/timeline.h"
+#include "mainWidgets/titlebar.h"
+#include "mainWidgets/menubar.h"
 
 MainWindow::MainWindow()
 {
@@ -13,7 +13,7 @@ MainWindow::MainWindow()
     undostack = new QUndoStack(this);
     titlebar = new Titlebar(this);
     menubar = new Menubar(this);
-    object = new Object(this);
+    animation = new Animation(this);
     editor = new Editor(this);
     timeline = new Timeline(this);
 
@@ -44,6 +44,7 @@ MainWindow::MainWindow()
     QAction *changePenColorAct = new QAction(tr("Color..."), this);
     QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
     QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
+    QAction *changeEraserWidthAct = new QAction(tr("Eraser Width..."), this);
     QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
     QAction *changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
     QAction *changeFPSAct = new QAction(tr("FPS..."), this);
@@ -53,11 +54,12 @@ MainWindow::MainWindow()
     QAction *gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
     QAction *gotoNextLayerAct = new QAction(tr("Next layer"), this);
     QAction *gotoPrevLayerAct = new QAction(tr("Prev layer"), this);
-    QAction *addKeyframeAct = new QAction(tr("Add Key"), this);
-    QAction *removeKeyframeAct = new QAction(tr("Remove Key"), this);
+    QAction *addKeyAct = new QAction(tr("Add Key"), this);
+    QAction *removeKeyAct = new QAction(tr("Remove Key"), this);
     QAction *insertFrameAct = new QAction(tr("Insert frame"), this);
     QAction *removeFrameAct = new QAction(tr("Remove frame"), this);
     QAction *openPreviewWindowAct = new QAction(tr("Preview"), this);
+    QAction *changeUndoAmountAct = new QAction(tr("Undo stack size ..."), this);
     QAction *openUndoStackWindowAct = new QAction(tr("Open Undo Stack"), this);
     QAction *copyFrameAct = new QAction(tr("Copy frame"), this);
     QAction *cutFrameAct = new QAction(tr("Cut frame"), this);
@@ -72,7 +74,7 @@ MainWindow::MainWindow()
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
-    toggleLayerTransparencyAct = new QAction(tr("Toggle layer transparency"), this);
+    toggleLayerOpacityAct = new QAction(tr("Toggle layer transparency"), this);
 
     setToolAsPenAct->setCheckable(true);
     setToolAsLineAct->setCheckable(true);
@@ -81,10 +83,10 @@ MainWindow::MainWindow()
     toggleOnionskinAct->setCheckable(true);
     toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
-    toggleLayerTransparencyAct->setCheckable(true);
+    toggleLayerOpacityAct->setCheckable(true);
     setToolAsPenAct->setChecked(true);
     toggleOnionskinAct->setChecked(true);
-    toggleLayerTransparencyAct->setChecked(true);
+    toggleLayerOpacityAct->setChecked(true);
 
     // Shortcuts
     setToolAsPenAct->setShortcut(Qt::Key_1);
@@ -103,15 +105,15 @@ MainWindow::MainWindow()
     gotoPrevLayerAct->setShortcut(Qt::Key_Up);
     knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
-    removeKeyframeAct->setShortcut(tr("W"));
-    addKeyframeAct->setShortcut(tr("X"));
+    removeKeyAct->setShortcut(tr("W"));
+    addKeyAct->setShortcut(tr("X"));
     insertFrameAct->setShortcut(tr("C"));
     removeFrameAct->setShortcut(tr("V"));
     openPreviewWindowAct->setShortcut(tr("P"));
     openUndoStackWindowAct->setShortcut(tr("O"));
     toggleOnionskinAct->setShortcut(tr("Y"));
     toggleOnionskinloopAct->setShortcut(tr("H"));
-    toggleLayerTransparencyAct->setShortcut(tr("T"));
+    toggleLayerOpacityAct->setShortcut(tr("T"));
     toggleStayOnTopAct->setShortcut(tr("U"));
     copyFrameAct->setShortcut(QKeySequence::Copy);
     cutFrameAct->setShortcut(QKeySequence::Cut);
@@ -122,17 +124,19 @@ MainWindow::MainWindow()
     // Connect Signals & SLots
     connect(changePenColorAct, SIGNAL(triggered()), this, SLOT(openPenColorWindow()));
     connect(changePenWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
+    connect(changeEraserWidthAct, SIGNAL(triggered()), this, SLOT(openEraserWidthWindow()));
     connect(changeBackgroundColorAct, SIGNAL(triggered()), this, SLOT(openBackgroundColorWindow()));
     connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
     connect(changeKnockbackAct, SIGNAL(triggered()), this, SLOT(openKnockbackAmountWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
+    connect(changeUndoAmountAct, SIGNAL(triggered()), this, SLOT(openUndoAmountWindow()));
     connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
     connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
-    connect(saveAnimationAct, SIGNAL(triggered()), object, SLOT(saveAnimation()));
+    connect(saveAnimationAct, SIGNAL(triggered()), animation, SLOT(saveAnimation()));
     connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
     connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
-    connect(toggleLayerTransparencyAct, SIGNAL(triggered()), editor, SLOT(toggleLayerTransparency()));
+    connect(toggleLayerOpacityAct, SIGNAL(triggered()), editor, SLOT(toggleLayerOpacity()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
     connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
@@ -143,8 +147,8 @@ MainWindow::MainWindow()
     connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
     connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));
     connect(gotoPrevLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevLayer()));
-    connect(addKeyframeAct, SIGNAL(triggered()), timeline, SLOT(addKeyframe()));
-    connect(removeKeyframeAct, SIGNAL(triggered()), timeline, SLOT(removeKeyframe()));
+    connect(addKeyAct, SIGNAL(triggered()), timeline, SLOT(addKey()));
+    connect(removeKeyAct, SIGNAL(triggered()), timeline, SLOT(removeKey()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
     connect(removeFrameAct, SIGNAL(triggered()), timeline, SLOT(removeFrame()));
     connect(copyFrameAct, SIGNAL(triggered()), timeline, SLOT(copyFrame()));
@@ -157,8 +161,8 @@ MainWindow::MainWindow()
     optionMenu->addAction(gotoPrevFrameAct);
     optionMenu->addAction(gotoNextLayerAct);
     optionMenu->addAction(gotoPrevLayerAct);
-    optionMenu->addAction(addKeyframeAct);
-    optionMenu->addAction(removeKeyframeAct);
+    optionMenu->addAction(addKeyAct);
+    optionMenu->addAction(removeKeyAct);
     optionMenu->addAction(insertFrameAct);
     optionMenu->addAction(removeFrameAct);
     optionMenu->addAction(clearScreenAct);
@@ -176,13 +180,15 @@ MainWindow::MainWindow()
     toolsMenu->addAction(saveAnimationAct);
     toolsMenu->addAction(changePenColorAct);
     toolsMenu->addAction(changePenWidthAct);
+    toolsMenu->addAction(changeEraserWidthAct);
     toolsMenu->addAction(changeLassoFillStyleAct);
     toolsMenu->addAction(changeKnockbackAct);
     toolsMenu->addAction(changeBackgroundColorAct);
+    toolsMenu->addAction(changeFPSAct);
+    toolsMenu->addAction(changeUndoAmountAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(openUndoStackWindowAct);
     toolsMenu->addAction(openPreviewWindowAct);
-    toolsMenu->addAction(changeFPSAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(setToolAsPenAct);
     toolsMenu->addAction(setToolAsLineAct);
@@ -191,7 +197,7 @@ MainWindow::MainWindow()
     toolsMenu->addSeparator();
     toolsMenu->addAction(toggleOnionskinAct);
     toolsMenu->addAction(toggleOnionskinloopAct);
-    toolsMenu->addAction(toggleLayerTransparencyAct);
+    toolsMenu->addAction(toggleLayerOpacityAct);
     toolsMenu->addAction(toggleStayOnTopAct);
     menubar->addMenu(toolsMenu);
 }
@@ -228,6 +234,16 @@ void MainWindow::openPenWidthWindow()
     if (ok) editor->getLinePen()->setWidth(newWidth);
 }
 
+void MainWindow::openEraserWidthWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select eraser width:"), editor->getEraserPen()->width(), 1, 300, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) editor->getEraserPen()->setWidth(newWidth); editor->changeTool();
+}
+
 void MainWindow::openKnockbackAmountWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
@@ -256,6 +272,16 @@ void MainWindow::openFillStyleWindow()
     int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Select fill style"), editor->getLassoFillBrush()->style(), 1, 14, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getLassoFillBrush()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+}
+
+void MainWindow::openUndoAmountWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int undoAmount = QInputDialog::getInt(this, tr("Fill Style"), tr("Select undo amount (This will delete the current undo stack)"), undostackAmount, 0, 100, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) undostackAmount = undoAmount; undostack->clear(); undostack->setUndoLimit(undostackAmount);
 }
 
 void MainWindow::openPreviewWindow()
@@ -314,6 +340,8 @@ void MainWindow::checkTool(Tool t)
             setToolAsLineAct->setChecked(false);
             setToolAsEraserAct->setChecked(true);
             setToolAsLassoFillAct->setChecked(false);
+            break;
+        case Tool::EMPTY:
             break;
     }
 }

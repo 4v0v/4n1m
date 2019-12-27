@@ -11,7 +11,7 @@ public:
     Preview(MainWindow*);
     Timeline* timeline() { return parent->getTimeline(); }
     Editor* editor() { return parent->getEditor(); }
-    Object* object() { return parent->getObject(); }
+    Animation* animation() { return parent->getAnimation(); }
     QUndoStack* undostack() { return parent->getUndoStack(); }
 
 public slots:

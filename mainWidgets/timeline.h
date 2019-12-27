@@ -10,7 +10,7 @@ class Timeline : public QWidget
 public:
     Timeline(MainWindow*);
     Editor* editor() { return parent->getEditor(); }
-    Object* object() { return parent->getObject(); }
+    Animation* animation() { return parent->getAnimation(); }
     QUndoStack* undostack() { return parent->getUndoStack(); }
 
     int getPos() { return timelinePos; }
@@ -24,8 +24,8 @@ public slots:
     void gotoNextLayer();
     void gotoPrevLayer();
     void gotoFrame(int layer, int pos);
-    void addKeyframe();
-    void removeKeyframe();
+    void addKey();
+    void removeKey();
     void insertFrame();
     void removeFrame();
     void copyFrame();

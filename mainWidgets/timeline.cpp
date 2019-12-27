@@ -1,10 +1,10 @@
-#include "object.h"
-#include "editor.h"
-#include "timeline.h"
+#include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "titlebar.h"
-#include "menubar.h"
+#include "mainWidgets/editor.h"
+#include "mainWidgets/timeline.h"
+#include "mainWidgets/titlebar.h"
+#include "mainWidgets/menubar.h"
 
 Timeline::Timeline(MainWindow* mainwindow): QWidget(mainwindow)
 {
@@ -19,12 +19,12 @@ void Timeline::paintEvent(QPaintEvent*) {
     painter.fillPath(path, Qt::gray);
     painter.drawPath(path);
 
-    for (int j = 0; j < object()->getLastLayerPos()+1; ++j) {
+    for (int j = 0; j < animation()->getLastLayerPos()+1; ++j) {
         for (int i = 0; i < 71; ++i) {
             QPainterPath path;
             path.addRect(i* 12, j * ((height()-1)/3), 10, (height()-1)/3);
             painter.setPen(QPen(Qt::black));
-            painter.fillPath(path, object()->isKeyframe(j, i) ? Qt::black : Qt::white );
+            painter.fillPath(path, animation()->isKey(j, i) ? Qt::black : Qt::white );
             painter.drawPath(path);
 
             if (i == getPos() && j == getLayer())
@@ -55,7 +55,7 @@ void Timeline::gotoPrevFrame()
 
 void Timeline::gotoNextLayer()
 {
-    if (editor()->isScribbling() || getLayer() == object()->getLastLayerPos()) return;
+    if (editor()->isScribbling() || getLayer() == animation()->getLastLayerPos()) return;
     setLayer(getLayer()+1);
     update();
     editor()->update();
@@ -78,64 +78,64 @@ void Timeline::gotoFrame(int layer, int pos)
     editor()->update();
 }
 
-void Timeline::addKeyframe()
+void Timeline::addKey()
 {
-    if (editor()->isScribbling() || object()->isKeyframe(getLayer(), getPos())) return;
-    undostack()->push(new AddImageCommand(QImage(editor()->width(), editor()->height(), QImage::Format_ARGB32), getLayer(), getPos(), object()));
+    if (editor()->isScribbling() || animation()->isKey(getLayer(), getPos())) return;
+    undostack()->push(new AddImageCommand(QImage(editor()->width(), editor()->height(), QImage::Format_ARGB32), getLayer(), getPos(), animation()));
 }
 
-void Timeline::removeKeyframe()
+void Timeline::removeKey()
 {
-    if (editor()->isScribbling() || !object()->isKeyframe(getLayer(), getPos())) return;
-    QImage i = object()->getKeyframeImageAt(getLayer(), getPos())->copy();
-    undostack()->push(new RemoveImageCommand(i, getLayer(), getPos(), object()));
+    if (editor()->isScribbling() || !animation()->isKey(getLayer(), getPos())) return;
+    QImage i = animation()->copyImageAt(getLayer(), getPos());
+    undostack()->push(new RemoveImageCommand(i, getLayer(), getPos(), animation()));
 }
 
 void Timeline::insertFrame()
 {
     if (
         editor()->isScribbling() ||
-        object()->getKeyframesCount(getLayer()) == 0 ||
-        getPos() >= object()->getLastKeyframePos(getLayer())
+        animation()->getKeyCount(getLayer()) == 0 ||
+        getPos() >= animation()->getLastKey(getLayer())
     ) return;
-    undostack()->push(new InsertFrameCommand(getLayer(), getPos(), object()));
+    undostack()->push(new InsertFrameCommand(getLayer(), getPos(), animation()));
 }
 
 void Timeline::removeFrame()
 {
     if (
         editor()->isScribbling() ||
-        object()->getKeyframesCount(getLayer()) == 0 ||
-        getPos() >= object()->getLastKeyframePos(getLayer()) ||
-        object()->isKeyframe(getLayer(), getPos() + 1)
+        animation()->getKeyCount(getLayer()) == 0 ||
+        getPos() >= animation()->getLastKey(getLayer()) ||
+        animation()->isKey(getLayer(), getPos() + 1)
     ) return;
-    undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), object()));
+    undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), animation()));
 }
 
 void Timeline::copyFrame()
 {
-    if (!object()->isKeyframe(getLayer(), getPos())) return;
-    clipboard = object()->getKeyframeImageAt(getLayer(), getPos())->copy();
+    if (!animation()->isKey(getLayer(), getPos())) return;
+    clipboard = animation()->copyImageAt(getLayer(), getPos());
 }
 
 void Timeline::cutFrame()
 {
-    if (editor()->isScribbling() || !object()->isKeyframe(getLayer(), getPos())) return;
+    if (editor()->isScribbling() || !animation()->isKey(getLayer(), getPos())) return;
     copyFrame();
-    removeKeyframe();
+    removeKey();
 }
 
 void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
    
-    if (object()->isKeyframe(getLayer(), getPos()))
+    if (animation()->isKey(getLayer(), getPos()))
     {
-        QImage i = object()->getKeyframeImageAt(getLayer(), getPos())->copy();
+        QImage i = animation()->copyImageAt(getLayer(), getPos());
         QImage j = i.copy();
         QPainter p(&j);
         p.drawImage(QPoint(0,0), clipboard.copy());
-        undostack()->push(new ModifyImageCommand(i, j, getLayer(), getPos(), object()));
+        undostack()->push(new ModifyImageCommand(i, j, getLayer(), getPos(), animation()));
     }
-    else undostack()->push(new AddImageCommand(clipboard.copy(), getLayer(), getPos(), object()));
+    else undostack()->push(new AddImageCommand(clipboard.copy(), getLayer(), getPos(), animation()));
 }

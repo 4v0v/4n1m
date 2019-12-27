@@ -3,18 +3,18 @@
 
 #include "mainwindow.h"
 
-class Object;
+class Animation;
 class Timeline;
 class Editor;
 class ModifyImageCommand : public QUndoCommand
 {
 public:
-    ModifyImageCommand(QImage, QImage, int, int, Object*, QUndoCommand* = nullptr);
+    ModifyImageCommand(QImage, QImage, int, int, Animation*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
 
 private:
-    Object *object;
+    Animation *animation;
     QImage oldImg;
     QImage newImg;
     int layer;
@@ -24,12 +24,12 @@ private:
 class AddImageCommand : public QUndoCommand
 {
 public:
-    AddImageCommand(QImage, int, int, Object*, QUndoCommand* = nullptr);
+    AddImageCommand(QImage, int, int, Animation*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
 
 private:
-    Object *object;
+    Animation *animation;
     QImage newImg;
     int layer;
     int pos;
@@ -38,12 +38,12 @@ private:
 class RemoveImageCommand : public QUndoCommand
 {
 public:
-    RemoveImageCommand(QImage, int, int, Object*, QUndoCommand* = nullptr);
+    RemoveImageCommand(QImage, int, int, Animation*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
 
 private:
-    Object *object;
+    Animation *animation;
     QImage oldImg;
     int layer;
     int pos;
@@ -52,12 +52,12 @@ private:
 class InsertFrameCommand : public QUndoCommand
 {
 public:
-    InsertFrameCommand(int, int, Object*, QUndoCommand* = nullptr);
+    InsertFrameCommand(int, int, Animation*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
 
 private:
-    Object *object;
+    Animation *animation;
     int layer;
     int pos;
 };
@@ -65,12 +65,12 @@ private:
 class RemoveFrameCommand : public QUndoCommand
 {
 public:
-    RemoveFrameCommand(int, int, Object*, QUndoCommand* = nullptr);
+    RemoveFrameCommand(int, int, Animation*, QUndoCommand* = nullptr);
     void undo() override;
     void redo() override;
 
 private:
-    Object *object;
+    Animation *animation;
     int layer;
     int pos;
 };

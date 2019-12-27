@@ -1,10 +1,10 @@
-#include "object.h"
-#include "editor.h"
-#include "timeline.h"
+#include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "titlebar.h"
-#include "menubar.h"
+#include "mainWidgets/editor.h"
+#include "mainWidgets/timeline.h"
+#include "mainWidgets/titlebar.h"
+#include "mainWidgets/menubar.h"
 
 Preview::Preview(MainWindow* mainwindow)
 {
@@ -23,22 +23,22 @@ void Preview::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     QPainterPath path;
 
-    object()->foreachLayerRevert([&painter, &event, this](int i){
-        if (object()->getKeyframesCount(i) > 0 )
+    animation()->foreachLayerRevert([&painter, &event, this](int i){
+        if (animation()->getKeyCount(i) > 0 )
         {
-            if (object()->isKeyframe(i, currentPosition))
+            if (animation()->isKey(i, currentPosition))
             {
                 painter.drawImage(
                     event->rect(), 
-                    *object()->getKeyframeImageAt(i, currentPosition),
+                    animation()->copyImageAt(i, currentPosition),
                     event->rect()
                 );
             } else {
-                if (object()->getPrevKeyframePos(i, currentPosition) != -1)
+                if (animation()->getPrevKey(i, currentPosition) != -1)
                 {
                     painter.drawImage(
                         event->rect(), 
-                        *object()->getKeyframeImageAt(i, object()->getPrevKeyframePos(i, currentPosition)), 
+                        animation()->copyImageAt(i, animation()->getPrevKey(i, currentPosition)),
                         event->rect()
                     );
                 } 
@@ -57,11 +57,11 @@ void Preview::play()
     currentPosition += 1;
     int maxFrame = -1;
 
-    object()->foreachLayerRevert([&maxFrame, this](int i){
-        if (object()->getKeyframesCount(i) > 0 )
+    animation()->foreachLayerRevert([&maxFrame, this](int i){
+        if (animation()->getKeyCount(i) > 0 )
         {
-            maxFrame = object()->getLastKeyframePos(i) > maxFrame ?
-                        object()->getLastKeyframePos(i) :
+            maxFrame = animation()->getLastKey(i) > maxFrame ?
+                        animation()->getLastKey(i) :
                         maxFrame;
         }
     });

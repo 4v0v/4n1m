@@ -23,12 +23,13 @@
 
 class Editor;
 class Timeline;
-class Object;
+class Animation;
 class Preview;
 class Titlebar;
 class Menubar;
 
 enum Tool {
+    EMPTY,
     PEN,
     LASSOFILL,
     ERASER,
@@ -43,7 +44,7 @@ public:
     MainWindow();
     Editor* getEditor() { return editor; }
     Timeline* getTimeline() { return timeline; }
-    Object* getObject() { return object; }
+    Animation* getAnimation() { return animation; }
     Preview* getPreview() { return preview; }
     Titlebar* getTitlebar() { return titlebar; }
     Menubar* getMenubar() { return menubar; }
@@ -54,7 +55,9 @@ public slots:
     void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
+    void openEraserWidthWindow();
     void openFillStyleWindow();
+    void openUndoAmountWindow();
     void openKnockbackAmountWindow();
     void openChangeFPSWindow();
     void openPreviewWindow();
@@ -65,7 +68,7 @@ public slots:
 private:
     Editor* editor;
     Timeline* timeline;
-    Object* object;
+    Animation* animation;
     Preview* preview;
     Titlebar* titlebar;
     Menubar* menubar;
@@ -79,7 +82,7 @@ private:
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;
-    QAction* toggleLayerTransparencyAct;
+    QAction* toggleLayerOpacityAct;
 
     int FPS = 24;
     int undostackAmount = 30;
