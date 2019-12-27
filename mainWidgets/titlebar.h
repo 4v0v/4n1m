@@ -17,7 +17,8 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 public slots:
-    void CloseWindow() { window()->close(); }
+    void closeWindow() { window()->close(); }
+    void minimizeWindow() { window()->setWindowState(Qt::WindowState::WindowMinimized);}
 
 private:
     QPoint p;

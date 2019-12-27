@@ -9,7 +9,7 @@
 Editor::Editor(MainWindow* mainwindow): QWidget(mainwindow)
 {
     parent = mainwindow;
-    changeTool();
+    setCursor(Qt::CrossCursor);
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)
@@ -86,7 +86,6 @@ void Editor::paintEvent(QPaintEvent* event)
             }
 
             // Tool preview
-
             switch (currentTool)
             {
                 default:
@@ -183,14 +182,12 @@ void Editor::knockback()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j =  i.copy();;
     QPainter painter(&j);
-
     for (int y = 0; y < j.height(); y++) {
         QRgb* rgb = (QRgb*)j.scanLine(y);
         for (int x = 0; x < j.width(); x++) {
             rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
         }
     }
-
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
@@ -200,7 +197,6 @@ void Editor::clearImage()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();;
     j.fill(Qt::transparent);
-
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
@@ -220,9 +216,4 @@ void Editor::drawOnionSkin(QPaintEvent* event, QPainter* painter, QPainterPath* 
     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
     p.fillPath(*path, color);
     painter->drawImage(event->rect(), img, event->rect());
-}
-
-void Editor::changeTool(Tool t)
-{
-    if (t != Tool::EMPTY) currentTool = t;
 }

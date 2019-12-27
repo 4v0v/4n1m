@@ -27,7 +27,7 @@ public:
     void drawLassoFill();
     void drawEraserStroke();
     void drawLine();
-    void changeTool(Tool = Tool::EMPTY);
+    void changeTool(Tool t= Tool::EMPTY) { if (t != Tool::EMPTY) currentTool = t; }
 
 public slots:
     void clearImage();
@@ -51,7 +51,7 @@ private:
 
     MainWindow* parent;
 
-    QColor backgroundColor = Qt::white;
+    QColor backgroundColor = QColor(243,200,149);
     bool scribbling = false;
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;

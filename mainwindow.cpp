@@ -29,13 +29,16 @@ MainWindow::MainWindow()
     layout->addWidget(titlebar, 0, 0, 1, 1);
     layout->addWidget(menubar, 1, 0, 1, 1);
     layout->addWidget(editor, 2, 0, 21, 1);
-    layout->addWidget(timeline, 22, 0, 3, 1);
+    QScrollArea* scrollTimeline = new QScrollArea(this);
+    scrollTimeline->setWidget(timeline);
+    scrollTimeline->setWidgetResizable(true);
+    layout->addWidget(scrollTimeline, 22, 0, 3, 1);
 
     // Init Window
     QWidget *window = new QWidget();
     window->setLayout(layout);
     setCentralWidget(window);
-    setWindowFlags(Qt::FramelessWindowHint);
+    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowTitle(tr("4n1m"));
 

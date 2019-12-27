@@ -29,6 +29,7 @@ private:
 
     QTimer* timer;
     int currentPosition = 0;
+    int waitBeforeLoop = 0;
     QPoint p;
     int isDown = false;
 };

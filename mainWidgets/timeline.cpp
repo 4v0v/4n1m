@@ -20,7 +20,7 @@ void Timeline::paintEvent(QPaintEvent*) {
     painter.drawPath(path);
 
     for (int j = 0; j < animation()->getLastLayerPos()+1; ++j) {
-        for (int i = 0; i < 71; ++i) {
+        for (int i = 0; i < 150; ++i) {
             QPainterPath path;
             path.addRect(i* 12, j * ((height()-1)/3), 10, (height()-1)/3);
             painter.setPen(QPen(Qt::black));

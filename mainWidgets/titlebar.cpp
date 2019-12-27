@@ -21,9 +21,27 @@ Titlebar::Titlebar(QWidget* parent): QWidget(parent)
                     "font-size: 15px;"
                 "}"
             );
+    layout->addWidget(titleLabel, 3, Qt::AlignCenter);
 
-    layout->addWidget(titleLabel);
-    layout->setAlignment(titleLabel, Qt::AlignRight);
+    QPushButton* minimizeButton = new QPushButton(tr("_"));
+    minimizeButton->setStyleSheet(
+                "QPushButton"
+                "{"
+                    "width: 80px;"
+                    "height: 25px;"
+                    "background-color: rgb(50,50,51);"
+                    "color: lightgray;"
+                    "font-size: 15px;"
+                "}"
+                "QPushButton:hover:!pressed"
+                "{"
+                    "color: white;"
+                    "background-color: lightgray;"
+                    "border: 1px solid lightgray;"
+                "}"
+            );
+    layout->addWidget(minimizeButton);
+    connect(minimizeButton, &QPushButton::clicked, this, &Titlebar::minimizeWindow);
 
     QPushButton* closeButton = new QPushButton(tr("X"));
     closeButton->setStyleSheet(
@@ -43,15 +61,10 @@ Titlebar::Titlebar(QWidget* parent): QWidget(parent)
                 "}"
             );
     layout->addWidget(closeButton);
-    layout->setAlignment(closeButton, Qt::AlignRight);
-
-
-
-    connect(closeButton, &QPushButton::clicked, this, &Titlebar::CloseWindow);
+    connect(closeButton, &QPushButton::clicked, this, &Titlebar::closeWindow);
 
     update();
 }
-
 
 void Titlebar::paintEvent(QPaintEvent*)
 {
