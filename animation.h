@@ -9,9 +9,9 @@ class Animation: public QWidget
 
 public:
     Animation(MainWindow*);
-    Timeline* timeline() { return parent->getTimeline(); }
-    Editor* editor() { return parent->getEditor(); }
-    QUndoStack* undostack() { return parent->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->getTimeline(); }
+    Editor* editor() { return mainwindow->getEditor(); }
+    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
 
     QImage* getImageAt(int l, int p) { return &layers[l][p]; }
     QImage copyImageAt(int l, int p) { return layers[l][p].copy(); }
@@ -37,7 +37,7 @@ public slots:
     void saveAnimation();
     
 private:
-    MainWindow* parent;
+    MainWindow* mainwindow;
 
     QMap<int, QMap<int, QImage>> layers;
 };

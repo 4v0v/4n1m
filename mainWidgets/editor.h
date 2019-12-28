@@ -9,9 +9,9 @@ class Editor : public QWidget
 
 public:
     Editor(MainWindow*);
-    Timeline* timeline() { return parent->getTimeline(); }
-    Animation* animation() { return parent->getAnimation(); }
-    QUndoStack* undostack() { return parent->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->getTimeline(); }
+    Animation* animation() { return mainwindow->getAnimation(); }
+    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
 
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }
@@ -49,7 +49,7 @@ protected:
 private:
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
 
-    MainWindow* parent;
+    MainWindow* mainwindow;
 
     QColor backgroundColor = QColor(243,200,149);
     bool scribbling = false;

@@ -8,7 +8,7 @@ class Titlebar : public QWidget
     Q_OBJECT
 
 public:
-    Titlebar(QWidget* = nullptr);
+    Titlebar(MainWindow*);
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
@@ -21,6 +21,8 @@ public slots:
     void minimizeWindow() { window()->setWindowState(Qt::WindowState::WindowMinimized);}
 
 private:
+    MainWindow* mainwindow;
+
     QPoint p;
     int isDown = false;
 };

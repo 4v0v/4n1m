@@ -9,38 +9,32 @@
 
 MainWindow::MainWindow()
 {
-    // Init Widgets
-    undostack = new QUndoStack(this);
-    titlebar = new Titlebar(this);
-    menubar = new Menubar(this);
-    animation = new Animation(this);
-    editor = new Editor(this);
-    timeline = new Timeline(this);
-
-    titlebar->setMaximumHeight(25);
-    menubar->setMaximumHeight(20);
-    timeline->setMaximumHeight(75);
-    undostack->setUndoLimit(undostackAmount);
-
-    // Init Layout
-    QGridLayout *layout = new QGridLayout;
-    layout->setSpacing(0);
-    layout->setMargin(0);
-    layout->addWidget(titlebar, 0, 0, 1, 1);
-    layout->addWidget(menubar, 1, 0, 1, 1);
-    layout->addWidget(editor, 2, 0, 21, 1);
-    QScrollArea* scrollTimeline = new QScrollArea(this);
-    scrollTimeline->setWidget(timeline);
-    scrollTimeline->setWidgetResizable(true);
-    layout->addWidget(scrollTimeline, 22, 0, 3, 1);
-
-    // Init Window
-    QWidget *window = new QWidget();
-    window->setLayout(layout);
-    setCentralWidget(window);
+    // Init window
+    setGeometry(windowDimensions);
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowTitle(tr("4n1m"));
+
+    // Init Widgets
+    undostack = new QUndoStack(this);
+    animation = new Animation(this);
+    titlebar = new Titlebar(this);
+    menubar = new Menubar(this);
+    editor = new Editor(this);
+    timeline = new Timeline(this);
+    undostack->setUndoLimit(undostackAmount);
+
+    // Init Layout
+    QVBoxLayout* layout = new QVBoxLayout;
+    layout->setSpacing(0);
+    layout->setMargin(0);
+    layout->addWidget(titlebar);
+    layout->addWidget(menubar);
+    layout->addWidget(editor, 5);
+    layout->addWidget(timeline, 1);
+    QWidget *window = new QWidget();
+    window->setLayout(layout);
+    setCentralWidget(window);
 
     // Create Actions
     QAction *saveAnimationAct = new QAction(tr("Save animation"), this);

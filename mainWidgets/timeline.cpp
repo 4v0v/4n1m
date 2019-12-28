@@ -5,42 +5,50 @@
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
 #include "mainWidgets/menubar.h"
+#include "mainWidgets/layer.h"
+#include "mainWidgets/frame.h"
 
-Timeline::Timeline(MainWindow* mainwindow): QWidget(mainwindow)
+Timeline::Timeline(MainWindow* mw): QWidget(mw)
 {
-    parent = mainwindow;
+    mainwindow = mw;
+    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
+
+    QScrollArea* scrollArea = new QScrollArea(this);
+    scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    scrollArea->setWidgetResizable( true );
+    scrollArea->setGeometry(x(), y(), width(), 101 );
+
+    QWidget* w = new QWidget();
+    scrollArea->setWidget(w);
+    QVBoxLayout *vlayout = new QVBoxLayout();
+    vlayout->setSpacing(0);
+    vlayout->setMargin(0);
+    w->setLayout( vlayout );
+
+    for (int i =0; i < 3; i++)
+    {
+        layers.insert(i, new Layer(mainwindow, i));
+        vlayout->addWidget(layers[i]);
+    }
+    vlayout->addStretch(1);
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
 }
 
-void Timeline::paintEvent(QPaintEvent*) {
+void Timeline::paintEvent(QPaintEvent*)
+{
     QPainter painter(this);
     QPainterPath path;
-
     path.addRect(0, 0, width(), height());
     painter.fillPath(path, Qt::gray);
     painter.drawPath(path);
-
-    for (int j = 0; j < animation()->getLastLayerPos()+1; ++j) {
-        for (int i = 0; i < 150; ++i) {
-            QPainterPath path;
-            path.addRect(i* 12, j * ((height()-1)/3), 10, (height()-1)/3);
-            painter.setPen(QPen(Qt::black));
-            painter.fillPath(path, animation()->isKey(j, i) ? Qt::black : Qt::white );
-            painter.drawPath(path);
-
-            if (i == getPos() && j == getLayer())
-            {
-                path.addRect(i* 12, j * ((height()-1)/3), 10, (height()-1)/3);
-                painter.setPen(QPen(Qt::red, 2));
-                painter.drawPath(path);
-            }
-        }
-    }
 }
 
 void Timeline::gotoNextFrame()
 {
     if (editor()->isScribbling()) return;
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()+1);
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     update();
     editor()->update();
 }
@@ -48,7 +56,9 @@ void Timeline::gotoNextFrame()
 void Timeline::gotoPrevFrame()
 {
     if (editor()->isScribbling() || getPos() == 0) return;
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()-1);
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     update();
     editor()->update();
 }
@@ -56,7 +66,9 @@ void Timeline::gotoPrevFrame()
 void Timeline::gotoNextLayer()
 {
     if (editor()->isScribbling() || getLayer() == animation()->getLastLayerPos()) return;
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()+1);
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     update();
     editor()->update();
 }
@@ -64,7 +76,9 @@ void Timeline::gotoNextLayer()
 void Timeline::gotoPrevLayer()
 {
     if (editor()->isScribbling() || getLayer() == 0) return;
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()-1);
+    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     update();
     editor()->update();
 }

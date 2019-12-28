@@ -17,6 +17,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
+    mainWidgets/frame.cpp \
+    mainWidgets/layer.cpp \
     mainwindow.cpp \
     animation.cpp \
     commands.cpp \
@@ -27,6 +29,8 @@ SOURCES += \
     mainWidgets/titlebar.cpp
 
 HEADERS += \
+    mainWidgets/frame.h \
+    mainWidgets/layer.h \
     mainwindow.h \
     animation.h \
     commands.h \

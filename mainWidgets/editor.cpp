@@ -6,10 +6,12 @@
 #include "mainWidgets/titlebar.h"
 #include "menubar.h"
 
-Editor::Editor(MainWindow* mainwindow): QWidget(mainwindow)
+Editor::Editor(MainWindow* mw): QWidget(mw)
 {
-    parent = mainwindow;
+    mainwindow = mw;
     setCursor(Qt::CrossCursor);
+
+    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 530);
 }
 
 void Editor::mousePressEvent(QMouseEvent *event)

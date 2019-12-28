@@ -6,9 +6,9 @@
 #include "mainWidgets/titlebar.h"
 #include "mainWidgets/menubar.h"
 
-Animation::Animation(MainWindow* mainwindow): QWidget(mainwindow)
+Animation::Animation(MainWindow* mw): QWidget(mw)
 {
-    parent = mainwindow;
+    mainwindow = mw;
 
     layers.insert(0, QMap<int, QImage>());
     layers.insert(1, QMap<int, QImage>());

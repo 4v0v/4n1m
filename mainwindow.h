@@ -9,6 +9,7 @@
 #include <QMainWindow>
 #include <QUndoView>
 #include <QMap>
+#include <QList>
 #include <QString>
 #include <QImage>
 #include <QPoint>
@@ -27,6 +28,8 @@ class Animation;
 class Preview;
 class Titlebar;
 class Menubar;
+class Layer;
+class Frame;
 
 enum Tool {
     EMPTY,
@@ -50,6 +53,7 @@ public:
     Menubar* getMenubar() { return menubar; }
     QUndoStack* getUndoStack() { return undostack; }
     int getFPS() { return FPS; }
+    QRect getWindowDimensions() { return windowDimensions; }
 
 public slots:
     void openBackgroundColorWindow();
@@ -86,6 +90,7 @@ private:
 
     int FPS = 24;
     int undostackAmount = 30;
+    QRect windowDimensions = QRect(100, 100, 850, 650);
 };
 
 #endif

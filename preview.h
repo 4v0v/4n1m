@@ -9,10 +9,10 @@ class Preview : public QWidget
 
 public:
     Preview(MainWindow*);
-    Timeline* timeline() { return parent->getTimeline(); }
-    Editor* editor() { return parent->getEditor(); }
-    Animation* animation() { return parent->getAnimation(); }
-    QUndoStack* undostack() { return parent->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->getTimeline(); }
+    Editor* editor() { return mainwindow->getEditor(); }
+    Animation* animation() { return mainwindow->getAnimation(); }
+    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
 
 public slots:
     void play();
@@ -25,7 +25,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent*) override;
 
 private:
-    MainWindow* parent;
+    MainWindow* mainwindow;
 
     QTimer* timer;
     int currentPosition = 0;

@@ -6,8 +6,13 @@
 #include "mainWidgets/titlebar.h"
 #include "menubar.h"
 
-Titlebar::Titlebar(QWidget* parent): QWidget(parent)
+Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
 {
+    mainwindow = mw;
+    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 25);
+    setMaximumHeight(25);
+
+
     QHBoxLayout* layout = new QHBoxLayout(this);
 
     layout->setMargin(0);

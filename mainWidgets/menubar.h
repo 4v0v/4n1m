@@ -8,12 +8,13 @@ class Menubar : public QMenuBar
     Q_OBJECT
 
 public:
-    Menubar(QWidget* = nullptr);
+    Menubar(MainWindow*);
 
 protected:
 
 private:
+    MainWindow* mainwindow;
 
 };
 
-#endif // MENUBAR_H
+#endif

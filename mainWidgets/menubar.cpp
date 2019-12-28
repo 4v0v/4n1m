@@ -6,8 +6,12 @@
 #include "mainWidgets/titlebar.h"
 #include "menubar.h"
 
-Menubar::Menubar(QWidget* parent): QMenuBar(parent)
+Menubar::Menubar(MainWindow* mw): QMenuBar(mw)
 {
+    mainwindow = mw;
+    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 20);
+    setMaximumHeight(20);
+    setMinimumHeight(20);
     update();
 }
 

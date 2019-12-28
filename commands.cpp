@@ -40,6 +40,7 @@ AddImageCommand::AddImageCommand(QImage i, int l, int p, Animation* o, QUndoComm
 
 void AddImageCommand::undo()
 {
+    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
     animation->removeKeyAt(layer, pos);
     animation->editor()->update();
     animation->timeline()->update();
@@ -47,6 +48,7 @@ void AddImageCommand::undo()
 
 void AddImageCommand::redo()
 {
+    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
     animation->addKeyAt(layer, pos, newImg);
     animation->editor()->update();
     animation->timeline()->update();
@@ -63,6 +65,7 @@ RemoveImageCommand::RemoveImageCommand(QImage i, int l, int p, Animation* o, QUn
 
 void RemoveImageCommand::undo()
 {
+    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
     animation->addKeyAt(layer, pos, oldImg);
     animation->editor()->update();
     animation->timeline()->update();
@@ -70,6 +73,7 @@ void RemoveImageCommand::undo()
 
 void RemoveImageCommand::redo()
 {
+    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
     animation->removeKeyAt(layer, pos);
     animation->editor()->update();
     animation->timeline()->update();

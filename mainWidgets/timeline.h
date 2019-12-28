@@ -2,6 +2,7 @@
 #define TIMELINE_H
 
 #include "mainwindow.h"
+#include "mainWidgets/layer.h"
 
 class Timeline : public QWidget
 {
@@ -9,14 +10,15 @@ class Timeline : public QWidget
 
 public:
     Timeline(MainWindow*);
-    Editor* editor() { return parent->getEditor(); }
-    Animation* animation() { return parent->getAnimation(); }
-    QUndoStack* undostack() { return parent->getUndoStack(); }
+    Editor* editor() { return mainwindow->getEditor(); }
+    Animation* animation() { return mainwindow->getAnimation(); }
+    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
 
     int getPos() { return timelinePos; }
     void setPos(int i) { timelinePos = i; }
     int getLayer() { return timelineLayer; }
     void setLayer(int i) { timelineLayer = i; }
+    Frame* getFrameWidgetAt(int l, int f) { return layers[l]->getFrameWidgetAt(f); }
 
 public slots:
     void gotoNextFrame();
@@ -36,11 +38,13 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
-    MainWindow* parent;
+    MainWindow* mainwindow;
 
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
     int timelineLayer = 0;
+
+    QList<Layer*> layers;
 };
 
 #endif

@@ -6,15 +6,15 @@
 #include "mainWidgets/titlebar.h"
 #include "mainWidgets/menubar.h"
 
-Preview::Preview(MainWindow* mainwindow)
+Preview::Preview(MainWindow* mw)
 {
-    parent = mainwindow;
+    mainwindow = mw;
 
     setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     timer = new QTimer();
     timer->connect(timer, SIGNAL(timeout()), this, SLOT(play()));
-    timer->start(1000/parent->getFPS());
+    timer->start(1000/mainwindow->getFPS());
 }
 
 void Preview::paintEvent(QPaintEvent* event)
