@@ -34,9 +34,6 @@ public slots:
     void cutFrame();
     void pasteFrame();
 
-protected:
-    void paintEvent(QPaintEvent*) override;
-
 private:
     MainWindow* mainwindow;
 

@@ -18,6 +18,33 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     scrollArea->setWidgetResizable( true );
     scrollArea->setGeometry(x(), y(), width(), 101 );
 
+    scrollArea->setStyleSheet(
+        "QScrollBar:horizontal {"
+            "border: 2px solid grey;"
+            "background: lightgrey;"
+            "height: 15px;"
+            "margin: 0px 20px 0 20px;"
+        "}"
+        "QScrollBar::handle:horizontal {"
+            "background: black;"
+            "min-width: 20px;"
+        "}"
+        "QScrollBar::add-line:horizontal {"
+            "border: 2px solid grey;"
+            "background: grey;"
+            "width: 20px;"
+            "subcontrol-position: right;"
+            "subcontrol-origin: margin;"
+        "}"
+        "QScrollBar::sub-line:horizontal {"
+            "border: 2px solid grey;"
+            "background: grey;"
+            "width: 20px;"
+            "subcontrol-position: left;"
+            "subcontrol-origin: margin;"
+        "}"
+    );
+
     QWidget* w = new QWidget();
     scrollArea->setWidget(w);
     QVBoxLayout *vlayout = new QVBoxLayout();
@@ -32,15 +59,6 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     }
     vlayout->addStretch(1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-}
-
-void Timeline::paintEvent(QPaintEvent*)
-{
-    QPainter painter(this);
-    QPainterPath path;
-    path.addRect(0, 0, width(), height());
-    painter.fillPath(path, Qt::gray);
-    painter.drawPath(path);
 }
 
 void Timeline::gotoNextFrame()
