@@ -13,13 +13,23 @@ Layer::Layer(MainWindow* mw, int l): QWidget(mw)
     mainwindow = mw;
     layerPos = l;
 
-    setMaximumHeight(25);
-    setMinimumHeight(25);
+    setMaximumHeight(28);
+    setMinimumHeight(28);
     QHBoxLayout *hlayout = new QHBoxLayout();
     hlayout->setSpacing(0);
     hlayout->setMargin(0);
     setLayout( hlayout );
 
+    QLabel* titleLabel = new QLabel(tr(("Layer_" + std::to_string(getPos())).c_str()));
+    titleLabel->setStyleSheet(
+        "QLabel {"
+            "qproperty-alignment: AlignCenter;"
+            "color: black;"
+            "font-size: 12px;"
+            "min-width: 75;"
+        "}"
+    );
+    hlayout->addWidget(titleLabel);
 
     for (int i =0; i < 200; i++)
     {

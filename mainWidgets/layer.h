@@ -24,7 +24,7 @@ protected:
 private:
     MainWindow* mainwindow;
     int layerPos;
-
+    double opacity = 1.0;
     QList<Frame*> frames;
 
 };
