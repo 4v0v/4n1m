@@ -17,7 +17,6 @@ Frame::Frame(MainWindow* mw, Layer* l, int p): QWidget(mw)
     setMaximumWidth(15);
 }
 
-
 void Frame::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     QPainterPath path;

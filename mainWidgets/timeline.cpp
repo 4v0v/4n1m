@@ -25,7 +25,7 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     vlayout->setMargin(0);
     w->setLayout( vlayout );
 
-    for (int i =0; i < 3; i++)
+    for (int i = 0; i < 3; i++)
     {
         layers.insert(i, new Layer(mainwindow, i));
         vlayout->addWidget(layers[i]);
@@ -45,7 +45,7 @@ void Timeline::paintEvent(QPaintEvent*)
 
 void Timeline::gotoNextFrame()
 {
-    if (editor()->isScribbling()) return;
+    if (editor()->isScribbling() || getPos() == 199) return;
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()+1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
