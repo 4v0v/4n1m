@@ -34,8 +34,12 @@ public slots:
     void cutFrame();
     void pasteFrame();
 
+protected:
+    void wheelEvent(QWheelEvent*) override;
+
 private:
     MainWindow* mainwindow;
+    QScrollArea* timelineScroll;
 
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;

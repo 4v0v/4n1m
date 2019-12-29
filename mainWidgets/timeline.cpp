@@ -13,32 +13,26 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     mainwindow = mw;
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
 
-    QScrollArea* scrollArea = new QScrollArea(this);
-    scrollArea->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    scrollArea->setWidgetResizable( true );
-    scrollArea->setGeometry(x(), y(), width(), 101 );
+    timelineScroll = new QScrollArea(this);
+    timelineScroll->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    timelineScroll->setWidgetResizable( true );
+    timelineScroll->setGeometry(x(), y(), width(), 101 );
 
-    scrollArea->setStyleSheet(
+    timelineScroll->setStyleSheet(
         "QScrollBar:horizontal {"
-            "border: 2px solid grey;"
             "background: lightgrey;"
             "height: 15px;"
-            "margin: 0px 20px 0 20px;"
         "}"
         "QScrollBar::handle:horizontal {"
             "background: black;"
             "min-width: 20px;"
         "}"
         "QScrollBar::add-line:horizontal {"
-            "border: 2px solid grey;"
-            "background: grey;"
             "width: 20px;"
             "subcontrol-position: right;"
             "subcontrol-origin: margin;"
         "}"
         "QScrollBar::sub-line:horizontal {"
-            "border: 2px solid grey;"
-            "background: grey;"
             "width: 20px;"
             "subcontrol-position: left;"
             "subcontrol-origin: margin;"
@@ -46,7 +40,7 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     );
 
     QWidget* w = new QWidget();
-    scrollArea->setWidget(w);
+    timelineScroll->setWidget(w);
     QVBoxLayout *vlayout = new QVBoxLayout();
     vlayout->setSpacing(0);
     vlayout->setMargin(0);
@@ -59,6 +53,13 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     }
     vlayout->addStretch(1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
+}
+
+void Timeline::wheelEvent(QWheelEvent* event)
+{
+    timelineScroll->horizontalScrollBar()->setValue(
+        timelineScroll->horizontalScrollBar()->value() - event->delta()/4
+    );
 }
 
 void Timeline::gotoNextFrame()

@@ -20,7 +20,7 @@ Frame::Frame(MainWindow* mw, Layer* l, int p): QWidget(mw)
 void Frame::paintEvent(QPaintEvent*) {
     QPainter painter(this);
     QPainterPath path;
-    path.addRect(0, 0, width(), height());
+    path.addRect(0, 0, width(), height()-1);
     painter.fillPath(path, keyColor);
     painter.setPen(QPen(Qt::black, 1));
     painter.drawPath(path);
