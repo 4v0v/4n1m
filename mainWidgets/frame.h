@@ -18,7 +18,9 @@ public:
     Layer* getLayer() { return layer;}
     int getPos() { return framePos; }
 
-    void toggleIsKey();
+    void toggleIsKey() { isKey = !isKey; updateKey(); }
+    void setIsKey(bool b) { isKey = b; updateKey(); }
+    void updateKey();
     void toggleIsCurrent();
 
 
@@ -31,6 +33,8 @@ public:
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
+    void mouseDoubleClickEvent(QMouseEvent*) override;
+
 
 private:
     MainWindow* mainwindow;

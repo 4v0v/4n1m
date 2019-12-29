@@ -90,6 +90,9 @@ InsertFrameCommand::InsertFrameCommand(int l, int p, Animation* o, QUndoCommand*
 void InsertFrameCommand::undo()
 {
     animation->foreachKey(layer, [this](int i){
+        if (i > 198) return;
+        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKey();
+        animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKey();
         QImage img = animation->copyImageAt(layer, i);
         animation->removeKeyAt(layer, i);
         animation->addKeyAt(layer, i - 1, img);
@@ -101,10 +104,14 @@ void InsertFrameCommand::undo()
 void InsertFrameCommand::redo()
 {
     animation->foreachKeyRevert(layer, [this](int i){
-            QImage img = animation->copyImageAt(layer, i);
-            animation->addKeyAt(layer, i + 1, img);
-            animation->removeKeyAt(layer, i);
+        if (i > 198) return;
+        animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKey();
+        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKey();
+        QImage img = animation->copyImageAt(layer, i);
+        animation->addKeyAt(layer, i + 1, img);
+        animation->removeKeyAt(layer, i);
     }, animation->isKey(layer, pos) ? pos + 1 : pos);
+
     animation->editor()->update();
     animation->timeline()->update();
     setText("insert frame");
@@ -120,6 +127,9 @@ RemoveFrameCommand::RemoveFrameCommand(int l, int p, Animation* o, QUndoCommand*
 void RemoveFrameCommand::undo()
 {
     animation->foreachKeyRevert(layer, [this](int i){
+        if (i > 198) return;
+        animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKey();
+        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKey();
         QImage img = animation->copyImageAt(layer, i);
         animation->addKeyAt(layer, i + 1, img);
         animation->removeKeyAt(layer, i);
@@ -131,6 +141,9 @@ void RemoveFrameCommand::undo()
 void RemoveFrameCommand::redo()
 {
     animation->foreachKey(layer, [this](int i){
+        if (i > 198) return;
+        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKey();
+        animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKey();
         QImage img = animation->copyImageAt(layer, i);
         animation->removeKeyAt(layer, i);
         animation->addKeyAt(layer, i - 1, img);

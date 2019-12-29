@@ -23,6 +23,7 @@ protected:
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
+    void wheelEvent(QWheelEvent*) override;
 
 private:
     MainWindow* mainwindow;
@@ -30,6 +31,7 @@ private:
     QTimer* timer;
     int currentPosition = 0;
     int waitBeforeLoop = 0;
+    int zoom = 100;
     QPoint p;
     int isDown = false;
 };

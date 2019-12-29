@@ -23,14 +23,19 @@ void Preview::paintEvent(QPaintEvent* event)
     QPainterPath path;
     animation()->foreachLayerRevert([&painter, &event, this](int i){
         if (animation()->getKeyCount(i) == 0 ) return;
-        if (animation()->isKey(i, currentPosition)) painter.drawImage( event->rect(), animation()->copyImageAt(i, currentPosition), event->rect() );
+        if (animation()->isKey(i, currentPosition))
+        {
+            QImage img = animation()->copyImageAt(i, currentPosition);
+            painter.drawImage( event->rect(), img.scaled(img.width()*zoom/100, img.height()*zoom/100) , event->rect() );
+        }
         else
         {
             if (animation()->getPrevKey(i, currentPosition) == -1) return;
-            painter.drawImage(event->rect(), animation()->copyImageAt(i, animation()->getPrevKey(i, currentPosition)), event->rect());
+            QImage img = animation()->copyImageAt(i, animation()->getPrevKey(i, currentPosition));
+            painter.drawImage(event->rect(), img.scaled(img.width()*zoom/100, img.height()*zoom/100), event->rect());
         }
     });
-    path.addRect(0, 0, editor()->width()-1, editor()->height()-1);
+    path.addRect(0, 0, (editor()->width()-1)*zoom/100, (editor()->height()-1)*zoom/100);
     painter.fillPath(path,QColor(0, 0, 0, 1));
     painter.setPen(QPen(Qt::white));
     painter.drawPath(path);
@@ -57,4 +62,11 @@ void Preview::mouseMoveEvent(QMouseEvent *event)
     if(!isDown) return;
     QPoint diff= event->pos() - p;
     window()->move(window()->pos()+diff);
+}
+
+void Preview::wheelEvent(QWheelEvent*)
+{
+//    zoom += event->delta()/10;
+//    setMaximumSize(QSize(editor()->width()-1*zoom/100, editor()->height()-1*zoom/100));
+//    setMinimumSize(QSize(editor()->width()-1*zoom/100, editor()->height()-1*zoom/100));
 }

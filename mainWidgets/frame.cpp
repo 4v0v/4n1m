@@ -15,6 +15,7 @@ Frame::Frame(MainWindow* mw, Layer* l, int p): QWidget(mw)
     framePos = p;
     setMinimumWidth(15);
     setMaximumWidth(15);
+    SetDoubleClickTime(200);
 }
 
 void Frame::paintEvent(QPaintEvent*) {
@@ -36,6 +37,14 @@ void Frame::mousePressEvent(QMouseEvent*)
     update();
 }
 
+void Frame::mouseDoubleClickEvent(QMouseEvent*)
+{
+    timeline()->addKey();
+    update();
+}
+
+
+
 void Frame::toggleIsCurrent(){
     isCurrent = !isCurrent;
 
@@ -45,7 +54,7 @@ void Frame::toggleIsCurrent(){
         currentColorAnim->setLoopCount(-1);
         currentColorAnim->setDuration(1000);
         currentColorAnim->setKeyValueAt(0, 255);
-        currentColorAnim->setKeyValueAt(0.5, 0);
+        currentColorAnim->setKeyValueAt(0.75, 0);
         currentColorAnim->setKeyValueAt(1, 255);
         currentColorAnim->start();
     } else {
@@ -53,26 +62,25 @@ void Frame::toggleIsCurrent(){
         currentColorAnim->setLoopCount(1);
         currentColorAnim->setDuration(500);
         currentColorAnim->setKeyValueAt(0, currentColor.alpha());
-        currentColorAnim->setKeyValueAt(0.5, 0);
+        currentColorAnim->setKeyValueAt(0.75, 0);
         currentColorAnim->setKeyValueAt(1, 0);
         currentColorAnim->start();
     }
 }
 
-void Frame::toggleIsKey()
+void Frame::updateKey()
 {
-    isKey = !isKey;
-
     if (isKey)
     {
-        keyColorAnim->setDuration(500);
-        keyColorAnim->setKeyValueAt(0, 255);
+        keyColorAnim->setDuration(200);
+        keyColorAnim->setKeyValueAt(0, keyColor.red());
         keyColorAnim->setKeyValueAt(1, 0);
         keyColorAnim->start();
     } else {
-        keyColorAnim->setDuration(500);
-        keyColorAnim->setKeyValueAt(0, 0);
+        keyColorAnim->setDuration(200);
+        keyColorAnim->setKeyValueAt(0, keyColor.red());
         keyColorAnim->setKeyValueAt(1, 255);
         keyColorAnim->start();
     }
 }
+
