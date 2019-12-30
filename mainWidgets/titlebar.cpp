@@ -1,10 +1,9 @@
 #include "animation.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
 #include "preview.h"
 #include "commands.h"
+#include "mainWidgets/editor.h"
+#include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
-#include "menubar.h"
 
 Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
 {
@@ -31,6 +30,7 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     layout->addWidget(titleLabel, 3, Qt::AlignCenter);
 
     QPushButton* minimizeButton = new QPushButton(tr("_"));
+    minimizeButton->setFocusPolicy(Qt::NoFocus);
     minimizeButton->setStyleSheet(
                 "QPushButton"
                 "{"
@@ -51,6 +51,7 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     connect(minimizeButton, &QPushButton::clicked, this, &Titlebar::minimizeWindow);
 
     QPushButton* closeButton = new QPushButton(tr("X"));
+    closeButton->setFocusPolicy(Qt::NoFocus);
     closeButton->setStyleSheet(
                 "QPushButton"
                 "{"

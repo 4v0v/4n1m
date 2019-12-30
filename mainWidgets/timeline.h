@@ -4,7 +4,6 @@
 #include "mainwindow.h"
 #include "mainWidgets/layer.h"
 
-
 class TimelineScrollArea : public QScrollArea
 {
      Q_OBJECT
@@ -14,6 +13,7 @@ public:
 
 protected:
     void wheelEvent(QWheelEvent*) override;
+    void keyPressEvent(QKeyEvent*) override{};
 
 private:
     MainWindow* mainwindow;

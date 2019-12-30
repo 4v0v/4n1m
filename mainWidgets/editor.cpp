@@ -4,7 +4,6 @@
 #include "preview.h"
 #include "commands.h"
 #include "mainWidgets/titlebar.h"
-#include "menubar.h"
 
 Editor::Editor(MainWindow* mw): QWidget(mw)
 {

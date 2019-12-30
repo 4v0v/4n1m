@@ -13,7 +13,6 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
 
     timelineScroll = new TimelineScrollArea(mainwindow, this);
-
 }
 
 void Timeline::gotoNextFrame()
@@ -134,6 +133,7 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
 {
     mainwindow = mw;
 
+    setFocusPolicy(Qt::NoFocus);
     setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
     setWidgetResizable( true );
     setGeometry(t->x(), t->y(), t->width(), 101 );

@@ -69,6 +69,9 @@ public slots:
     void toggleStayOnTop();
     void checkTool(Tool);
 
+protected:
+    void keyPressEvent(QKeyEvent*) override;
+
 private:
     Editor* editor;
     Timeline* timeline;

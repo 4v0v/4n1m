@@ -13,6 +13,7 @@ MainWindow::MainWindow()
     setWindowFlags(Qt::FramelessWindowHint | Qt::WindowMinimizeButtonHint);
     setAttribute(Qt::WA_TranslucentBackground, true);
     setWindowTitle(tr("4n1m"));
+    setFocusPolicy(Qt::StrongFocus);
 
     // Init Widgets
     undostack = new QUndoStack(this);
@@ -34,20 +35,28 @@ MainWindow::MainWindow()
     setCentralWidget(window);
 
     QPushButton* pen = new QPushButton("P", window);
-    pen->setGeometry(0, 60, 50, 50);
+    pen->setGeometry(0, 40, 40, 40);
     QPushButton* line = new QPushButton("L", window);
-    line->setGeometry(0, 105, 50, 50);
+    line->setGeometry(0, 80-4, 40, 40);
     QPushButton* lassofill = new QPushButton("F", window);
-    lassofill->setGeometry(0, 150, 50, 50);
+    lassofill->setGeometry(0, 120-8, 40, 40);
     QPushButton* eraser = new QPushButton("E", window);
-    eraser->setGeometry(0, 195, 50, 50);
+    eraser->setGeometry(0, 160-12, 40, 40);
     QPushButton* other = new QPushButton("O", window);
-    other->setGeometry(0, 240, 50, 50);
+    other->setGeometry(0, 200-16, 40, 40);
     QPushButton* undo = new QPushButton("<=", window);
-    undo->setGeometry(0, 290, 25, 25);
+    undo->setGeometry(0, 240-18, 20, 20);
     QPushButton* redo = new QPushButton("=>", window);
-    redo->setGeometry(25, 290, 25, 25);
+    redo->setGeometry(20, 240-18, 20, 20);
 
+    QPushButton* p1 = new QPushButton("P1", window);
+    p1->setGeometry(36, 60, 30, 30);
+    QPushButton* p2 = new QPushButton("P2", window);
+    p2->setGeometry(36, 90-4, 30, 30);
+    QPushButton* p3 = new QPushButton("P3", window);
+    p3->setGeometry(36, 120-8, 30, 30);
+    QPushButton* p4 = new QPushButton("P4", window);
+    p4->setGeometry(36, 150-12, 30, 30);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
@@ -60,10 +69,6 @@ MainWindow::MainWindow()
     QAction* changeFPSAct = new QAction(tr("FPS..."), this);
     QAction* clearScreenAct = new QAction(tr("Clear Screen"), this);
     QAction* knockbackAct = new QAction(tr("Knockback"), this);
-    QAction* gotoNextFrameAct = new QAction(tr("Next frame"), this);
-    QAction* gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
-    QAction* gotoNextLayerAct = new QAction(tr("Next layer"), this);
-    QAction* gotoPrevLayerAct = new QAction(tr("Prev layer"), this);
     QAction* addKeyAct = new QAction(tr("Add Key"), this);
     QAction* removeKeyAct = new QAction(tr("Remove Key"), this);
     QAction* insertFrameAct = new QAction(tr("Insert frame"), this);
@@ -106,10 +111,6 @@ MainWindow::MainWindow()
     changeKnockbackAct->setShortcut(Qt::Key_0);
     changeBackgroundColorAct->setShortcut(Qt::Key_8);
     changeFPSAct->setShortcut(Qt::Key_8);
-    gotoNextFrameAct->setShortcut(Qt::Key_Right);
-    gotoPrevFrameAct->setShortcut(Qt::Key_Left);
-    gotoNextLayerAct->setShortcut(Qt::Key_Down);
-    gotoPrevLayerAct->setShortcut(Qt::Key_Up);
     knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
     removeKeyAct->setShortcut(tr("W"));
@@ -148,10 +149,6 @@ MainWindow::MainWindow()
     connect(setToolAsLineAct, &QAction::triggered, this, [this]{ editor->setToolAsLine(); checkTool(Tool::LINE); });
     connect(setToolAsLassoFillAct, &QAction::triggered, this, [this]{ editor->setToolAsLassoFill(); checkTool(Tool::LASSOFILL); });
     connect(setToolAsEraserAct, &QAction::triggered, this, [this]{ editor->setToolAsEraser(); checkTool(Tool::ERASER); });
-    connect(gotoNextFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoNextFrame()));
-    connect(gotoPrevFrameAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevFrame()));
-    connect(gotoNextLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoNextLayer()));
-    connect(gotoPrevLayerAct, SIGNAL(triggered()), timeline, SLOT(gotoPrevLayer()));
     connect(addKeyAct, SIGNAL(triggered()), timeline, SLOT(addKey()));
     connect(removeKeyAct, SIGNAL(triggered()), timeline, SLOT(removeKey()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
@@ -164,16 +161,15 @@ MainWindow::MainWindow()
     QMenu *optionMenu = new QMenu(tr("="), this);
     optionMenu->addAction(saveAnimationAct);
     optionMenu->addSeparator();
-    optionMenu->addAction(gotoNextFrameAct);
-    optionMenu->addAction(gotoPrevFrameAct);
-    optionMenu->addAction(gotoNextLayerAct);
-    optionMenu->addAction(gotoPrevLayerAct);
     optionMenu->addAction(addKeyAct);
     optionMenu->addAction(removeKeyAct);
     optionMenu->addAction(insertFrameAct);
     optionMenu->addAction(removeFrameAct);
     optionMenu->addAction(clearScreenAct);
     optionMenu->addAction(knockbackAct);
+    optionMenu->addSeparator();
+    optionMenu->addAction(openUndoStackWindowAct);
+    optionMenu->addAction(openPreviewWindowAct);
     optionMenu->addSeparator();
     optionMenu->addAction(copyFrameAct);
     optionMenu->addAction(cutFrameAct);
@@ -192,9 +188,6 @@ MainWindow::MainWindow()
     toolsMenu->addAction(changeBackgroundColorAct);
     toolsMenu->addAction(changeFPSAct);
     toolsMenu->addAction(changeUndoAmountAct);
-    toolsMenu->addSeparator();
-    toolsMenu->addAction(openUndoStackWindowAct);
-    toolsMenu->addAction(openPreviewWindowAct);
     toolsMenu->addSeparator();
     toolsMenu->addAction(setToolAsPenAct);
     toolsMenu->addAction(setToolAsLineAct);
@@ -348,5 +341,16 @@ void MainWindow::checkTool(Tool t)
             break;
         case Tool::EMPTY:
             break;
+    }
+}
+
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    switch  (event->key())
+    {
+        case Qt::Key_Up: timeline->gotoPrevLayer(); break;
+        case Qt::Key_Down: timeline->gotoNextLayer(); break;
+        case Qt::Key_Left: timeline->gotoPrevFrame(); break;
+        case Qt::Key_Right: timeline->gotoNextFrame(); break;
     }
 }
