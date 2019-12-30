@@ -36,27 +36,38 @@ MainWindow::MainWindow()
 
     QPushButton* pen = new QPushButton("P", window);
     pen->setGeometry(0, 40, 40, 40);
+    pen->setFocusPolicy(Qt::NoFocus);
     QPushButton* line = new QPushButton("L", window);
     line->setGeometry(0, 80-4, 40, 40);
+    line->setFocusPolicy(Qt::NoFocus);
     QPushButton* lassofill = new QPushButton("F", window);
     lassofill->setGeometry(0, 120-8, 40, 40);
+    lassofill->setFocusPolicy(Qt::NoFocus);
     QPushButton* eraser = new QPushButton("E", window);
     eraser->setGeometry(0, 160-12, 40, 40);
+    eraser->setFocusPolicy(Qt::NoFocus);
     QPushButton* other = new QPushButton("O", window);
     other->setGeometry(0, 200-16, 40, 40);
+    other->setFocusPolicy(Qt::NoFocus);
     QPushButton* undo = new QPushButton("<=", window);
     undo->setGeometry(0, 240-18, 20, 20);
+    undo->setFocusPolicy(Qt::NoFocus);
     QPushButton* redo = new QPushButton("=>", window);
     redo->setGeometry(20, 240-18, 20, 20);
+    redo->setFocusPolicy(Qt::NoFocus);
 
     QPushButton* p1 = new QPushButton("P1", window);
     p1->setGeometry(36, 60, 30, 30);
+    p1->setFocusPolicy(Qt::NoFocus);
     QPushButton* p2 = new QPushButton("P2", window);
     p2->setGeometry(36, 90-4, 30, 30);
+    p2->setFocusPolicy(Qt::NoFocus);
     QPushButton* p3 = new QPushButton("P3", window);
     p3->setGeometry(36, 120-8, 30, 30);
+    p3->setFocusPolicy(Qt::NoFocus);
     QPushButton* p4 = new QPushButton("P4", window);
     p4->setGeometry(36, 150-12, 30, 30);
+    p4->setFocusPolicy(Qt::NoFocus);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
