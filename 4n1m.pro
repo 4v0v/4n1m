@@ -24,7 +24,6 @@ SOURCES += \
     commands.cpp \
     preview.cpp \
     mainWidgets/editor.cpp \
-    mainWidgets/menubar.cpp \
     mainWidgets/timeline.cpp \
     mainWidgets/titlebar.cpp
 
@@ -36,7 +35,6 @@ HEADERS += \
     commands.h \
     preview.h \
     mainWidgets/editor.h \
-    mainWidgets/menubar.h \
     mainWidgets/timeline.h \
     mainWidgets/titlebar.h
 

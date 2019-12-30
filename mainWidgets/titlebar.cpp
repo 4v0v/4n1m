@@ -12,11 +12,13 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 25);
     setMaximumHeight(25);
 
-
     QHBoxLayout* layout = new QHBoxLayout(this);
 
     layout->setMargin(0);
     layout->setSpacing(0);
+
+    menubar = new QMenuBar();
+    layout->addWidget(menubar);
 
     QLabel* titleLabel = new QLabel(tr("4n1m"));
     titleLabel->setStyleSheet(

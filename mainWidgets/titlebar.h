@@ -9,6 +9,7 @@ class Titlebar : public QWidget
 
 public:
     Titlebar(MainWindow*);
+    QMenuBar* getMenubar() { return menubar; }
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
@@ -23,6 +24,7 @@ public slots:
 private:
     MainWindow* mainwindow;
 
+    QMenuBar* menubar;
     QPoint p;
     int isDown = false;
 };

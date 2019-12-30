@@ -5,7 +5,6 @@
 #include "mainWidgets/editor.h"
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
-#include "mainWidgets/menubar.h"
 
 MainWindow::MainWindow()
 {
@@ -19,7 +18,6 @@ MainWindow::MainWindow()
     undostack = new QUndoStack(this);
     animation = new Animation(this);
     titlebar = new Titlebar(this);
-    menubar = new Menubar(this);
     editor = new Editor(this);
     timeline = new Timeline(this);
     undostack->setUndoLimit(undostackAmount);
@@ -29,7 +27,6 @@ MainWindow::MainWindow()
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(titlebar);
-    layout->addWidget(menubar);
     layout->addWidget(editor, 5);
     layout->addWidget(timeline, 1);
     QWidget* window = new QWidget();
@@ -164,7 +161,7 @@ MainWindow::MainWindow()
     connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
 
     // Create Menus
-    QMenu *optionMenu = new QMenu(tr("Menu"), this);
+    QMenu *optionMenu = new QMenu(tr("="), this);
     optionMenu->addAction(saveAnimationAct);
     optionMenu->addSeparator();
     optionMenu->addAction(gotoNextFrameAct);
@@ -184,9 +181,9 @@ MainWindow::MainWindow()
     optionMenu->addAction(undoAct);
     optionMenu->addAction(redoAct);
     optionMenu->addSeparator();
-    menubar->addMenu(optionMenu);
+    titlebar->getMenubar()->addMenu(optionMenu);
 
-    QMenu *toolsMenu = new QMenu(tr("Tools"), this);
+    QMenu *toolsMenu = new QMenu(tr("+"), this);
     toolsMenu->addAction(changePenColorAct);
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeEraserWidthAct);
@@ -207,7 +204,7 @@ MainWindow::MainWindow()
     toolsMenu->addAction(toggleOnionskinAct);
     toolsMenu->addAction(toggleOnionskinloopAct);
     toolsMenu->addAction(toggleStayOnTopAct);
-    menubar->addMenu(toolsMenu);
+    titlebar->getMenubar()->addMenu(toolsMenu);
 }
 
 

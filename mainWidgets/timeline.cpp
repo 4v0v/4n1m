@@ -4,7 +4,6 @@
 #include "mainWidgets/editor.h"
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
-#include "mainWidgets/menubar.h"
 #include "mainWidgets/layer.h"
 #include "mainWidgets/frame.h"
 
