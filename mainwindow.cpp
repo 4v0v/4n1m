@@ -71,7 +71,6 @@ MainWindow::MainWindow()
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
-    toggleLayerOpacityAct = new QAction(tr("Toggle layer transparency"), this);
 
     setToolAsPenAct->setCheckable(true);
     setToolAsLineAct->setCheckable(true);
@@ -80,10 +79,8 @@ MainWindow::MainWindow()
     toggleOnionskinAct->setCheckable(true);
     toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
-    toggleLayerOpacityAct->setCheckable(true);
     setToolAsPenAct->setChecked(true);
     toggleOnionskinAct->setChecked(true);
-    toggleLayerOpacityAct->setChecked(true);
 
     // Shortcuts
     setToolAsPenAct->setShortcut(Qt::Key_1);
@@ -110,7 +107,6 @@ MainWindow::MainWindow()
     openUndoStackWindowAct->setShortcut(tr("O"));
     toggleOnionskinAct->setShortcut(tr("Y"));
     toggleOnionskinloopAct->setShortcut(tr("H"));
-    toggleLayerOpacityAct->setShortcut(tr("T"));
     toggleStayOnTopAct->setShortcut(tr("U"));
     copyFrameAct->setShortcut(QKeySequence::Copy);
     cutFrameAct->setShortcut(QKeySequence::Cut);
@@ -133,7 +129,6 @@ MainWindow::MainWindow()
     connect(saveAnimationAct, SIGNAL(triggered()), animation, SLOT(saveAnimation()));
     connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
     connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
-    connect(toggleLayerOpacityAct, SIGNAL(triggered()), editor, SLOT(toggleLayerOpacity()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
     connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
@@ -194,7 +189,6 @@ MainWindow::MainWindow()
     toolsMenu->addSeparator();
     toolsMenu->addAction(toggleOnionskinAct);
     toolsMenu->addAction(toggleOnionskinloopAct);
-    toolsMenu->addAction(toggleLayerOpacityAct);
     toolsMenu->addAction(toggleStayOnTopAct);
     menubar->addMenu(toolsMenu);
 }

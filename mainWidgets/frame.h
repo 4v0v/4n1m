@@ -18,12 +18,14 @@ public:
     Layer* getLayer() { return layer;}
     int getPos() { return framePos; }
 
-    void toggleIsKey() { isKey = !isKey; updateKey(); }
-    void setIsKey(bool b) { isKey = b; updateKey(); }
-    void updateKey();
+    void toggleIsKey() { isKey = !isKey; animateKey(); }
+    void toggleIsKeyNoAnim() { 
+        isKey = !isKey; 
+        keyColor = isKey ? QColor(0, 0, 0, 255): QColor(255, 255, 255, 255);
+        update();
+    }
+    void animateKey();
     void toggleIsCurrent();
-
-
     int getAlphaCurrentColor() { return currentColor.alpha(); }
     void setAlphaCurrentColor(int a) { currentColor.setAlpha(a); update();}
 
@@ -34,7 +36,6 @@ protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent*) override;
-
 
 private:
     MainWindow* mainwindow;

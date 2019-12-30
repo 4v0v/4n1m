@@ -84,7 +84,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     if (getPos() == animation()->getLastKey(i) && animation()->getKeyCount(i) > 3)
                         drawOnionSkin(event, &globalPainter, &path, onionOpacityLoop, i, animation()->getFirstKey(i), QColor(Qt::darkGreen));
                 }
-                globalPainter.setOpacity(1.00);
+                globalPainter.setOpacity(1.0);
             }
 
             // Tool preview
@@ -124,9 +124,9 @@ void Editor::paintEvent(QPaintEvent* event)
             }
         }
 
-        if (layerOpacityVisible && i != timeline()->getLayer()) globalPainter.setOpacity(layerOpacity);
+        globalPainter.setOpacity(timeline()->getLayerWidgetAt(i)->getLayerTitle()->getOpacity());
         globalPainter.drawImage(event->rect(), img, event->rect());
-        globalPainter.setOpacity(1.00);
+        globalPainter.setOpacity(1.0);
     });
 }
 

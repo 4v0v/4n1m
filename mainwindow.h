@@ -86,7 +86,6 @@ private:
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;
-    QAction* toggleLayerOpacityAct;
 
     int FPS = 24;
     int undostackAmount = 30;

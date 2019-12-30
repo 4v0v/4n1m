@@ -24,7 +24,7 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
             "height: 15px;"
         "}"
         "QScrollBar::handle:horizontal {"
-            "background: black;"
+            "background: lightblack;"
             "min-width: 20px;"
         "}"
         "QScrollBar::add-line:horizontal {"

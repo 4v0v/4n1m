@@ -34,7 +34,6 @@ public slots:
     void knockback();
     void toggleOnionskin() { onionskinVisible = !onionskinVisible; update(); }
     void toggleOnionskinloop() { onionskinloopVisible = !onionskinloopVisible; update(); }
-    void toggleLayerOpacity() { layerOpacityVisible = !layerOpacityVisible; update(); }
     void setToolAsPen() { if (!scribbling) changeTool(Tool::PEN); }
     void setToolAsLine() { if (!scribbling) changeTool(Tool::LINE); }
     void setToolAsLassoFill() { if (!scribbling) changeTool(Tool::LASSOFILL); }
@@ -55,7 +54,6 @@ private:
     bool scribbling = false;
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;
-    bool layerOpacityVisible = true;
     int knockbackAmount = 50;
     double layerOpacity = 0.6;
     double onionOpacityFirst = 0.3;
@@ -64,9 +62,9 @@ private:
 
     int currentTool = Tool::PEN;
     QPolygon stroke;
-    QPen linePen = QPen(QColor(0,0,0,150), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen linePen = QPen(QColor(0,0,0,255), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserPen = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QBrush lassoBrush = QBrush(QColor(0,0,0,150), Qt::SolidPattern);
+    QBrush lassoBrush = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
 };
 
 #endif

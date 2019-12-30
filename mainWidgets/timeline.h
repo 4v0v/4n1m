@@ -19,6 +19,7 @@ public:
     int getLayer() { return timelineLayer; }
     void setLayer(int i) { timelineLayer = i; }
     Frame* getFrameWidgetAt(int l, int f) { return layers[l]->getFrameWidgetAt(f); }
+    Layer* getLayerWidgetAt(int l) { return layers[l]; }
 
 public slots:
     void gotoNextFrame();

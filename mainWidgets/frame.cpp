@@ -25,8 +25,7 @@ void Frame::paintEvent(QPaintEvent*) {
     painter.fillPath(path, keyColor);
     painter.setPen(QPen(Qt::black, 1));
     painter.drawPath(path);
-    painter.setPen(QPen(currentColor, 6));
-    painter.drawPath(path);
+    painter.fillPath(path, currentColor);
 }
 
 void Frame::mousePressEvent(QMouseEvent*)
@@ -42,8 +41,6 @@ void Frame::mouseDoubleClickEvent(QMouseEvent*)
     timeline()->addKey();
     update();
 }
-
-
 
 void Frame::toggleIsCurrent(){
     isCurrent = !isCurrent;
@@ -68,7 +65,7 @@ void Frame::toggleIsCurrent(){
     }
 }
 
-void Frame::updateKey()
+void Frame::animateKey()
 {
     if (isKey)
     {
