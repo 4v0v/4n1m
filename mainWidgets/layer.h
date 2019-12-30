@@ -4,7 +4,29 @@
 #include "mainwindow.h"
 #include "mainWidgets/frame.h"
 
-class LayerTitle;
+class LayerTitle : public QLabel
+{
+     Q_OBJECT
+public:
+    LayerTitle(MainWindow*);
+    double getOpacity() { return opacity; }
+
+protected:
+    void paintEvent(QPaintEvent*) override;
+    void mousePressEvent(QMouseEvent*) override;
+    void mouseMoveEvent(QMouseEvent*) override;
+    void mouseReleaseEvent(QMouseEvent*) override;
+
+private:
+    MainWindow* mainwindow;
+
+    bool isDown = false;
+    double opacity = 1.0;
+};
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 class Layer : public QWidget
 {
     Q_OBJECT
@@ -29,26 +51,6 @@ private:
     double opacity = 1.0;
     QList<Frame*> frames;
     LayerTitle* layerTitle;
-};
-
-class LayerTitle : public QLabel
-{
-     Q_OBJECT
-public:
-    LayerTitle(MainWindow*);
-    double getOpacity() { return opacity; }
-
-protected:
-    void paintEvent(QPaintEvent*) override;
-    void mousePressEvent(QMouseEvent*) override;
-    void mouseMoveEvent(QMouseEvent*) override;
-    void mouseReleaseEvent(QMouseEvent*) override;
-
-private:
-    MainWindow* mainwindow;
-
-    bool isDown = false;
-    double opacity = 1;
 };
 
 #endif

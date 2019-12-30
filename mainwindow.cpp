@@ -32,37 +32,53 @@ MainWindow::MainWindow()
     layout->addWidget(menubar);
     layout->addWidget(editor, 5);
     layout->addWidget(timeline, 1);
-    QWidget *window = new QWidget();
+    QWidget* window = new QWidget();
     window->setLayout(layout);
     setCentralWidget(window);
 
+    QPushButton* pen = new QPushButton("P", window);
+    pen->setGeometry(0, 60, 50, 50);
+    QPushButton* line = new QPushButton("L", window);
+    line->setGeometry(0, 105, 50, 50);
+    QPushButton* lassofill = new QPushButton("F", window);
+    lassofill->setGeometry(0, 150, 50, 50);
+    QPushButton* eraser = new QPushButton("E", window);
+    eraser->setGeometry(0, 195, 50, 50);
+    QPushButton* other = new QPushButton("O", window);
+    other->setGeometry(0, 240, 50, 50);
+    QPushButton* undo = new QPushButton("<=", window);
+    undo->setGeometry(0, 290, 25, 25);
+    QPushButton* redo = new QPushButton("=>", window);
+    redo->setGeometry(25, 290, 25, 25);
+
+
     // Create Actions
-    QAction *saveAnimationAct = new QAction(tr("Save animation"), this);
-    QAction *changePenColorAct = new QAction(tr("Color..."), this);
-    QAction *changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
-    QAction *changePenWidthAct = new QAction(tr("Pen Width..."), this);
-    QAction *changeEraserWidthAct = new QAction(tr("Eraser Width..."), this);
-    QAction *changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
-    QAction *changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
-    QAction *changeFPSAct = new QAction(tr("FPS..."), this);
-    QAction *clearScreenAct = new QAction(tr("Clear Screen"), this);
-    QAction *knockbackAct = new QAction(tr("Knockback"), this);
-    QAction *gotoNextFrameAct = new QAction(tr("Next frame"), this);
-    QAction *gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
-    QAction *gotoNextLayerAct = new QAction(tr("Next layer"), this);
-    QAction *gotoPrevLayerAct = new QAction(tr("Prev layer"), this);
-    QAction *addKeyAct = new QAction(tr("Add Key"), this);
-    QAction *removeKeyAct = new QAction(tr("Remove Key"), this);
-    QAction *insertFrameAct = new QAction(tr("Insert frame"), this);
-    QAction *removeFrameAct = new QAction(tr("Remove frame"), this);
-    QAction *openPreviewWindowAct = new QAction(tr("Preview"), this);
-    QAction *changeUndoAmountAct = new QAction(tr("Undo stack size ..."), this);
-    QAction *openUndoStackWindowAct = new QAction(tr("Open Undo Stack"), this);
-    QAction *copyFrameAct = new QAction(tr("Copy frame"), this);
-    QAction *cutFrameAct = new QAction(tr("Cut frame"), this);
-    QAction *pasteFrameAct = new QAction(tr("Paste frame"), this);
-    QAction *undoAct = undostack->createUndoAction(this, tr("&Undo"));
-    QAction *redoAct = undostack->createRedoAction(this, tr("&Redo"));
+    QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
+    QAction* changePenColorAct = new QAction(tr("Color..."), this);
+    QAction* changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
+    QAction* changePenWidthAct = new QAction(tr("Pen Width..."), this);
+    QAction* changeEraserWidthAct = new QAction(tr("Eraser Width..."), this);
+    QAction* changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
+    QAction* changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
+    QAction* changeFPSAct = new QAction(tr("FPS..."), this);
+    QAction* clearScreenAct = new QAction(tr("Clear Screen"), this);
+    QAction* knockbackAct = new QAction(tr("Knockback"), this);
+    QAction* gotoNextFrameAct = new QAction(tr("Next frame"), this);
+    QAction* gotoPrevFrameAct = new QAction(tr("Prev frame"), this);
+    QAction* gotoNextLayerAct = new QAction(tr("Next layer"), this);
+    QAction* gotoPrevLayerAct = new QAction(tr("Prev layer"), this);
+    QAction* addKeyAct = new QAction(tr("Add Key"), this);
+    QAction* removeKeyAct = new QAction(tr("Remove Key"), this);
+    QAction* insertFrameAct = new QAction(tr("Insert frame"), this);
+    QAction* removeFrameAct = new QAction(tr("Remove frame"), this);
+    QAction* openPreviewWindowAct = new QAction(tr("Preview"), this);
+    QAction* changeUndoAmountAct = new QAction(tr("Undo stack size ..."), this);
+    QAction* openUndoStackWindowAct = new QAction(tr("UndoStack"), this);
+    QAction* copyFrameAct = new QAction(tr("Copy"), this);
+    QAction* cutFrameAct = new QAction(tr("Cut"), this);
+    QAction* pasteFrameAct = new QAction(tr("Paste"), this);
+    QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
+    QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
 
     setToolAsPenAct = new QAction(tr("Pen"), this);
     setToolAsLineAct = new QAction(tr("Line"), this);
@@ -149,6 +165,8 @@ MainWindow::MainWindow()
 
     // Create Menus
     QMenu *optionMenu = new QMenu(tr("Menu"), this);
+    optionMenu->addAction(saveAnimationAct);
+    optionMenu->addSeparator();
     optionMenu->addAction(gotoNextFrameAct);
     optionMenu->addAction(gotoPrevFrameAct);
     optionMenu->addAction(gotoNextLayerAct);
@@ -169,7 +187,6 @@ MainWindow::MainWindow()
     menubar->addMenu(optionMenu);
 
     QMenu *toolsMenu = new QMenu(tr("Tools"), this);
-    toolsMenu->addAction(saveAnimationAct);
     toolsMenu->addAction(changePenColorAct);
     toolsMenu->addAction(changePenWidthAct);
     toolsMenu->addAction(changeEraserWidthAct);

@@ -13,6 +13,7 @@ Animation::Animation(MainWindow* mw): QWidget(mw)
     layers.insert(0, QMap<int, QImage>());
     layers.insert(1, QMap<int, QImage>());
     layers.insert(2, QMap<int, QImage>());
+    layers.insert(3, QMap<int, QImage>());
 }
 
 void Animation::resizeImage(int l, int p, int w , int h)

@@ -13,53 +13,8 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
     mainwindow = mw;
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
 
-    timelineScroll = new QScrollArea(this);
-    timelineScroll->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
-    timelineScroll->setWidgetResizable( true );
-    timelineScroll->setGeometry(x(), y(), width(), 101 );
+    timelineScroll = new TimelineScrollArea(mainwindow, this);
 
-    timelineScroll->setStyleSheet(
-        "QScrollBar:horizontal {"
-            "background: lightgrey;"
-            "height: 15px;"
-        "}"
-        "QScrollBar::handle:horizontal {"
-            "background: lightblack;"
-            "min-width: 20px;"
-        "}"
-        "QScrollBar::add-line:horizontal {"
-            "width: 20px;"
-            "subcontrol-position: right;"
-            "subcontrol-origin: margin;"
-        "}"
-        "QScrollBar::sub-line:horizontal {"
-            "width: 20px;"
-            "subcontrol-position: left;"
-            "subcontrol-origin: margin;"
-        "}"
-    );
-
-    QWidget* w = new QWidget();
-    timelineScroll->setWidget(w);
-    QVBoxLayout *vlayout = new QVBoxLayout();
-    vlayout->setSpacing(0);
-    vlayout->setMargin(0);
-    w->setLayout( vlayout );
-
-    for (int i = 0; i < 3; i++)
-    {
-        layers.insert(i, new Layer(mainwindow, i));
-        vlayout->addWidget(layers[i]);
-    }
-    vlayout->addStretch(1);
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-}
-
-void Timeline::wheelEvent(QWheelEvent* event)
-{
-    timelineScroll->horizontalScrollBar()->setValue(
-        timelineScroll->horizontalScrollBar()->value() - event->delta()/4
-    );
 }
 
 void Timeline::gotoNextFrame()
@@ -171,4 +126,59 @@ void Timeline::pasteFrame()
         undostack()->push(new ModifyImageCommand(i, j, getLayer(), getPos(), animation()));
     }
     else undostack()->push(new AddImageCommand(clipboard.copy(), getLayer(), getPos(), animation()));
+}
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
+TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollArea(t)
+{
+    mainwindow = mw;
+
+    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    setWidgetResizable( true );
+    setGeometry(t->x(), t->y(), t->width(), 101 );
+
+    setStyleSheet(
+        "QScrollBar:horizontal {"
+            "background: lightgrey;"
+            "height: 15px;"
+        "}"
+        "QScrollBar::handle:horizontal {"
+            "background: black;"
+            "min-width: 20px;"
+        "}"
+        "QScrollBar::add-line:horizontal {"
+            "width: 20px;"
+            "subcontrol-position: right;"
+            "subcontrol-origin: margin;"
+        "}"
+        "QScrollBar::sub-line:horizontal {"
+            "width: 20px;"
+            "subcontrol-position: left;"
+            "subcontrol-origin: margin;"
+        "}"
+    );
+
+    QWidget* w = new QWidget();
+    setWidget(w);
+    QVBoxLayout *vlayout = new QVBoxLayout();
+    vlayout->setSpacing(0);
+    vlayout->setMargin(0);
+    w->setLayout( vlayout );
+
+    for (int i = 0; i <= mainwindow->getAnimation()->getLastLayerPos(); i++)
+    {
+        layers.insert(i, new Layer(mainwindow, i));
+        vlayout->addWidget(layers[i]);
+    }
+    vlayout->addStretch(1);
+    getLayerWidgets()->at(t->getLayer())->getFrameWidgetAt(t->getPos())->toggleIsCurrent();
+}
+
+void TimelineScrollArea::wheelEvent(QWheelEvent* event)
+{
+    horizontalScrollBar()->setValue(
+        horizontalScrollBar()->value() - event->delta()/5
+    );
 }

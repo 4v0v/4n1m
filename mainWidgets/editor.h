@@ -62,7 +62,7 @@ private:
 
     int currentTool = Tool::PEN;
     QPolygon stroke;
-    QPen linePen = QPen(QColor(0,0,0,255), 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen linePen = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserPen = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassoBrush = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
 };
