@@ -37,15 +37,23 @@ MainWindow::MainWindow()
     QPushButton* pen = new QPushButton("P", window);
     pen->setGeometry(0, 40, 40, 40);
     pen->setFocusPolicy(Qt::NoFocus);
+    connect(pen, &QAbstractButton::clicked, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
+
     QPushButton* line = new QPushButton("L", window);
     line->setGeometry(0, 80-4, 40, 40);
     line->setFocusPolicy(Qt::NoFocus);
+    connect(line, &QAbstractButton::clicked, this, [this]{ editor->setToolAsLine(); checkTool(Tool::LINE); });
+
     QPushButton* lassofill = new QPushButton("F", window);
     lassofill->setGeometry(0, 120-8, 40, 40);
     lassofill->setFocusPolicy(Qt::NoFocus);
+    connect(lassofill, &QAbstractButton::clicked, this, [this]{ editor->setToolAsLassoFill(); checkTool(Tool::LASSOFILL); });
+
     QPushButton* eraser = new QPushButton("E", window);
     eraser->setGeometry(0, 160-12, 40, 40);
     eraser->setFocusPolicy(Qt::NoFocus);
+    connect(eraser, &QAbstractButton::clicked, this, [this]{ editor->setToolAsEraser(); checkTool(Tool::ERASER); });
+
     QPushButton* other = new QPushButton("O", window);
     other->setGeometry(0, 200-16, 40, 40);
     other->setFocusPolicy(Qt::NoFocus);
