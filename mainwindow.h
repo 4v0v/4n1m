@@ -28,6 +28,7 @@ class Animation;
 class Preview;
 class Titlebar;
 class Toolbar;
+class Subtoolbar;
 class Layer;
 class Frame;
 
@@ -51,6 +52,7 @@ public:
     Preview* getPreview() { return preview; }
     Titlebar* getTitlebar() { return titlebar; }
     Toolbar* getToolbar() { return toolbar; }
+    Subtoolbar* getSubtoolbar() { return subtoolbar; }
     QUndoStack* getUndoStack() { return undostack; }
     int getFPS() { return FPS; }
     QRect getWindowDimensions() { return windowDimensions; }
@@ -67,7 +69,6 @@ public slots:
     void openPreviewWindow();
     void openUndoStackWindow();
     void toggleStayOnTop();
-    void checkTool(Tool);
 
 protected:
     void keyPressEvent(QKeyEvent*) override;
@@ -79,7 +80,7 @@ private:
     Preview* preview;
     Titlebar* titlebar;
     Toolbar* toolbar;
-
+    Subtoolbar* subtoolbar;
     QUndoStack* undostack;
     QUndoView* undoView;
     

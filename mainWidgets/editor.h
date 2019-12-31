@@ -27,7 +27,7 @@ public:
     void drawLassoFill();
     void drawEraserStroke();
     void drawLine();
-    void changeTool(Tool t= Tool::EMPTY) { if (t != Tool::EMPTY) currentTool = t; }
+    void changeTool(Tool t= Tool::EMPTY) { currentTool = t; }
 
 public slots:
     void clearImage();
@@ -38,14 +38,13 @@ public slots:
     void setToolAsLine() { if (!scribbling) changeTool(Tool::LINE); }
     void setToolAsLassoFill() { if (!scribbling) changeTool(Tool::LASSOFILL); }
     void setToolAsEraser() { if (!scribbling) changeTool(Tool::ERASER); }
+    void setToolAsEmpty() { if (!scribbling) changeTool(Tool::EMPTY); }
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void paintEvent(QPaintEvent*) override;
-
-
 
 private:
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);

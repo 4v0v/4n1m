@@ -35,6 +35,7 @@ MainWindow::MainWindow()
     window->setLayout(layout);
     setCentralWidget(window);
     toolbar = new Toolbar(this, window);
+    subtoolbar = new Subtoolbar(this, window);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
@@ -68,14 +69,9 @@ MainWindow::MainWindow()
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
 
-    setToolAsPenAct->setCheckable(true);
-    setToolAsLineAct->setCheckable(true);
-    setToolAsLassoFillAct->setCheckable(true);
-    setToolAsEraserAct->setCheckable(true);
     toggleOnionskinAct->setCheckable(true);
     toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
-    setToolAsPenAct->setChecked(true);
     toggleOnionskinAct->setChecked(true);
 
     // Shortcuts
@@ -123,10 +119,10 @@ MainWindow::MainWindow()
     connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
-    connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
-    connect(setToolAsLineAct, &QAction::triggered, this, [this]{ editor->setToolAsLine(); checkTool(Tool::LINE); });
-    connect(setToolAsLassoFillAct, &QAction::triggered, this, [this]{ editor->setToolAsLassoFill(); checkTool(Tool::LASSOFILL); });
-    connect(setToolAsEraserAct, &QAction::triggered, this, [this]{ editor->setToolAsEraser(); checkTool(Tool::ERASER); });
+    connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); toolbar->checkTool(Tool::PEN); });
+    connect(setToolAsLineAct, &QAction::triggered, this, [this]{ editor->setToolAsLine(); toolbar->checkTool(Tool::LINE); });
+    connect(setToolAsLassoFillAct, &QAction::triggered, this, [this]{ editor->setToolAsLassoFill(); toolbar->checkTool(Tool::LASSOFILL); });
+    connect(setToolAsEraserAct, &QAction::triggered, this, [this]{ editor->setToolAsEraser(); toolbar->checkTool(Tool::ERASER); });
     connect(addKeyAct, SIGNAL(triggered()), timeline, SLOT(addKey()));
     connect(removeKeyAct, SIGNAL(triggered()), timeline, SLOT(removeKey()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
@@ -172,7 +168,6 @@ MainWindow::MainWindow()
     titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinloopAct);
     titlebar->getMenubar()->getToolsMenu()->addAction(toggleStayOnTopAct);
 }
-
 
 void MainWindow::openPenColorWindow()
 {
@@ -285,41 +280,9 @@ void MainWindow::toggleStayOnTop()
     #endif
 }
 
-void MainWindow::checkTool(Tool t)
-{
-    switch (t) {
-        case Tool::PEN:
-            setToolAsPenAct->setChecked(true);
-            setToolAsLineAct->setChecked(false);
-            setToolAsEraserAct->setChecked(false);
-            setToolAsLassoFillAct->setChecked(false);
-            break;
-        case Tool::LINE:
-            setToolAsPenAct->setChecked(false);
-            setToolAsLineAct->setChecked(true);
-            setToolAsEraserAct->setChecked(false);
-            setToolAsLassoFillAct->setChecked(false);
-            break;
-        case Tool::LASSOFILL:
-            setToolAsPenAct->setChecked(false);
-            setToolAsLineAct->setChecked(false);
-            setToolAsEraserAct->setChecked(false);
-            setToolAsLassoFillAct->setChecked(true);
-            break;
-        case Tool::ERASER:
-            setToolAsPenAct->setChecked(false);
-            setToolAsLineAct->setChecked(false);
-            setToolAsEraserAct->setChecked(true);
-            setToolAsLassoFillAct->setChecked(false);
-            break;
-        case Tool::EMPTY:
-            break;
-    }
-}
-
 void MainWindow::keyPressEvent(QKeyEvent* event)
 {
-    switch  (event->key())
+    switch (event->key())
     {
         case Qt::Key_Up: timeline->gotoPrevLayer(); break;
         case Qt::Key_Down: timeline->gotoNextLayer(); break;

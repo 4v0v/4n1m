@@ -31,6 +31,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
         case Tool::LASSOFILL: drawLassoFill(); break;
         case Tool::LINE: drawLine(); break;
         case Tool::ERASER: drawEraserStroke(); break;
+        case Tool::EMPTY: break;
     }
     stroke.clear();
     update();
@@ -109,6 +110,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.fillPath(path, lassoBrush);
                     break;
                 } case Tool::ERASER: {
+
                     if (stroke.count() < 1) break;
                     QImage tempImg = img.copy();
                     tempImg.fill(Qt::transparent);
@@ -120,6 +122,8 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.drawImage(QPoint(0,0), tempImg);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                     break;
+                } case Tool::EMPTY: {
+                    break;
                 }
             }
         }
@@ -127,6 +131,12 @@ void Editor::paintEvent(QPaintEvent* event)
         globalPainter.setOpacity(timeline()->getLayerWidgetAt(i)->getLayerTitle()->getOpacity());
         globalPainter.drawImage(event->rect(), img, event->rect());
         globalPainter.setOpacity(1.0);
+
+        if (currentTool == Tool::ERASER && scribbling)
+        {
+            globalPainter.setPen(QPen(Qt::red, 2));
+            globalPainter.drawEllipse(stroke.last().x() -eraserPen.width()/2 , stroke.last().y() - eraserPen.width()/2, eraserPen.width(), eraserPen.width());
+        }
     });
 }
 
