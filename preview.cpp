@@ -4,6 +4,7 @@
 #include "mainWidgets/editor.h"
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
+#include "mainWidgets/toolbar.h"
 
 Preview::Preview(MainWindow* mw)
 {

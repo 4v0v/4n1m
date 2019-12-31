@@ -5,6 +5,7 @@
 #include "mainWidgets/editor.h"
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
+#include "mainWidgets/toolbar.h"
 
 MainWindow::MainWindow()
 {
@@ -16,6 +17,7 @@ MainWindow::MainWindow()
     setFocusPolicy(Qt::StrongFocus);
 
     // Init Widgets
+    QWidget* window = new QWidget();
     undostack = new QUndoStack(this);
     animation = new Animation(this);
     titlebar = new Titlebar(this);
@@ -30,52 +32,9 @@ MainWindow::MainWindow()
     layout->addWidget(titlebar);
     layout->addWidget(editor, 5);
     layout->addWidget(timeline, 1);
-    QWidget* window = new QWidget();
     window->setLayout(layout);
     setCentralWidget(window);
-
-    QPushButton* pen = new QPushButton("P", window);
-    pen->setGeometry(0, 40, 40, 40);
-    pen->setFocusPolicy(Qt::NoFocus);
-    connect(pen, &QAbstractButton::clicked, this, [this]{ editor->setToolAsPen(); checkTool(Tool::PEN); });
-
-    QPushButton* line = new QPushButton("L", window);
-    line->setGeometry(0, 80-4, 40, 40);
-    line->setFocusPolicy(Qt::NoFocus);
-    connect(line, &QAbstractButton::clicked, this, [this]{ editor->setToolAsLine(); checkTool(Tool::LINE); });
-
-    QPushButton* lassofill = new QPushButton("F", window);
-    lassofill->setGeometry(0, 120-8, 40, 40);
-    lassofill->setFocusPolicy(Qt::NoFocus);
-    connect(lassofill, &QAbstractButton::clicked, this, [this]{ editor->setToolAsLassoFill(); checkTool(Tool::LASSOFILL); });
-
-    QPushButton* eraser = new QPushButton("E", window);
-    eraser->setGeometry(0, 160-12, 40, 40);
-    eraser->setFocusPolicy(Qt::NoFocus);
-    connect(eraser, &QAbstractButton::clicked, this, [this]{ editor->setToolAsEraser(); checkTool(Tool::ERASER); });
-
-    QPushButton* other = new QPushButton("O", window);
-    other->setGeometry(0, 200-16, 40, 40);
-    other->setFocusPolicy(Qt::NoFocus);
-    QPushButton* undo = new QPushButton("<=", window);
-    undo->setGeometry(0, 240-18, 20, 20);
-    undo->setFocusPolicy(Qt::NoFocus);
-    QPushButton* redo = new QPushButton("=>", window);
-    redo->setGeometry(20, 240-18, 20, 20);
-    redo->setFocusPolicy(Qt::NoFocus);
-
-    QPushButton* p1 = new QPushButton("P1", window);
-    p1->setGeometry(36, 60, 30, 30);
-    p1->setFocusPolicy(Qt::NoFocus);
-    QPushButton* p2 = new QPushButton("P2", window);
-    p2->setGeometry(36, 90-4, 30, 30);
-    p2->setFocusPolicy(Qt::NoFocus);
-    QPushButton* p3 = new QPushButton("P3", window);
-    p3->setGeometry(36, 120-8, 30, 30);
-    p3->setFocusPolicy(Qt::NoFocus);
-    QPushButton* p4 = new QPushButton("P4", window);
-    p4->setGeometry(36, 150-12, 30, 30);
-    p4->setFocusPolicy(Qt::NoFocus);
+    toolbar = new Toolbar(this, window);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
@@ -177,46 +136,41 @@ MainWindow::MainWindow()
     connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
 
     // Create Menus
-    QMenu *optionMenu = new QMenu(tr("="), this);
-    optionMenu->addAction(saveAnimationAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(addKeyAct);
-    optionMenu->addAction(removeKeyAct);
-    optionMenu->addAction(insertFrameAct);
-    optionMenu->addAction(removeFrameAct);
-    optionMenu->addAction(clearScreenAct);
-    optionMenu->addAction(knockbackAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(openUndoStackWindowAct);
-    optionMenu->addAction(openPreviewWindowAct);
-    optionMenu->addSeparator();
-    optionMenu->addAction(copyFrameAct);
-    optionMenu->addAction(cutFrameAct);
-    optionMenu->addAction(pasteFrameAct);
-    optionMenu->addAction(undoAct);
-    optionMenu->addAction(redoAct);
-    optionMenu->addSeparator();
-    titlebar->getMenubar()->addMenu(optionMenu);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(saveAnimationAct);
+    titlebar->getMenubar()->getOptionsMenu()->addSeparator();
+    titlebar->getMenubar()->getOptionsMenu()->addAction(addKeyAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(removeKeyAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(insertFrameAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(removeFrameAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(clearScreenAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(knockbackAct);
+    titlebar->getMenubar()->getOptionsMenu()->addSeparator();
+    titlebar->getMenubar()->getOptionsMenu()->addAction(openUndoStackWindowAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(openPreviewWindowAct);
+    titlebar->getMenubar()->getOptionsMenu()->addSeparator();
+    titlebar->getMenubar()->getOptionsMenu()->addAction(copyFrameAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(cutFrameAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(pasteFrameAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(undoAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(redoAct);
 
-    QMenu *toolsMenu = new QMenu(tr("+"), this);
-    toolsMenu->addAction(changePenColorAct);
-    toolsMenu->addAction(changePenWidthAct);
-    toolsMenu->addAction(changeEraserWidthAct);
-    toolsMenu->addAction(changeLassoFillStyleAct);
-    toolsMenu->addAction(changeKnockbackAct);
-    toolsMenu->addAction(changeBackgroundColorAct);
-    toolsMenu->addAction(changeFPSAct);
-    toolsMenu->addAction(changeUndoAmountAct);
-    toolsMenu->addSeparator();
-    toolsMenu->addAction(setToolAsPenAct);
-    toolsMenu->addAction(setToolAsLineAct);
-    toolsMenu->addAction(setToolAsLassoFillAct);
-    toolsMenu->addAction(setToolAsEraserAct);
-    toolsMenu->addSeparator();
-    toolsMenu->addAction(toggleOnionskinAct);
-    toolsMenu->addAction(toggleOnionskinloopAct);
-    toolsMenu->addAction(toggleStayOnTopAct);
-    titlebar->getMenubar()->addMenu(toolsMenu);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changePenColorAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changePenWidthAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeEraserWidthAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeLassoFillStyleAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeKnockbackAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeBackgroundColorAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeFPSAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(changeUndoAmountAct);
+    titlebar->getMenubar()->getToolsMenu()->addSeparator();
+    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsPenAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsLineAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsLassoFillAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsEraserAct);
+    titlebar->getMenubar()->getToolsMenu()->addSeparator();
+    titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinloopAct);
+    titlebar->getMenubar()->getToolsMenu()->addAction(toggleStayOnTopAct);
 }
 
 

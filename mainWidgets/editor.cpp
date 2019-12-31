@@ -1,9 +1,10 @@
 #include "animation.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
 #include "preview.h"
 #include "commands.h"
+#include "mainWidgets/editor.h"
+#include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
+#include "mainWidgets/toolbar.h"
 
 Editor::Editor(MainWindow* mw): QWidget(mw)
 {

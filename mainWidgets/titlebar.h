@@ -3,13 +3,34 @@
 
 #include "mainwindow.h"
 
+class Menubar : public QMenuBar
+{
+    Q_OBJECT
+
+public:
+    Menubar(MainWindow*);
+    QMenu* getOptionsMenu() { return options; }
+    QMenu* getToolsMenu() { return tools; }
+protected:
+    void paintEvent(QPaintEvent*) override;
+
+private:
+    MainWindow* mainwindow;
+
+    QMenu* options;
+    QMenu* tools;
+};
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 class Titlebar : public QWidget
 {
     Q_OBJECT
 
 public:
     Titlebar(MainWindow*);
-    QMenuBar* getMenubar() { return menubar; }
+    Menubar* getMenubar() { return menubar; }
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
@@ -24,7 +45,7 @@ public slots:
 private:
     MainWindow* mainwindow;
 
-    QMenuBar* menubar;
+    Menubar* menubar;
     QPoint p;
     int isDown = false;
 };

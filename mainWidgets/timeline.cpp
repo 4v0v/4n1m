@@ -6,6 +6,7 @@
 #include "mainWidgets/titlebar.h"
 #include "mainWidgets/layer.h"
 #include "mainWidgets/frame.h"
+#include "mainWidgets/toolbar.h"
 
 Timeline::Timeline(MainWindow* mw): QWidget(mw)
 {

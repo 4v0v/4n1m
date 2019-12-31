@@ -27,7 +27,7 @@ class Timeline;
 class Animation;
 class Preview;
 class Titlebar;
-class Menubar;
+class Toolbar;
 class Layer;
 class Frame;
 
@@ -50,7 +50,7 @@ public:
     Animation* getAnimation() { return animation; }
     Preview* getPreview() { return preview; }
     Titlebar* getTitlebar() { return titlebar; }
-    Menubar* getMenubar() { return menubar; }
+    Toolbar* getToolbar() { return toolbar; }
     QUndoStack* getUndoStack() { return undostack; }
     int getFPS() { return FPS; }
     QRect getWindowDimensions() { return windowDimensions; }
@@ -78,7 +78,8 @@ private:
     Animation* animation;
     Preview* preview;
     Titlebar* titlebar;
-    Menubar* menubar;
+    Toolbar* toolbar;
+
     QUndoStack* undostack;
     QUndoView* undoView;
     

@@ -4,6 +4,7 @@
 #include "mainWidgets/editor.h"
 #include "mainWidgets/timeline.h"
 #include "mainWidgets/titlebar.h"
+#include "mainWidgets/toolbar.h"
 
 ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
 {

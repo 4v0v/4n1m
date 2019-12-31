@@ -19,6 +19,7 @@ SOURCES += \
     main.cpp \
     mainWidgets/frame.cpp \
     mainWidgets/layer.cpp \
+    mainWidgets/toolbar.cpp \
     mainwindow.cpp \
     animation.cpp \
     commands.cpp \
@@ -30,6 +31,7 @@ SOURCES += \
 HEADERS += \
     mainWidgets/frame.h \
     mainWidgets/layer.h \
+    mainWidgets/toolbar.h \
     mainwindow.h \
     animation.h \
     commands.h \
