@@ -332,10 +332,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Down: timeline->gotoNextLayer(); break;
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
-        case Qt::Key_1: editor->setToolAsPen(); toolbar->setTool(Tool::PEN); break;
-        case Qt::Key_2: editor->setToolAsLine(); toolbar->setTool(Tool::LINE); break;
-        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setTool(Tool::LASSOFILL); break;
-        case Qt::Key_4: editor->setToolAsEraser(); toolbar->setTool(Tool::ERASER); break;
-        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setTool(Tool::EMPTY); break;
+        case Qt::Key_1: editor->setToolAsPen(); toolbar->switchToolbarButton(1); break;
+        case Qt::Key_2: editor->setToolAsLine(); toolbar->switchToolbarButton(2); break;
+        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->switchToolbarButton(3); break;
+        case Qt::Key_4: editor->setToolAsEraser(); toolbar->switchToolbarButton(4); break;
+        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->switchToolbarButton(5); break;
     }
 }

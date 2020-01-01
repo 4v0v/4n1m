@@ -27,7 +27,7 @@ class Toolbar : public QWidget
     Q_OBJECT
 public:
     Toolbar(MainWindow*, QWidget*);
-    void setTool(Tool);
+    void switchToolbarButton(int);
     void setSuboolbar(Subtoolbar* s) { subtoolbar = s; }
     Toolbarbutton* pen;
     Toolbarbutton* line;

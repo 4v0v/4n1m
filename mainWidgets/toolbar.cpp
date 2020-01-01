@@ -16,15 +16,15 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
 
     pen = new Toolbarbutton(mainwindow, this, "P", 0, 0, 40, 40);
     pen->setIscurrent(true); pen->setCurrentStyle();
-    connect(pen, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsPen(); this->setTool(Tool::PEN); });
+    connect(pen, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsPen(); this->switchToolbarButton(1); });
     line = new Toolbarbutton(mainwindow, this, "L", 0, 40, 40, 40);
-    connect(line, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsLine(); this->setTool(Tool::LINE); });
+    connect(line, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsLine(); this->switchToolbarButton(2); });
     lassofill = new Toolbarbutton(mainwindow, this, "F", 0, 80, 40, 40);
-    connect(lassofill, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsLassoFill(); this->setTool(Tool::LASSOFILL); });
+    connect(lassofill, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsLassoFill(); this->switchToolbarButton(3); });
     eraser = new Toolbarbutton(mainwindow, this, "E", 0, 120, 40, 40);
-    connect(eraser, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEraser(); this->setTool(Tool::ERASER); });
+    connect(eraser, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEraser(); this->switchToolbarButton(4); });
     other = new Toolbarbutton(mainwindow, this, "O", 0, 160, 40, 40);
-    connect(other, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEmpty(); this->setTool(Tool::EMPTY); });
+    connect(other, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEmpty(); this->switchToolbarButton(5); });
     knockback = new Toolbarbutton(mainwindow, this, "K", 0, 200, 40, 40);
     knockback->setStyleSheet(
         "QPushButton"
@@ -76,10 +76,10 @@ void Toolbar::paintEvent(QPaintEvent*)
     painter.drawPath(path);
 }
 
-void Toolbar::setTool(Tool t)
+void Toolbar::switchToolbarButton(int i)
 {
-    switch (t) {
-        case Tool::PEN:
+    switch (i) {
+        case 1:
             pen->setIscurrent(true); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
@@ -91,7 +91,7 @@ void Toolbar::setTool(Tool t)
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case Tool::LINE:
+        case 2:
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(true); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
@@ -103,7 +103,7 @@ void Toolbar::setTool(Tool t)
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case Tool::LASSOFILL:
+        case 3:
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(true); lassofill->setCurrentStyle();
@@ -115,7 +115,7 @@ void Toolbar::setTool(Tool t)
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case Tool::ERASER:
+        case 4:
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
@@ -127,7 +127,7 @@ void Toolbar::setTool(Tool t)
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 30);
             break;
-        case Tool::EMPTY:
+        case 5:
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
