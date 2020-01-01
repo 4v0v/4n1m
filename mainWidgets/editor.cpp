@@ -35,7 +35,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
         case Tool::PEN: drawPenStroke(); break;
         case Tool::LASSOFILL: drawLassoFill(); break;
         case Tool::LINE: drawLine(); break;
-        case Tool::ERASER: drawEraserStroke(); break;
+        case Tool::ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
         case Tool::EMPTY: break;
     }
     stroke.clear();
