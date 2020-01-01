@@ -138,6 +138,9 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
     setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn);
     horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
     verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
+    horizontalScrollBar()->setFocusPolicy(Qt::NoFocus);
+    verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
+//    horizontalScrollBar()->installEventFilter(this);
 
     setLayoutDirection(Qt::RightToLeft);
 
@@ -196,6 +199,18 @@ void TimelineScrollArea::resizeEvent(QResizeEvent* event)
 {
     QScrollArea::resizeEvent(event);
     horizontalScrollBar()->setValue(horizontalScrollBar()->maximum());
+}
+
+bool TimelineScrollArea::eventFilter(QObject* object, QEvent* event)
+{
+    if (event->type() == QEvent::Wheel && object == horizontalScrollBar())
+    {
+        QWheelEvent* wevent = static_cast<QWheelEvent*>(event);
+        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + wevent->delta()/5);
+        return true;
+    }
+    return false;
+
 }
 
 

@@ -11,10 +11,12 @@ public:
     TimelineScrollArea(MainWindow*, Timeline*);
     QList<Layer*>* getLayerWidgets() { return &layers; }
 
+
 protected:
     void wheelEvent(QWheelEvent*) override;
     void keyPressEvent(QKeyEvent*) override{};
     void resizeEvent(QResizeEvent*) override;
+    bool eventFilter(QObject*, QEvent*) override;
 
 private:
     MainWindow* mainwindow;
