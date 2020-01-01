@@ -24,7 +24,7 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     titleLabel->setStyleSheet(
                 "QLabel"
                 "{"
-                    "color: lightgray;"
+                    "color: rgb(210,210,210);"
                     "font-size: 15px;"
                 "}"
             );
@@ -37,10 +37,10 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
                 "{"
                     "width: 80px;"
                     "height: 25px;"
-                    "background-color: rgb(50,50,51);"
-                    "color: lightgray;"
+                    "background-color: rgb(50,50,50);"
+                    "color: rgb(210,210,210);"
                     "font-size: 15px;"
-                    "border: 1px solid rgb(50,50,51);"
+                    "border: 1px solid rgb(50,50,50);"
                 "}"
                 "QPushButton:hover:!pressed"
                 "{"
@@ -59,9 +59,9 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
                 "{"
                     "width: 80px;"
                     "height: 25px;"
-                    "background-color: rgb(50,50,51);"
-                    "border: 1px solid rgb(50,50,51);"
-                    "color: lightgray;"
+                    "background-color: rgb(50,50,50);"
+                    "border: 1px solid rgb(50,50,50);"
+                    "color: rgb(210,210,210);"
                     "font-size: 15px;"
                 "}"
                 "QPushButton:hover:!pressed"
@@ -83,8 +83,8 @@ void Titlebar::paintEvent(QPaintEvent*)
     QPainterPath path;
 
     path.addRect(0, 0, width(), height());
-    painter.fillPath(path, QColor(50, 50, 51));
-    painter.setPen(QPen(QColor(50, 50, 51), 1));
+    painter.fillPath(path, QColor(50, 50, 50));
+    painter.setPen(QPen(QColor(50, 50, 50), 1));
     painter.drawPath(path);
 }
 
@@ -116,14 +116,14 @@ Menubar::Menubar(MainWindow* mw): QMenuBar()
     setStyleSheet(
         "QMenuBar"
         "{"
-            "background-color: rgb(50,50,51);"
-            "color: lightgray;"
+            "background-color: rgb(50,50,50);"
+            "color: rgb(210,210,210);"
             "font-size: 15px;"
         "}"
         "QMenuBar::item:selected"
         "{"
             "background-color: rgb(75,75,75);"
-            "color: lightgray;"
+            "color: rgb(210,210,210);"
             "font-size: 15px;"
         "}"
     );
@@ -131,14 +131,14 @@ Menubar::Menubar(MainWindow* mw): QMenuBar()
     QString menuStyle =
     "QMenu"
     "{"
-        "background-color: rgb(50,50,51);"
-        "color: lightgray;"
+        "background-color: rgb(50,50,50);"
+        "color: rgb(210,210,210);"
         "font-size: 12px;"
     "}"
     "QMenu::item:selected"
     "{"
         "background-color: rgb(75,75,75);"
-        "color: lightgray;"
+        "color: rgb(210,210,210);"
         "font-size: 14px;"
     "}";
 

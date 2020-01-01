@@ -13,7 +13,7 @@ public:
 
 
 protected:
-    void wheelEvent(QWheelEvent*) override;
+    void wheelEvent(QWheelEvent*) override{};
     void keyPressEvent(QKeyEvent*) override{};
     void resizeEvent(QResizeEvent*) override;
     bool eventFilter(QObject*, QEvent*) override;

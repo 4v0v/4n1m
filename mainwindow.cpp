@@ -139,7 +139,7 @@ void MainWindow::openPenColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getPenTool()->color(), nullptr, QString("Pen color"), QColorDialog::ShowAlphaChannel);
+    QColor newColor = QColorDialog::getColor(editor->getPenTool()->color(), this, QString("Pen color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getPenTool()->setColor(newColor);
@@ -174,7 +174,7 @@ void MainWindow::openLineColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getLineTool()->color(), nullptr, QString("Line color"), QColorDialog::ShowAlphaChannel);
+    QColor newColor = QColorDialog::getColor(editor->getLineTool()->color(), this, QString("Line color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLineTool()->setColor(newColor);
@@ -205,7 +205,7 @@ void MainWindow::openLassofillColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getLassoFillTool()->color(), nullptr, QString("Lassofill color"), QColorDialog::ShowAlphaChannel);
+    QColor newColor = QColorDialog::getColor(editor->getLassoFillTool()->color(), this, QString("Lassofill color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLassoFillTool()->setColor(newColor);
@@ -227,7 +227,7 @@ void MainWindow::openLassofillStyleWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Lassofill style"), editor->getLassoFillTool()->style(), 1, 14, 1, &ok);
+    int newFillStyle = QInputDialog::getInt(this, tr("Lassofill style"), tr("Lassofill style"), editor->getLassoFillTool()->style(), 1, 14, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
 }
@@ -237,7 +237,7 @@ void MainWindow::openEraserWidthWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Eraser width"), tr("Select eraser width:"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
+    int newWidth = QInputDialog::getInt(this, tr("Eraser width"), tr("Eraser width"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getEraserTool()->setWidth(newWidth);
 }
@@ -246,7 +246,7 @@ void MainWindow::openBackgroundColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
+    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), this, QString("Background color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (newColor.isValid()) editor->setBackgroundColor(newColor);
     editor->update();
@@ -257,7 +257,7 @@ void MainWindow::openBackgroundOpacityWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newOpacity = QInputDialog::getInt(this, tr("Background opacity"), tr("Line opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Background opacity"), tr("Background opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QColor c = QColor(editor->getBackgroundColor().red(), editor->getBackgroundColor().green(), editor->getBackgroundColor().blue(), newOpacity == 0 ? 1 : newOpacity);
     if (ok) editor->setBackgroundColor(c);
@@ -269,7 +269,7 @@ void MainWindow::openKnockbackAmountWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newK = QInputDialog::getInt(this, tr("Knockback amount"), tr("Select knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
+    int newK = QInputDialog::getInt(this, tr("Knockback amount"), tr("Knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->setKnockbackAmount(newK);
 }
@@ -279,7 +279,7 @@ void MainWindow::openChangeFPSWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newFPS = QInputDialog::getInt(this, tr("Change FPS"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
+    int newFPS = QInputDialog::getInt(this, tr("Change FPS"), tr("Change FPS"), FPS, 1, 72, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) FPS = newFPS;
 }
@@ -289,7 +289,7 @@ void MainWindow::openUndoAmountWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int undoAmount = QInputDialog::getInt(this, tr("Fill Style"), tr("Select undo amount (This will delete the current undo stack)"), undostackAmount, 0, 100, 1, &ok);
+    int undoAmount = QInputDialog::getInt(this, tr("Undo size "), tr("Undo size (This will delete the current undo stack)"), undostackAmount, 0, 100, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) undostackAmount = undoAmount; undostack->clear(); undostack->setUndoLimit(undostackAmount);
 }

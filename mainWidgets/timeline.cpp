@@ -145,18 +145,18 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
     setLayoutDirection(Qt::RightToLeft);
 
     setWidgetResizable( true );
-    setGeometry(t->x(), t->y(), t->width(), 101 );
+    setGeometry(-1, 0, t->width(), 106 );
 
     setStyleSheet(
         "QScrollBar:vertical {\
             background: rgb(50,50,50);\
-            width: 15px;\
+            width: 21px;\
             margin: 0;\
         }\
         \
         QScrollBar:horizontal {\
             background: rgb(50,50,50);\
-            height: 15px;\
+            height: 22px;\
             margin: 0;\
         }\
         \
@@ -188,13 +188,6 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
     getLayerWidgets()->at(t->getLayer())->getFrameWidgetAt(t->getPos())->toggleIsCurrent();
 }
 
-void TimelineScrollArea::wheelEvent(QWheelEvent* event)
-{
-    horizontalScrollBar()->setValue(
-        horizontalScrollBar()->value() + event->delta()/5
-    );
-}
-
 void TimelineScrollArea::resizeEvent(QResizeEvent* event)
 {
     QScrollArea::resizeEvent(event);
@@ -203,14 +196,19 @@ void TimelineScrollArea::resizeEvent(QResizeEvent* event)
 
 bool TimelineScrollArea::eventFilter(QObject* object, QEvent* event)
 {
-    if (event->type() == QEvent::Wheel && object == horizontalScrollBar())
+    if (event->type() == QEvent::Wheel && object == verticalScrollBar())
+    {
+        QWheelEvent* wevent = static_cast<QWheelEvent*>(event);
+        verticalScrollBar()->setValue(verticalScrollBar()->value() - wevent->delta()/8);
+        return true;
+    }
+    else if (event->type() == QEvent::Wheel && object != verticalScrollBar())
     {
         QWheelEvent* wevent = static_cast<QWheelEvent*>(event);
         horizontalScrollBar()->setValue(horizontalScrollBar()->value() + wevent->delta()/5);
         return true;
     }
     return false;
-
 }
 
 

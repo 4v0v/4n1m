@@ -36,8 +36,8 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
         "}"
         "QPushButton:pressed"
         "{"
-            "background-color: black;"
-            "border: 1px solid black;"
+            "background-color: rgb(50,50,50);"
+            "border: 1px solid rgb(50,50,50);"
             "color: white;"
             "font-size: 10px;"
         "}"
@@ -56,7 +56,7 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
         "{"
             "background-color: white;"
             "border: 1px solid white;"
-            "color: black;"
+            "color: rgb(50,50,50);"
             "font-size: 10px;"
         "}"
     );
@@ -72,7 +72,7 @@ void Toolbar::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     QPainterPath path;
-    path.addRect(0, 0, width()-1, height()-1);
+    path.addRect(0, 0, width(), height());
     painter.drawPath(path);
 }
 
@@ -232,9 +232,9 @@ void Toolbarbutton::setCurrentStyle()
         setStyleSheet(
             "QPushButton"
             "{"
-                "background-color: rgb(50,50,51);"
-                "border: 1px solid rgb(50,50,51);"
-                "color: lightgray;"
+                "background-color: rgb(50,50,50);"
+                "border: 1px solid rgb(50,50,50);"
+                "color: rgb(210,210,210);"
                 "font-size: 12px;"
             "}"
         );
@@ -242,9 +242,9 @@ void Toolbarbutton::setCurrentStyle()
         setStyleSheet(
             "QPushButton"
             "{"
-                "background-color: lightgray;"
-                "border: 1px solid lightgray;"
-                "color: black;"
+                "background-color: rgb(210,210,210);"
+                "border: 1px solid rgb(210,210,210);"
+                "color: rgb(50,50,50);"
                 "font-size: 12px;"
             "}"
         );
@@ -256,14 +256,14 @@ void Toolbarbutton::setCurrentStyle()
             "{"
                 "background-color: rgb(175,175,175);"
                 "border: 1px solid rgb(175,175,175);"
-                "color: black;"
+                "color: rgb(50,50,50);"
                 "font-size: 10px;"
             "}"
             "QPushButton:pressed"
             "{"
-                "background-color: rgb(50,50,51);"
-                "border: 1px solid rgb(50,50,51);"
-                "color: lightgray;"
+                "background-color: rgb(50,50,50);"
+                "border: 1px solid rgb(50,50,50);"
+                "color: rgb(210,210,210);"
                 "font-size: 10px;"
             "}"
         );

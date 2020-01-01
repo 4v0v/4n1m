@@ -52,7 +52,7 @@ LayerTitle::LayerTitle(MainWindow* mw) : QLabel(mw)
     setStyleSheet(
         "QLabel {"
             "qproperty-alignment: AlignCenter;"
-            "color: black;"
+            "color: rgb(50,50,50);"
             "font-size: 12px;"
             "min-width: 75;"
         "}"
@@ -64,7 +64,7 @@ void LayerTitle::paintEvent(QPaintEvent* event)
     QPainter painter(this);
     QPainterPath path;
     path.addRect(0, 0, width() * opacity, height());
-    painter.fillPath(path, Qt::gray);
+    painter.fillPath(path, QColor(175, 175, 175));
     painter.drawPath(path);
     QLabel::paintEvent(event);
 }
