@@ -25,7 +25,7 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
                 "QLabel"
                 "{"
                     "color: rgb(210,210,210);"
-                    "font-size: 15px;"
+                    "font-size: 12px;"
                 "}"
             );
     layout->addWidget(titleLabel, 3, Qt::AlignCenter);
@@ -35,12 +35,11 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     minimizeButton->setStyleSheet(
                 "QPushButton"
                 "{"
-                    "width: 80px;"
+                    "width: 35px;"
                     "height: 25px;"
                     "background-color: rgb(50,50,50);"
-                    "color: rgb(210,210,210);"
-                    "font-size: 15px;"
                     "border: 1px solid rgb(50,50,50);"
+                    "color: rgb(210,210,210);"
                 "}"
                 "QPushButton:hover:!pressed"
                 "{"
@@ -52,17 +51,16 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     layout->addWidget(minimizeButton);
     connect(minimizeButton, &QPushButton::clicked, this, &Titlebar::minimizeWindow);
 
-    QPushButton* closeButton = new QPushButton(tr("X"));
+    QPushButton* closeButton = new QPushButton(tr("x"));
     closeButton->setFocusPolicy(Qt::NoFocus);
     closeButton->setStyleSheet(
                 "QPushButton"
                 "{"
-                    "width: 80px;"
+                    "width: 35px;"
                     "height: 25px;"
                     "background-color: rgb(50,50,50);"
                     "border: 1px solid rgb(50,50,50);"
                     "color: rgb(210,210,210);"
-                    "font-size: 15px;"
                 "}"
                 "QPushButton:hover:!pressed"
                 "{"
@@ -112,19 +110,21 @@ void Titlebar::mouseMoveEvent(QMouseEvent *event)
 Menubar::Menubar(MainWindow* mw): QMenuBar()
 {
     mainwindow = mw;
+    setMinimumWidth(140);
+    setMaximumWidth(140);
 
     setStyleSheet(
         "QMenuBar"
         "{"
             "background-color: rgb(50,50,50);"
             "color: rgb(210,210,210);"
-            "font-size: 15px;"
+             "width: 20px;"
+             "height: 20px;"
         "}"
         "QMenuBar::item:selected"
         "{"
             "background-color: rgb(75,75,75);"
             "color: rgb(210,210,210);"
-            "font-size: 15px;"
         "}"
     );
 
@@ -133,13 +133,11 @@ Menubar::Menubar(MainWindow* mw): QMenuBar()
     "{"
         "background-color: rgb(50,50,50);"
         "color: rgb(210,210,210);"
-        "font-size: 12px;"
     "}"
     "QMenu::item:selected"
     "{"
         "background-color: rgb(75,75,75);"
         "color: rgb(210,210,210);"
-        "font-size: 14px;"
     "}";
 
     options = new QMenu(tr("="));

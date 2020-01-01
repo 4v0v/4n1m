@@ -25,7 +25,7 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
     connect(eraser, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEraser(); this->setTool(Tool::ERASER); });
     other = new Toolbarbutton(mainwindow, this, "O", 0, 160, 40, 40);
     connect(other, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->setToolAsEmpty(); this->setTool(Tool::EMPTY); });
-    knockback = new Toolbarbutton(mainwindow, this, "[K]", 0, 200, 40, 40);
+    knockback = new Toolbarbutton(mainwindow, this, "K", 0, 200, 40, 40);
     knockback->setStyleSheet(
         "QPushButton"
         "{"
@@ -43,7 +43,7 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
         "}"
     );
     connect(knockback, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->knockback(); });
-    clearimage = new Toolbarbutton(mainwindow, this, "[X]", 0, 240, 40, 40);
+    clearimage = new Toolbarbutton(mainwindow, this, "X", 0, 240, 40, 40);
     clearimage->setStyleSheet(
         "QPushButton"
         "{"
@@ -62,9 +62,9 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
     );
     connect(clearimage, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getEditor()->clearImage(); });
 
-    undo = new Toolbarbutton(mainwindow, this, "<=", 0, 280, 20, 20);
+    undo = new Toolbarbutton(mainwindow, this, "u", 0, 280, 20, 20);
     connect(undo, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getUndoStack()->undo(); });
-    redo = new Toolbarbutton(mainwindow, this, "=>", 20, 280, 20, 20);
+    redo = new Toolbarbutton(mainwindow, this, "r", 20, 280, 20, 20);
     connect(redo, &QAbstractButton::clicked, this, [this]{ this->mainwindow->getUndoStack()->redo(); });
 }
 
