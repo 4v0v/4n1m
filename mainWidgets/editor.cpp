@@ -79,10 +79,6 @@ void Editor::paintEvent(QPaintEvent* event)
                 int next = animation()->getNextKey(i, getPos());
                 int nextnext = animation()->getNextKey(i, next);
 
-                if (prev < getPos() && prev != -1) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, prev, QColor(Qt::red));
-                if (prevprev < getPos() && prevprev != -1 ) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, prevprev, QColor(Qt::red));
-                if (next > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, next, QColor(Qt::blue));
-                if (nextnext > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, nextnext, QColor(Qt::blue));
                 if (onionskinloopVisible)
                 {
                     if (getPos() == animation()->getFirstKey(i) && animation()->getKeyCount(i) > 3)
@@ -90,6 +86,12 @@ void Editor::paintEvent(QPaintEvent* event)
                     if (getPos() == animation()->getLastKey(i) && animation()->getKeyCount(i) > 3)
                         drawOnionSkin(event, &globalPainter, &path, onionOpacityLoop, i, animation()->getFirstKey(i), QColor(Qt::darkGreen));
                 }
+
+                if (prev < getPos() && prev != -1) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, prev, QColor(Qt::red));
+                if (prevprev < getPos() && prevprev != -1 ) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, prevprev, QColor(Qt::red));
+                if (next > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, next, QColor(Qt::blue));
+                if (nextnext > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, nextnext, QColor(Qt::blue));
+
                 globalPainter.setOpacity(1.0);
             }
 

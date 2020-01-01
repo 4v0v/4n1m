@@ -150,7 +150,7 @@ void MainWindow::openPenOpacityWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Pen opacity"), editor->getPenTool()->color().alpha(), 0, 255, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Pen opacity"), tr("Pen opacity"), editor->getPenTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QPen* p = editor->getPenTool();
     if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
@@ -161,7 +161,7 @@ void MainWindow::openPenWidthWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Pen width"), editor->getPenTool()->width(), 1, 50, 1, &ok);
+    int newWidth = QInputDialog::getInt(this, tr("Pen width"), tr("Pen width"), editor->getPenTool()->width(), 1, 50, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getPenTool()->setWidth(newWidth);
 }
@@ -185,7 +185,7 @@ void MainWindow::openLineOpacityWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Line opacity"), editor->getLineTool()->color().alpha(), 0, 255, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Line opacity"), tr("Line opacity"), editor->getLineTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QPen* p = editor->getLineTool();
     if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
@@ -196,7 +196,7 @@ void MainWindow::openLineWidthWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Line width"), editor->getLineTool()->width(), 1, 50, 1, &ok);
+    int newWidth = QInputDialog::getInt(this, tr("Line width"), tr("Line width"), editor->getLineTool()->width(), 1, 50, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getLineTool()->setWidth(newWidth);
 }
@@ -216,7 +216,7 @@ void MainWindow::openLassofillOpacityWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Lassofill opacity"), editor->getLassoFillTool()->color().alpha(), 0, 255, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Lassofill opacity"), tr("Lassofill opacity"), editor->getLassoFillTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QBrush* p = editor->getLassoFillTool();
     if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
@@ -237,7 +237,7 @@ void MainWindow::openEraserWidthWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select eraser width:"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
+    int newWidth = QInputDialog::getInt(this, tr("Eraser width"), tr("Select eraser width:"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->getEraserTool()->setWidth(newWidth);
 }
@@ -257,7 +257,7 @@ void MainWindow::openBackgroundOpacityWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Line opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Background opacity"), tr("Line opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QColor c = QColor(editor->getBackgroundColor().red(), editor->getBackgroundColor().green(), editor->getBackgroundColor().blue(), newOpacity == 0 ? 1 : newOpacity);
     if (ok) editor->setBackgroundColor(c);
@@ -269,7 +269,7 @@ void MainWindow::openKnockbackAmountWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newK = QInputDialog::getInt(this, tr("Scribble"), tr("Select knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
+    int newK = QInputDialog::getInt(this, tr("Knockback amount"), tr("Select knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) editor->setKnockbackAmount(newK);
 }
@@ -279,7 +279,7 @@ void MainWindow::openChangeFPSWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newFPS = QInputDialog::getInt(this, tr("Scribble"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
+    int newFPS = QInputDialog::getInt(this, tr("Change FPS"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) FPS = newFPS;
 }

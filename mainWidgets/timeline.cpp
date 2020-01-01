@@ -135,33 +135,41 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
     mainwindow = mw;
 
     setFocusPolicy(Qt::NoFocus);
-    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn );
+    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn);
+    horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
+    verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
+
+    setLayoutDirection(Qt::RightToLeft);
+
     setWidgetResizable( true );
     setGeometry(t->x(), t->y(), t->width(), 101 );
 
     setStyleSheet(
-        "QScrollBar:horizontal {"
-            "background: lightgrey;"
-            "height: 15px;"
-        "}"
-        "QScrollBar::handle:horizontal {"
-            "background: black;"
-            "min-width: 20px;"
-        "}"
-        "QScrollBar::add-line:horizontal {"
-            "width: 20px;"
-            "subcontrol-position: right;"
-            "subcontrol-origin: margin;"
-        "}"
-        "QScrollBar::sub-line:horizontal {"
-            "width: 20px;"
-            "subcontrol-position: left;"
-            "subcontrol-origin: margin;"
-        "}"
+        "QScrollBar:vertical {\
+            background: rgb(50,50,50);\
+            width: 15px;\
+            margin: 0;\
+        }\
+        \
+        QScrollBar:horizontal {\
+            background: rgb(50,50,50);\
+            height: 15px;\
+            margin: 0;\
+        }\
+        \
+        QScrollBar::handle {\
+            background: rgb(50,50,50);\
+        }\
+        \
+        QScrollBar::add-line, QScrollBar::sub-line {\
+            width: 0px;\
+            height: 0px;\
+        }"
     );
 
     QWidget* w = new QWidget();
     setWidget(w);
+
     QVBoxLayout *vlayout = new QVBoxLayout();
     vlayout->setSpacing(0);
     vlayout->setMargin(0);
@@ -173,12 +181,21 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
         vlayout->addWidget(layers[i]);
     }
     vlayout->addStretch(1);
+
     getLayerWidgets()->at(t->getLayer())->getFrameWidgetAt(t->getPos())->toggleIsCurrent();
 }
 
 void TimelineScrollArea::wheelEvent(QWheelEvent* event)
 {
     horizontalScrollBar()->setValue(
-        horizontalScrollBar()->value() - event->delta()/5
+        horizontalScrollBar()->value() + event->delta()/5
     );
 }
+
+void TimelineScrollArea::resizeEvent(QResizeEvent* event)
+{
+    QScrollArea::resizeEvent(event);
+    horizontalScrollBar()->setValue(horizontalScrollBar()->maximum());
+}
+
+

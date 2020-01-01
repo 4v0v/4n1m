@@ -31,6 +31,7 @@ Layer::Layer(MainWindow* mw, int l): QWidget(mw)
     }
 
     hlayout->addStretch(1);
+    setLayoutDirection(Qt::LeftToRight);
 }
 
 void Layer::paintEvent(QPaintEvent*)

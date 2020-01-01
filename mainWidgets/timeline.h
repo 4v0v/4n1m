@@ -14,6 +14,7 @@ public:
 protected:
     void wheelEvent(QWheelEvent*) override;
     void keyPressEvent(QKeyEvent*) override{};
+    void resizeEvent(QResizeEvent*) override;
 
 private:
     MainWindow* mainwindow;

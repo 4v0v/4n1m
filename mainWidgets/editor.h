@@ -1,5 +1,5 @@
-#ifndef SCRIBBLEAREA_H
-#define SCRIBBLEAREA_H
+#ifndef EDITOR_H
+#define EDITOR_H
 
 #include "mainwindow.h"
 
@@ -61,7 +61,7 @@ private:
     double layerOpacity = 0.6;
     double onionOpacityFirst = 0.3;
     double onionOpacitySecond = 0.1;
-    double onionOpacityLoop = 0.3;
+    double onionOpacityLoop = 0.2;
 
     Tool currentTool = Tool::PEN;
     QPolygon stroke;
