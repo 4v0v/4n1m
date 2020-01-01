@@ -79,66 +79,100 @@ void Toolbar::paintEvent(QPaintEvent*)
 void Toolbar::switchToolbarButton(int i)
 {
     switch (i) {
-        case 1:
+        case 1: {
             pen->setIscurrent(true); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
             eraser->setIscurrent(false); eraser->setCurrentStyle();
             other->setIscurrent(false); other->setCurrentStyle();
-            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("C"));
+
+            QPixmap* color = new QPixmap(32, 32);
+            color->fill(mainwindow->getEditor()->getPenTool()->color().rgb());
+            QPainter painter(color);
+            QPainterPath path;
+            path.addRect(0, 0, 31, 31);
+            painter.drawPath(path);
+
+            subtoolbar->p1->show(); subtoolbar->p1->setText(""); subtoolbar->p1->setIcon(QIcon(*color));
             subtoolbar->p2->show(); subtoolbar->p2->setText(tr("O"));
             subtoolbar->p3->show(); subtoolbar->p3->setText(tr("W"));
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case 2:
+       } case 2: {
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(true); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
             eraser->setIscurrent(false); eraser->setCurrentStyle();
             other->setIscurrent(false); other->setCurrentStyle();
-            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("C"));
+
+            QPixmap* color = new QPixmap(32, 32);
+            color->fill(mainwindow->getEditor()->getLineTool()->color().rgb());
+            QPainter painter(color);
+            QPainterPath path;
+            path.addRect(0, 0, 31, 31);
+            painter.drawPath(path);
+
+            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("")); subtoolbar->p1->setIcon(QIcon(*color));
             subtoolbar->p2->show(); subtoolbar->p2->setText(tr("O"));
             subtoolbar->p3->show(); subtoolbar->p3->setText(tr("W"));
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case 3:
+        } case 3: {
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(true); lassofill->setCurrentStyle();
             eraser->setIscurrent(false); eraser->setCurrentStyle();
             other->setIscurrent(false); other->setCurrentStyle();
-            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("C"));
+
+            QPixmap* color = new QPixmap(32, 32);
+            color->fill(mainwindow->getEditor()->getLassoFillTool()->color().rgb());
+            QPainter painter(color);
+            QPainterPath path;
+            path.addRect(0, 0, 31, 31);
+            painter.drawPath(path);
+
+            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("")); subtoolbar->p1->setIcon(QIcon(*color));
             subtoolbar->p2->show(); subtoolbar->p2->setText(tr("O"));
             subtoolbar->p3->show(); subtoolbar->p3->setText(tr("S"));
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 90);
             break;
-        case 4:
+        } case 4: {
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
             eraser->setIscurrent(true); eraser->setCurrentStyle();
             other->setIscurrent(false); other->setCurrentStyle();
-            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("W"));
+
+            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("W")); subtoolbar->p1->setIcon(QIcon());
             subtoolbar->p2->show(); subtoolbar->p2->hide();
             subtoolbar->p3->show(); subtoolbar->p3->hide();
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 30);
             break;
-        case 5:
+        } case 5: {
             pen->setIscurrent(false); pen->setCurrentStyle();
             line->setIscurrent(false); line->setCurrentStyle();
             lassofill->setIscurrent(false); lassofill->setCurrentStyle();
             eraser->setIscurrent(false); eraser->setCurrentStyle();
             other->setIscurrent(true); other->setCurrentStyle();
-            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("C"));
+
+            QPixmap* color = new QPixmap(32, 32);
+            color->fill(mainwindow->getEditor()->getBackgroundColor().rgb());
+            QPainter painter(color);
+            QPainterPath path;
+            path.addRect(0, 0, 31, 31);
+            painter.drawPath(path);
+
+            subtoolbar->p1->show(); subtoolbar->p1->setText(tr("")); subtoolbar->p1->setIcon(QIcon(*color));
             subtoolbar->p2->show(); subtoolbar->p2->setText(tr("O"));
             subtoolbar->p3->show(); subtoolbar->p3->hide();
             subtoolbar->p4->show(); subtoolbar->p4->hide();
             subtoolbar->setGeometry(40, 60, 30, 60);
             break;
+        }
     }
 }
 
@@ -152,8 +186,13 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     setFocusPolicy(Qt::NoFocus);
     setGeometry(40, 60, 30, 120);
 
-    p1 = new Toolbarbutton(mainwindow, this, "C", 0, 0, 30, 30, true);
+    p1 = new Toolbarbutton(mainwindow, this, "", 0, 0, 30, 30, true);
+    QPixmap* colorIcon = new QPixmap(32, 32);
+    colorIcon->fill(mainwindow->getEditor()->getPenTool()->color().rgb());
+    p1->setIcon(QIcon(*colorIcon));
     connect(p1, &QAbstractButton::clicked, this, [this]{ this->clickSubtool(1); });
+
+
     p2 = new Toolbarbutton(mainwindow, this, "O", 0, 30, 30, 30, true);
     connect(p2, &QAbstractButton::clicked, this, [this]{ this->clickSubtool(2); });
     p3 = new Toolbarbutton(mainwindow, this, "W", 0, 60, 30, 30, true);

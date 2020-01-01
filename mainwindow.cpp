@@ -143,6 +143,7 @@ void MainWindow::openPenColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getPenTool()->setColor(newColor);
+    toolbar->switchToolbarButton(1);
 }
 
 void MainWindow::openPenOpacityWindow()
@@ -178,6 +179,7 @@ void MainWindow::openLineColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLineTool()->setColor(newColor);
+    toolbar->switchToolbarButton(2);
 }
 
 void MainWindow::openLineOpacityWindow()
@@ -209,6 +211,7 @@ void MainWindow::openLassofillColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLassoFillTool()->setColor(newColor);
+    toolbar->switchToolbarButton(3);
 }
 
 void MainWindow::openLassofillOpacityWindow()
@@ -250,6 +253,7 @@ void MainWindow::openBackgroundColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (newColor.isValid()) editor->setBackgroundColor(newColor);
     editor->update();
+    toolbar->switchToolbarButton(5);
 }
 
 void MainWindow::openBackgroundOpacityWindow()
