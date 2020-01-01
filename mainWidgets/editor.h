@@ -18,15 +18,17 @@ public:
     int getPos(int layer = -1);
     void setBackgroundColor(QColor &newColor){ backgroundColor = newColor; }
     QColor getBackgroundColor(){ return backgroundColor; }
-    QPen* getLinePen() { return &linePen; }
-    QPen* getEraserPen() { return &eraserPen; }
-    QBrush* getLassoFillBrush() { return &lassoBrush; }
+    QPen* getPenTool() { return &penTool; }
+    QPen* getLineTool() { return &lineTool; }
+    QPen* getEraserTool() { return &eraserTool; }
+    QBrush* getLassoFillTool() { return &lassoFilltool; }
     int getKnockbackAmount() { return knockbackAmount; }
     void setKnockbackAmount(int k) { knockbackAmount = k; }
     void drawPenStroke();
     void drawLassoFill();
     void drawEraserStroke();
     void drawLine();
+    Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= Tool::EMPTY) { currentTool = t; }
 
 public slots:
@@ -61,11 +63,12 @@ private:
     double onionOpacitySecond = 0.1;
     double onionOpacityLoop = 0.3;
 
-    int currentTool = Tool::PEN;
+    Tool currentTool = Tool::PEN;
     QPolygon stroke;
-    QPen linePen = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QPen eraserPen = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QBrush lassoBrush = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
+    QPen penTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen lineTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen eraserTool = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QBrush lassoFilltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
 };
 
 #endif

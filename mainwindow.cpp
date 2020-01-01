@@ -36,14 +36,11 @@ MainWindow::MainWindow()
     setCentralWidget(window);
     toolbar = new Toolbar(this, window);
     subtoolbar = new Subtoolbar(this, window);
+    toolbar->setSuboolbar(subtoolbar);
+    subtoolbar->setToolbar(toolbar);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
-    QAction* changePenColorAct = new QAction(tr("Color..."), this);
-    QAction* changeBackgroundColorAct = new QAction(tr("Background Color..."), this);
-    QAction* changePenWidthAct = new QAction(tr("Pen Width..."), this);
-    QAction* changeEraserWidthAct = new QAction(tr("Eraser Width..."), this);
-    QAction* changeLassoFillStyleAct = new QAction(tr("LassoFill Style..."), this);
     QAction* changeKnockbackAct = new QAction(tr("Knockback amount..."), this);
     QAction* changeFPSAct = new QAction(tr("FPS..."), this);
     QAction* clearScreenAct = new QAction(tr("Clear Screen"), this);
@@ -61,10 +58,6 @@ MainWindow::MainWindow()
     QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
     QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
 
-    setToolAsPenAct = new QAction(tr("Pen"), this);
-    setToolAsLineAct = new QAction(tr("Line"), this);
-    setToolAsLassoFillAct = new QAction(tr("LassoFill"), this);
-    setToolAsEraserAct = new QAction(tr("Eraser"), this);
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
@@ -75,16 +68,8 @@ MainWindow::MainWindow()
     toggleOnionskinAct->setChecked(true);
 
     // Shortcuts
-    setToolAsPenAct->setShortcut(Qt::Key_1);
-    setToolAsLineAct->setShortcut(Qt::Key_2);
-    setToolAsLassoFillAct->setShortcut(Qt::Key_3);
-    setToolAsEraserAct->setShortcut(Qt::Key_4);
-    changePenColorAct->setShortcut(Qt::Key_5);
-    changePenWidthAct->setShortcut(Qt::Key_6);
-    changeLassoFillStyleAct->setShortcut(Qt::Key_7);
     changeKnockbackAct->setShortcut(Qt::Key_0);
-    changeBackgroundColorAct->setShortcut(Qt::Key_8);
-    changeFPSAct->setShortcut(Qt::Key_8);
+    changeFPSAct->setShortcut(Qt::Key_9);
     knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
     removeKeyAct->setShortcut(tr("W"));
@@ -103,11 +88,6 @@ MainWindow::MainWindow()
     redoAct->setShortcuts(QKeySequence::Redo);
 
     // Connect Signals & SLots
-    connect(changePenColorAct, SIGNAL(triggered()), this, SLOT(openPenColorWindow()));
-    connect(changePenWidthAct, SIGNAL(triggered()), this, SLOT(openPenWidthWindow()));
-    connect(changeEraserWidthAct, SIGNAL(triggered()), this, SLOT(openEraserWidthWindow()));
-    connect(changeBackgroundColorAct, SIGNAL(triggered()), this, SLOT(openBackgroundColorWindow()));
-    connect(changeLassoFillStyleAct, SIGNAL(triggered()), this, SLOT(openFillStyleWindow()));
     connect(changeKnockbackAct, SIGNAL(triggered()), this, SLOT(openKnockbackAmountWindow()));
     connect(openPreviewWindowAct, SIGNAL(triggered()), this, SLOT(openPreviewWindow()));
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
@@ -119,10 +99,6 @@ MainWindow::MainWindow()
     connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
-    connect(setToolAsPenAct, &QAction::triggered, this, [this]{ editor->setToolAsPen(); toolbar->checkTool(Tool::PEN); });
-    connect(setToolAsLineAct, &QAction::triggered, this, [this]{ editor->setToolAsLine(); toolbar->checkTool(Tool::LINE); });
-    connect(setToolAsLassoFillAct, &QAction::triggered, this, [this]{ editor->setToolAsLassoFill(); toolbar->checkTool(Tool::LASSOFILL); });
-    connect(setToolAsEraserAct, &QAction::triggered, this, [this]{ editor->setToolAsEraser(); toolbar->checkTool(Tool::ERASER); });
     connect(addKeyAct, SIGNAL(triggered()), timeline, SLOT(addKey()));
     connect(removeKeyAct, SIGNAL(triggered()), timeline, SLOT(removeKey()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
@@ -150,19 +126,9 @@ MainWindow::MainWindow()
     titlebar->getMenubar()->getOptionsMenu()->addAction(undoAct);
     titlebar->getMenubar()->getOptionsMenu()->addAction(redoAct);
 
-    titlebar->getMenubar()->getToolsMenu()->addAction(changePenColorAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changePenWidthAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeEraserWidthAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeLassoFillStyleAct);
     titlebar->getMenubar()->getToolsMenu()->addAction(changeKnockbackAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeBackgroundColorAct);
     titlebar->getMenubar()->getToolsMenu()->addAction(changeFPSAct);
     titlebar->getMenubar()->getToolsMenu()->addAction(changeUndoAmountAct);
-    titlebar->getMenubar()->getToolsMenu()->addSeparator();
-    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsPenAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsLineAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsLassoFillAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(setToolAsEraserAct);
     titlebar->getMenubar()->getToolsMenu()->addSeparator();
     titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinAct);
     titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinloopAct);
@@ -173,11 +139,107 @@ void MainWindow::openPenColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getLinePen()->color(), nullptr, QString("Color"), QColorDialog::ShowAlphaChannel);
+    QColor newColor = QColorDialog::getColor(editor->getPenTool()->color(), nullptr, QString("Pen color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
-    editor->getLinePen()->setColor(newColor);
-    editor->getLassoFillBrush()->setColor(newColor);
+    editor->getPenTool()->setColor(newColor);
+}
+
+void MainWindow::openPenOpacityWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Pen opacity"), editor->getPenTool()->color().alpha(), 0, 255, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    QPen* p = editor->getPenTool();
+    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+}
+
+void MainWindow::openPenWidthWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Pen width"), editor->getPenTool()->width(), 1, 50, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) editor->getPenTool()->setWidth(newWidth);
+}
+
+void MainWindow::openPenStyleWindow()
+{
+}
+
+void MainWindow::openLineColorWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    QColor newColor = QColorDialog::getColor(editor->getLineTool()->color(), nullptr, QString("Line color"), QColorDialog::ShowAlphaChannel);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (!newColor.isValid()) return;
+    editor->getLineTool()->setColor(newColor);
+}
+
+void MainWindow::openLineOpacityWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Line opacity"), editor->getLineTool()->color().alpha(), 0, 255, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    QPen* p = editor->getLineTool();
+    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+}
+
+void MainWindow::openLineWidthWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Line width"), editor->getLineTool()->width(), 1, 50, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) editor->getLineTool()->setWidth(newWidth);
+}
+
+void MainWindow::openLassofillColorWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    QColor newColor = QColorDialog::getColor(editor->getLassoFillTool()->color(), nullptr, QString("Lassofill color"), QColorDialog::ShowAlphaChannel);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (!newColor.isValid()) return;
+    editor->getLassoFillTool()->setColor(newColor);
+}
+
+void MainWindow::openLassofillOpacityWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Lassofill opacity"), editor->getLassoFillTool()->color().alpha(), 0, 255, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    QBrush* p = editor->getLassoFillTool();
+    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+}
+
+void MainWindow::openLassofillStyleWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Lassofill style"), editor->getLassoFillTool()->style(), 1, 14, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+}
+
+void MainWindow::openEraserWidthWindow()
+{
+    bool onTop = toggleStayOnTopAct->isChecked();
+    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool ok;
+    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select eraser width:"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
+    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (ok) editor->getEraserTool()->setWidth(newWidth);
 }
 
 void MainWindow::openBackgroundColorWindow()
@@ -190,24 +252,16 @@ void MainWindow::openBackgroundColorWindow()
     editor->update();
 }
 
-void MainWindow::openPenWidthWindow()
+void MainWindow::openBackgroundOpacityWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select pen width:"), editor->getLinePen()->width(), 1, 50, 1, &ok);
+    int newOpacity = QInputDialog::getInt(this, tr("Scribble"), tr("Line opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getLinePen()->setWidth(newWidth);
-}
-
-void MainWindow::openEraserWidthWindow()
-{
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    bool ok;
-    int newWidth = QInputDialog::getInt(this, tr("Scribble"), tr("Select eraser width:"), editor->getEraserPen()->width(), 1, 300, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getEraserPen()->setWidth(newWidth); editor->changeTool();
+    QColor c = QColor(editor->getBackgroundColor().red(), editor->getBackgroundColor().green(), editor->getBackgroundColor().blue(), newOpacity == 0 ? 1 : newOpacity);
+    if (ok) editor->setBackgroundColor(c);
+    editor->update();
 }
 
 void MainWindow::openKnockbackAmountWindow()
@@ -228,16 +282,6 @@ void MainWindow::openChangeFPSWindow()
     int newFPS = QInputDialog::getInt(this, tr("Scribble"), tr("Select FPS:"), FPS, 1, 72, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (ok) FPS = newFPS;
-}
-
-void MainWindow::openFillStyleWindow()
-{
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    bool ok;
-    int newFillStyle = QInputDialog::getInt(this, tr("Fill Style"), tr("Select fill style"), editor->getLassoFillBrush()->style(), 1, 14, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getLassoFillBrush()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
 }
 
 void MainWindow::openUndoAmountWindow()
@@ -288,5 +332,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Down: timeline->gotoNextLayer(); break;
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
+        case Qt::Key_1: editor->setToolAsPen(); toolbar->setTool(Tool::PEN); break;
+        case Qt::Key_2: editor->setToolAsLine(); toolbar->setTool(Tool::LINE); break;
+        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setTool(Tool::LASSOFILL); break;
+        case Qt::Key_4: editor->setToolAsEraser(); toolbar->setTool(Tool::ERASER); break;
+        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setTool(Tool::EMPTY); break;
     }
 }

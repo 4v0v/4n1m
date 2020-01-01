@@ -16,7 +16,12 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
-    if (!animation()->isKey(timeline()->getLayer(), timeline()->getPos())) timeline()->addKey();
+    if (
+        !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
+        currentTool != Tool::EMPTY &&
+        currentTool != Tool::ERASER
+    ) timeline()->addKey();
+
     scribbling = true;
     stroke << QPoint(event->pos().x(), event->pos().y());
     update();
@@ -94,20 +99,20 @@ void Editor::paintEvent(QPaintEvent* event)
                 default:
                     if (stroke.count() < 2) break;
                 case Tool::PEN: {
-                    layerPainter.setPen(linePen);
+                    layerPainter.setPen(penTool);
                     if (stroke.count() == 1) layerPainter.drawPoint(stroke.first());
                     else if (stroke.count() > 1) layerPainter.drawPolyline(stroke);
                     break;
                 } case Tool::LINE: {
                     if (stroke.count() < 2) break;
-                    layerPainter.setPen(linePen);
+                    layerPainter.setPen(lineTool);
                     layerPainter.drawPolyline(QPolygon() << stroke.first() << stroke.last());
                     break;
                 } case Tool::LASSOFILL: {
                     if (stroke.count() < 2) break;
                     QPainterPath path;
                     path.addPolygon(stroke);
-                    layerPainter.fillPath(path, lassoBrush);
+                    layerPainter.fillPath(path, lassoFilltool);
                     break;
                 } case Tool::ERASER: {
 
@@ -115,7 +120,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     QImage tempImg = img.copy();
                     tempImg.fill(Qt::transparent);
                     QPainter p(&tempImg);
-                    p.setPen(eraserPen);
+                    p.setPen(eraserTool);
                     if (stroke.count() == 1) p.drawPoint(stroke.first());
                     else if (stroke.count() > 1) p.drawPolyline(stroke);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
@@ -135,7 +140,7 @@ void Editor::paintEvent(QPaintEvent* event)
         if (currentTool == Tool::ERASER && scribbling)
         {
             globalPainter.setPen(QPen(Qt::red, 2));
-            globalPainter.drawEllipse(stroke.last().x() -eraserPen.width()/2 , stroke.last().y() - eraserPen.width()/2, eraserPen.width(), eraserPen.width());
+            globalPainter.drawEllipse(stroke.last().x() -eraserTool.width()/2 , stroke.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
         }
     });
 }
@@ -145,7 +150,7 @@ void Editor::drawPenStroke()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);
-    painter.setPen(linePen);
+    painter.setPen(penTool);
     if (stroke.count() == 1) painter.drawPoint(stroke.first());
     else if (stroke.count() > 1) painter.drawPolyline(stroke);
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
@@ -156,7 +161,7 @@ void Editor::drawLine()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);
-    painter.setPen(linePen);
+    painter.setPen(lineTool);
     painter.drawPolyline(QPolygon() << stroke.first() << stroke.last());
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
@@ -168,7 +173,7 @@ void Editor::drawLassoFill()
     QPainter painter(&j);
     QPainterPath path;
     path.addPolygon(stroke);
-    painter.fillPath(path, lassoBrush);
+    painter.fillPath(path, lassoFilltool);
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
@@ -179,7 +184,7 @@ void Editor::drawEraserStroke()
     QImage k = i.copy();
     k.fill(Qt::transparent);
     QPainter painter(&k);
-    painter.setPen(eraserPen);
+    painter.setPen(eraserTool);
     if (stroke.count() == 1) painter.drawPoint(stroke.first());
     else if (stroke.count() > 1) painter.drawPolyline(stroke);
     QPainter painter2(&j);

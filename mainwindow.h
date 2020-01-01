@@ -58,12 +58,20 @@ public:
     QRect getWindowDimensions() { return windowDimensions; }
 
 public slots:
-    void openBackgroundColorWindow();
     void openPenColorWindow();
     void openPenWidthWindow();
+    void openPenOpacityWindow();
+    void openPenStyleWindow();
+    void openLineColorWindow();
+    void openLineWidthWindow();
+    void openLassofillColorWindow();
+    void openLineOpacityWindow();
+    void openLassofillOpacityWindow();
     void openEraserWidthWindow();
-    void openFillStyleWindow();
+    void openLassofillStyleWindow();
     void openUndoAmountWindow();
+    void openBackgroundColorWindow();
+    void openBackgroundOpacityWindow();
     void openKnockbackAmountWindow();
     void openChangeFPSWindow();
     void openPreviewWindow();
@@ -84,10 +92,6 @@ private:
     QUndoStack* undostack;
     QUndoView* undoView;
     
-    QAction* setToolAsPenAct;
-    QAction* setToolAsLineAct;
-    QAction* setToolAsLassoFillAct;
-    QAction* setToolAsEraserAct;
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;
