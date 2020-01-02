@@ -7,13 +7,20 @@ class ToolbarButton : public QPushButton
 {
     Q_OBJECT
 public:
-    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_NORMAL, QString = "", QIcon = QIcon());
-    void setStyle(ToolbarButtonStyle = ToolbarButtonStyle::TOOL_NORMAL);
+    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_TEXT, QString = "", QImage i = QImage(1, 1, QImage::Format_ARGB32));
+    void setStyle(ToolbarButtonStyle s = ToolbarButtonStyle::TOOL_TEXT){ style = s; update(); };
+    void setText(QString t = ""){ text = t; }
+    void setImage(QImage i = QImage(1, 1, QImage::Format_ARGB32)){ image = i; }
+
+protected:
+    void paintEvent(QPaintEvent*) override;
 
 private:
     MainWindow* mainwindow;
     QWidget* parent;
     QString text;
+    QImage image;
+    ToolbarButtonStyle style;
 };
 
 //////////////////////////////////////////////////////////
@@ -61,8 +68,6 @@ public:
     ToolbarButton* other;
     ToolbarButton* clearimage;
     ToolbarButton* knockback;
-    ToolbarButton* undo;
-    ToolbarButton* redo;
 
 private:
     ToolbarTool currentTool = ToolbarTool::TOOL1;

@@ -153,7 +153,9 @@ void MainWindow::openPenOpacityWindow()
     int newOpacity = QInputDialog::getInt(this, tr("Pen opacity"), tr("Pen opacity"), editor->getPenTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QPen* p = editor->getPenTool();
-    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    if (!ok) return;
+    p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    toolbar->setCurrentTool(ToolbarTool::TOOL1);
 }
 
 void MainWindow::openPenWidthWindow()
@@ -163,7 +165,9 @@ void MainWindow::openPenWidthWindow()
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Pen width"), tr("Pen width"), editor->getPenTool()->width(), 1, 50, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getPenTool()->setWidth(newWidth);
+    if (!ok) return;
+    editor->getPenTool()->setWidth(newWidth);
+    toolbar->setCurrentTool(ToolbarTool::TOOL1);
 }
 
 void MainWindow::openPenStyleWindow()
@@ -189,7 +193,9 @@ void MainWindow::openLineOpacityWindow()
     int newOpacity = QInputDialog::getInt(this, tr("Line opacity"), tr("Line opacity"), editor->getLineTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QPen* p = editor->getLineTool();
-    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    if (!ok) return;
+    p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    toolbar->setCurrentTool(ToolbarTool::TOOL2);
 }
 
 void MainWindow::openLineWidthWindow()
@@ -199,7 +205,9 @@ void MainWindow::openLineWidthWindow()
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Line width"), tr("Line width"), editor->getLineTool()->width(), 1, 50, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getLineTool()->setWidth(newWidth);
+    if (!ok) return;
+    editor->getLineTool()->setWidth(newWidth);
+    toolbar->setCurrentTool(ToolbarTool::TOOL2);
 }
 
 void MainWindow::openLassofillColorWindow()
@@ -221,7 +229,9 @@ void MainWindow::openLassofillOpacityWindow()
     int newOpacity = QInputDialog::getInt(this, tr("Lassofill opacity"), tr("Lassofill opacity"), editor->getLassoFillTool()->color().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QBrush* p = editor->getLassoFillTool();
-    if (ok) p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    if (!ok) return;
+    p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), newOpacity));
+    toolbar->setCurrentTool(ToolbarTool::TOOL3);
 }
 
 void MainWindow::openLassofillStyleWindow()
@@ -231,7 +241,9 @@ void MainWindow::openLassofillStyleWindow()
     bool ok;
     int newFillStyle = QInputDialog::getInt(this, tr("Lassofill style"), tr("Lassofill style"), editor->getLassoFillTool()->style(), 1, 14, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+    if (!ok) return;
+    editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
+    toolbar->setCurrentTool(ToolbarTool::TOOL3);
 }
 
 void MainWindow::openEraserWidthWindow()
@@ -241,7 +253,9 @@ void MainWindow::openEraserWidthWindow()
     bool ok;
     int newWidth = QInputDialog::getInt(this, tr("Eraser width"), tr("Eraser width"), editor->getEraserTool()->width(), 1, 300, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) editor->getEraserTool()->setWidth(newWidth);
+    if (!ok) return;
+    editor->getEraserTool()->setWidth(newWidth);
+    toolbar->setCurrentTool(ToolbarTool::TOOL4);
 }
 
 void MainWindow::openBackgroundColorWindow()
@@ -250,9 +264,10 @@ void MainWindow::openBackgroundColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), this, QString("Background color"), QColorDialog::ShowAlphaChannel);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (newColor.isValid()) editor->setBackgroundColor(newColor);
-    editor->update();
+    if (!newColor.isValid()) return;
+    editor->setBackgroundColor(newColor);
     toolbar->setCurrentTool(ToolbarTool::TOOL5);
+    editor->update();
 }
 
 void MainWindow::openBackgroundOpacityWindow()
@@ -263,7 +278,9 @@ void MainWindow::openBackgroundOpacityWindow()
     int newOpacity = QInputDialog::getInt(this, tr("Background opacity"), tr("Background opacity"), editor->getBackgroundColor().alpha(), 0, 255, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     QColor c = QColor(editor->getBackgroundColor().red(), editor->getBackgroundColor().green(), editor->getBackgroundColor().blue(), newOpacity == 0 ? 1 : newOpacity);
-    if (ok) editor->setBackgroundColor(c);
+    if (!ok) return;
+    editor->setBackgroundColor(c);
+    toolbar->setCurrentTool(ToolbarTool::TOOL5);
     editor->update();
 }
 

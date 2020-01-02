@@ -55,10 +55,12 @@ enum ToolbarTool {
 
 enum ToolbarButtonStyle {
     TOOL_CURRENT,
-    TOOL_NORMAL,
+    TOOL_TEXT,
     TOOL_WHITE,
     TOOL_RED,
-    SUB_NORMAL
+    SUB_ICON,
+    SUB_TEXTICON,
+    SUB_TOGGLE
 };
 
 class MainWindow : public QMainWindow
