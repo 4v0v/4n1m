@@ -23,7 +23,7 @@ MainWindow::MainWindow()
     titlebar = new Titlebar(this);
     editor = new Editor(this);
     timeline = new Timeline(this);
-    undostack->setUndoLimit(undostackAmount);
+    undostack->setUndoLimit(undostackSize);
 
     // Init Layout
     QVBoxLayout* layout = new QVBoxLayout;
@@ -38,6 +38,7 @@ MainWindow::MainWindow()
     subtoolbar = new Subtoolbar(this, window);
     toolbar->setSuboolbar(subtoolbar);
     subtoolbar->setToolbar(toolbar);
+    toolbar->setCurrentTool(ToolbarTool::TOOL1);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
@@ -57,11 +58,9 @@ MainWindow::MainWindow()
     QAction* pasteFrameAct = new QAction(tr("Paste"), this);
     QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
     QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
-
     toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
     toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
     toggleStayOnTopAct = new QAction("Stay on top", this);
-
     toggleOnionskinAct->setCheckable(true);
     toggleOnionskinloopAct->setCheckable(true);
     toggleStayOnTopAct->setCheckable(true);
@@ -143,7 +142,7 @@ void MainWindow::openPenColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getPenTool()->setColor(newColor);
-    toolbar->switchToolbarButton(1);
+    toolbar->setCurrentTool(ToolbarTool::TOOL1);
 }
 
 void MainWindow::openPenOpacityWindow()
@@ -179,7 +178,7 @@ void MainWindow::openLineColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLineTool()->setColor(newColor);
-    toolbar->switchToolbarButton(2);
+    toolbar->setCurrentTool(ToolbarTool::TOOL2);
 }
 
 void MainWindow::openLineOpacityWindow()
@@ -211,7 +210,7 @@ void MainWindow::openLassofillColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLassoFillTool()->setColor(newColor);
-    toolbar->switchToolbarButton(3);
+    toolbar->setCurrentTool(ToolbarTool::TOOL3);
 }
 
 void MainWindow::openLassofillOpacityWindow()
@@ -253,7 +252,7 @@ void MainWindow::openBackgroundColorWindow()
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
     if (newColor.isValid()) editor->setBackgroundColor(newColor);
     editor->update();
-    toolbar->switchToolbarButton(5);
+    toolbar->setCurrentTool(ToolbarTool::TOOL5);
 }
 
 void MainWindow::openBackgroundOpacityWindow()
@@ -293,15 +292,14 @@ void MainWindow::openUndoAmountWindow()
     bool onTop = toggleStayOnTopAct->isChecked();
     if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
     bool ok;
-    int undoAmount = QInputDialog::getInt(this, tr("Undo size "), tr("Undo size (This will delete the current undo stack)"), undostackAmount, 0, 100, 1, &ok);
+    int undoAmount = QInputDialog::getInt(this, tr("Undo size "), tr("Undo size (This will delete the current undo stack)"), undostackSize, 0, 100, 1, &ok);
     if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (ok) undostackAmount = undoAmount; undostack->clear(); undostack->setUndoLimit(undostackAmount);
+    if (ok) undostackSize = undoAmount; undostack->clear(); undostack->setUndoLimit(undostackSize);
 }
 
 void MainWindow::openPreviewWindow()
 {
-    // if (preview) preview->close();
-    preview = new Preview(this);
+    Preview* preview = new Preview(this);
     preview->setWindowTitle(tr("Preview"));
     preview->setAttribute(Qt::WA_QuitOnClose, false);
     preview->setGeometry(window()->x(), window()->y(), editor->width(), editor->height());
@@ -310,7 +308,7 @@ void MainWindow::openPreviewWindow()
 
 void MainWindow::openUndoStackWindow()
 {
-    undoView = new QUndoView(undostack);
+    QUndoView* undoView = new QUndoView(undostack);
     undoView->setWindowTitle(tr("Undo Stack"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
     undoView->show();
@@ -336,10 +334,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Down: timeline->gotoNextLayer(); break;
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
-        case Qt::Key_1: editor->setToolAsPen(); toolbar->switchToolbarButton(1); break;
-        case Qt::Key_2: editor->setToolAsLine(); toolbar->switchToolbarButton(2); break;
-        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->switchToolbarButton(3); break;
-        case Qt::Key_4: editor->setToolAsEraser(); toolbar->switchToolbarButton(4); break;
-        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->switchToolbarButton(5); break;
+        case Qt::Key_1: editor->setToolAsPen(); toolbar->setCurrentTool(ToolbarTool::TOOL1);; break;
+        case Qt::Key_2: editor->setToolAsLine(); toolbar->setCurrentTool(ToolbarTool::TOOL2);; break;
+        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setCurrentTool(ToolbarTool::TOOL3);; break;
+        case Qt::Key_4: editor->setToolAsEraser(); toolbar->setCurrentTool(ToolbarTool::TOOL4);; break;
+        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setCurrentTool(ToolbarTool::TOOL5);; break;
     }
 }

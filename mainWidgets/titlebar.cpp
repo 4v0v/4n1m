@@ -38,14 +38,14 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
                     "width: 35px;"
                     "height: 25px;"
                     "background-color: rgb(50,50,50);"
-                    "border: 1px solid rgb(50,50,50);"
+                    "border: 0px;"
                     "color: rgb(210,210,210);"
                 "}"
                 "QPushButton:hover:!pressed"
                 "{"
                     "color: white;"
                     "background-color: rgb(75,75,75);"
-                    "border: 1px solid rgb(75,75,75);"
+                    "border: 0px;"
                 "}"
             );
     layout->addWidget(minimizeButton);
@@ -59,14 +59,14 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
                     "width: 35px;"
                     "height: 25px;"
                     "background-color: rgb(50,50,50);"
-                    "border: 1px solid rgb(50,50,50);"
+                    "border: 0px;"
                     "color: rgb(210,210,210);"
                 "}"
                 "QPushButton:hover:!pressed"
                 "{"
                     "color: white;"
                     "background-color: red;"
-                    "border: 1px solid red;"
+                    "border: 0px;"
                 "}"
             );
     layout->addWidget(closeButton);

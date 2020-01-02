@@ -40,6 +40,27 @@ enum Tool {
     LINE
 };
 
+enum ToolbarTool {
+    TOOL1,
+    TOOL2,
+    TOOL3,
+    TOOL4,
+    TOOL5,
+    SUB1,
+    SUB2,
+    SUB3,
+    SUB4,
+    SUB5
+};
+
+enum ToolbarButtonStyle {
+    TOOL_CURRENT,
+    TOOL_NORMAL,
+    TOOL_WHITE,
+    TOOL_RED,
+    SUB_NORMAL
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -49,7 +70,6 @@ public:
     Editor* getEditor() { return editor; }
     Timeline* getTimeline() { return timeline; }
     Animation* getAnimation() { return animation; }
-    Preview* getPreview() { return preview; }
     Titlebar* getTitlebar() { return titlebar; }
     Toolbar* getToolbar() { return toolbar; }
     Subtoolbar* getSubtoolbar() { return subtoolbar; }
@@ -82,22 +102,20 @@ protected:
     void keyPressEvent(QKeyEvent*) override;
 
 private:
+    Animation* animation;
+    QUndoStack* undostack;
     Editor* editor;
     Timeline* timeline;
-    Animation* animation;
-    Preview* preview;
     Titlebar* titlebar;
     Toolbar* toolbar;
     Subtoolbar* subtoolbar;
-    QUndoStack* undostack;
-    QUndoView* undoView;
     
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;
 
     int FPS = 24;
-    int undostackAmount = 30;
+    int undostackSize = 30;
     QRect windowDimensions = QRect(100, 100, 850, 650);
 };
 
