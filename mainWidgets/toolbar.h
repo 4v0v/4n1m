@@ -33,11 +33,11 @@ public:
     Subtoolbar(MainWindow*, QWidget*);
     void setToolbar(Toolbar* t) { toolbar = t;}
     void clickSubtool(ToolbarTool);
-    ToolbarButton* p1;
-    ToolbarButton* p2;
-    ToolbarButton* p3;
-    ToolbarButton* p4;
-    ToolbarButton* p5;
+    ToolbarButton* subtool1;
+    ToolbarButton* subtool2;
+    ToolbarButton* subtool3;
+    ToolbarButton* subtool4;
+    ToolbarButton* subtool5;
 
 private:
     MainWindow* mainwindow;
@@ -54,20 +54,21 @@ class Toolbar : public QWidget
 public:
     Toolbar(MainWindow*, QWidget*);
     void setSuboolbar(Subtoolbar* s) { subtoolbar = s; }
+    Editor* editor() {return mainwindow->getEditor(); }
     ToolbarTool getCurrentTool() { return currentTool; }
     void setCurrentTool(ToolbarTool t);
-    ToolbarButton* sub1() { return subtoolbar->p1; }
-    ToolbarButton* sub2() { return subtoolbar->p2; }
-    ToolbarButton* sub3() { return subtoolbar->p3; }
-    ToolbarButton* sub4() { return subtoolbar->p4; }
-    ToolbarButton* sub5() { return subtoolbar->p5; }
-    ToolbarButton* pen;
-    ToolbarButton* line;
-    ToolbarButton* lassofill;
-    ToolbarButton* eraser;
-    ToolbarButton* other;
-    ToolbarButton* clearimage;
-    ToolbarButton* knockback;
+    ToolbarButton* sub1() { return subtoolbar->subtool1; }
+    ToolbarButton* sub2() { return subtoolbar->subtool2; }
+    ToolbarButton* sub3() { return subtoolbar->subtool3; }
+    ToolbarButton* sub4() { return subtoolbar->subtool4; }
+    ToolbarButton* sub5() { return subtoolbar->subtool5; }
+    ToolbarButton* tool1;
+    ToolbarButton* tool2;
+    ToolbarButton* tool3;
+    ToolbarButton* tool4;
+    ToolbarButton* tool5;
+    ToolbarButton* tool6;
+    ToolbarButton* tool7;
 
 private:
     ToolbarTool currentTool = ToolbarTool::TOOL1;
@@ -75,8 +76,5 @@ private:
     QWidget* parent;
     Subtoolbar* subtoolbar;
 };
-
-
-
 
 #endif
