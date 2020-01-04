@@ -6,21 +6,37 @@
 class ToolbarButton : public QPushButton
 {
     Q_OBJECT
+    Q_PROPERTY(int bgColorAnim READ getBgColor WRITE setBgColor)
+    Q_PROPERTY(int letterColorAnim READ getLetterColor WRITE setLetterColor)
+
 public:
     ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_TEXT, QString = "", QImage i = QImage(1, 1, QImage::Format_ARGB32));
     void setStyle(ToolbarButtonStyle s = ToolbarButtonStyle::TOOL_TEXT){ style = s; update(); };
     void setText(QString t = ""){ text = t; }
     void setImage(QImage i = QImage(1, 1, QImage::Format_ARGB32)){ image = i; }
 
+    int getBgColor() { return bgColor.red(); }
+    void setBgColor(int a) { bgColor.setRgb(a, a ,a); update();}
+    int getLetterColor() { return letterColor.red(); }
+    void setLetterColor(int a) { letterColor.setRgb(a, a ,a); update();}
+
+    void setIsCurrent(bool);
+
 protected:
     void paintEvent(QPaintEvent*) override;
 
 private:
     MainWindow* mainwindow;
-    QWidget* parent;
     QString text;
     QImage image;
     ToolbarButtonStyle style;
+
+    QColor bgColor;
+    QColor letterColor;
+    int isCurrent = false;
+
+    QPropertyAnimation* bgAnim = new QPropertyAnimation(this, "bgColorAnim");
+    QPropertyAnimation* letterAnim = new QPropertyAnimation(this, "letterColorAnim");
 };
 
 //////////////////////////////////////////////////////////
@@ -38,6 +54,13 @@ public:
     ToolbarButton* subtool3;
     ToolbarButton* subtool4;
     ToolbarButton* subtool5;
+    ToolbarButton* penOpacityProperty;
+    ToolbarButton* penWidthProperty;
+    ToolbarButton* lineOpacityProperty;
+    ToolbarButton* lineWidthProperty;
+    ToolbarButton* lassoOpacityProperty;
+    ToolbarButton* eraserWidthProperty;
+    ToolbarButton* bgOpacityProperty;
 
 private:
     MainWindow* mainwindow;

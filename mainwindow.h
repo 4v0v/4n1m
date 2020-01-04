@@ -60,7 +60,8 @@ enum ToolbarButtonStyle {
     TOOL_RED,
     SUB_ICON,
     SUB_TEXTICON,
-    SUB_TOGGLE
+    SUB_TOGGLE,
+    SUB_EMPTY
 };
 
 class MainWindow : public QMainWindow
@@ -81,19 +82,11 @@ public:
 
 public slots:
     void openPenColorWindow();
-    void openPenWidthWindow();
-    void openPenOpacityWindow();
-    void openPenStyleWindow();
     void openLineColorWindow();
-    void openLineWidthWindow();
     void openLassofillColorWindow();
-    void openLineOpacityWindow();
-    void openLassofillOpacityWindow();
-    void openEraserWidthWindow();
     void openLassofillStyleWindow();
     void openUndoAmountWindow();
     void openBackgroundColorWindow();
-    void openBackgroundOpacityWindow();
     void openKnockbackAmountWindow();
     void openChangeFPSWindow();
     void openPreviewWindow();
