@@ -81,6 +81,7 @@ public:
 
     int getFPS() { return FPS; }
     QRect getWindowDimensions() { return windowDimensions; }
+    bool isOnTop = false;
 
 public slots:
     void openPenColorWindow();
@@ -98,10 +99,6 @@ protected:
     void keyPressEvent(QKeyEvent*) override;
 
 private:
-    QAction* toggleStayOnTopAct;
-    QAction* toggleOnionskinAct;
-    QAction* toggleOnionskinloopAct;
-
     int FPS = 24;
     int undostackSize = 30;
     QRect windowDimensions = QRect(100, 100, 850, 650);

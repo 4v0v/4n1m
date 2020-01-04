@@ -10,7 +10,6 @@ class Menubar : public QMenuBar
 public:
     Menubar(MainWindow*);
     QMenu* getOptionsMenu() { return options; }
-    QMenu* getToolsMenu() { return tools; }
 protected:
     void paintEvent(QPaintEvent*) override;
 
@@ -18,7 +17,6 @@ private:
     MainWindow* mainwindow;
 
     QMenu* options;
-    QMenu* tools;
 };
 
 //////////////////////////////////////////////////////////

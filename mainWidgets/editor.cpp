@@ -119,7 +119,6 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.fillPath(path, lassoFilltool);
                     break;
                 } case Tool::ERASER: {
-
                     if (stroke.count() < 1) break;
                     QImage tempImg = img.copy();
                     tempImg.fill(Qt::transparent);

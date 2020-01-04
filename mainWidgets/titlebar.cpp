@@ -13,63 +13,32 @@ Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
     setMaximumHeight(25);
 
     QHBoxLayout* layout = new QHBoxLayout(this);
-
     layout->setMargin(0);
     layout->setSpacing(0);
 
     menubar = new Menubar(mainwindow);
-    layout->addWidget(menubar);
-
     QLabel* titleLabel = new QLabel(tr("4n1m"));
-    titleLabel->setStyleSheet(
-                "QLabel"
-                "{"
-                    "color: rgb(210,210,210);"
-                    "font-size: 12px;"
-                "}"
-            );
-    layout->addWidget(titleLabel, 3, Qt::AlignCenter);
-
     QPushButton* minimizeButton = new QPushButton(tr("_"));
+    QPushButton* closeButton = new QPushButton(tr("x"));
+
+    layout->addWidget(menubar);
+    layout->addWidget(titleLabel, 3, Qt::AlignCenter);
+    layout->addWidget(minimizeButton);
+    layout->addWidget(closeButton);
+
+    titleLabel->setStyleSheet("QLabel{color: rgb(210,210,210);font-size: 12px;}");
     minimizeButton->setFocusPolicy(Qt::NoFocus);
     minimizeButton->setStyleSheet(
-                "QPushButton"
-                "{"
-                    "width: 35px;"
-                    "height: 25px;"
-                    "background-color: rgb(50,50,50);"
-                    "border: 0px;"
-                    "color: rgb(210,210,210);"
-                "}"
-                "QPushButton:hover:!pressed"
-                "{"
-                    "color: white;"
-                    "background-color: rgb(75,75,75);"
-                    "border: 0px;"
-                "}"
-            );
-    layout->addWidget(minimizeButton);
-    connect(minimizeButton, &QPushButton::clicked, this, &Titlebar::minimizeWindow);
-
-    QPushButton* closeButton = new QPushButton(tr("x"));
+        "QPushButton{width: 35px;height: 25px;background-color: rgb(50,50,50);border: 0px;color: rgb(210,210,210);}\
+        QPushButton:hover:!pressed{color: white;background-color: rgb(75,75,75);border: 0px;}"
+    );
     closeButton->setFocusPolicy(Qt::NoFocus);
     closeButton->setStyleSheet(
-                "QPushButton"
-                "{"
-                    "width: 35px;"
-                    "height: 25px;"
-                    "background-color: rgb(50,50,50);"
-                    "border: 0px;"
-                    "color: rgb(210,210,210);"
-                "}"
-                "QPushButton:hover:!pressed"
-                "{"
-                    "color: white;"
-                    "background-color: red;"
-                    "border: 0px;"
-                "}"
-            );
-    layout->addWidget(closeButton);
+        "QPushButton{width: 35px;height: 25px;background-color: rgb(50,50,50);border: 0px;color: rgb(210,210,210);}\
+        QPushButton:hover:!pressed{color: white;background-color: red;border: 0px;}"
+    );
+
+    connect(minimizeButton, &QPushButton::clicked, this, &Titlebar::minimizeWindow);
     connect(closeButton, &QPushButton::clicked, this, &Titlebar::closeWindow);
 
     update();
@@ -110,44 +79,20 @@ void Titlebar::mouseMoveEvent(QMouseEvent *event)
 Menubar::Menubar(MainWindow* mw): QMenuBar()
 {
     mainwindow = mw;
-    setMinimumWidth(140);
-    setMaximumWidth(140);
+    setMinimumWidth(70);
+    setMaximumWidth(70);
 
     setStyleSheet(
-        "QMenuBar"
-        "{"
-            "background-color: rgb(50,50,50);"
-            "color: rgb(210,210,210);"
-             "width: 20px;"
-             "height: 20px;"
-        "}"
-        "QMenuBar::item:selected"
-        "{"
-            "background-color: rgb(75,75,75);"
-            "color: rgb(210,210,210);"
-        "}"
+        "QMenuBar{background-color: rgb(50,50,50);color: rgb(210,210,210);width: 20px;height: 20px;}\
+        QMenuBar::item:selected{background-color: rgb(75,75,75);color: rgb(210,210,210);}"
     );
 
-    QString menuStyle =
-    "QMenu"
-    "{"
-        "background-color: rgb(50,50,50);"
-        "color: rgb(210,210,210);"
-    "}"
-    "QMenu::item:selected"
-    "{"
-        "background-color: rgb(75,75,75);"
-        "color: rgb(210,210,210);"
-    "}";
-
     options = new QMenu(tr("="));
-    options->setStyleSheet(menuStyle);
-
-    tools = new QMenu(tr("+"));
-    tools->setStyleSheet(menuStyle);
-
+    options->setStyleSheet(
+        "QMenu{background-color: rgb(50,50,50);color: rgb(210,210,210);}\
+        QMenu::item:selected{background-color: rgb(75,75,75);color: rgb(210,210,210);}"
+    );
     addMenu(options);
-    addMenu(tools);
 }
 
 void Menubar::paintEvent(QPaintEvent* event)

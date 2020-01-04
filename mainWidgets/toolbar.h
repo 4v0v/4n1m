@@ -10,7 +10,8 @@ class ToolbarButton : public QPushButton
     Q_PROPERTY(int letterColorAnim READ getLetterColor WRITE setLetterColor)
 
 public:
-    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_TEXT, QString = "", QImage i = QImage(1, 1, QImage::Format_ARGB32));
+    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_TEXT, QString = "", bool = false, QImage i = QImage(1, 1, QImage::Format_ARGB32));
+    Editor* editor() {return mainwindow->editor; }
     void setStyle(ToolbarButtonStyle s = ToolbarButtonStyle::TOOL_TEXT){ style = s; update(); };
     void setText(QString t = ""){ text = t; }
     void setImage(QImage i = QImage(1, 1, QImage::Format_ARGB32)){ image = i; }
@@ -47,6 +48,7 @@ class Subtoolbar : public QWidget
     Q_OBJECT
 public:
     Subtoolbar(MainWindow*, QWidget*);
+    Editor* editor() {return mainwindow->editor; }
     void setToolbar(Toolbar* t) { toolbar = t;}
     void clickSubtool(ToolbarTool);
     void hideProperties();

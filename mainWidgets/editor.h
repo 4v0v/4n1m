@@ -12,7 +12,6 @@ public:
     Timeline* timeline() { return mainwindow->timeline; }
     Animation* animation() { return mainwindow->animation; }
     QUndoStack* undostack() { return mainwindow->undostack; }
-
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }
     int getPos(int layer = -1);
@@ -30,6 +29,24 @@ public:
     void drawLine();
     Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= Tool::EMPTY) { currentTool = t; }
+    void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
+
+    MainWindow* mainwindow;
+    Tool currentTool = Tool::PEN;
+    bool scribbling = false;
+    bool onionskinVisible = true;
+    bool onionskinloopVisible = false;
+    QPen penTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen lineTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QPen eraserTool = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
+    QBrush lassoFilltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
+    QColor backgroundColor = QColor(243,200,149);
+    int knockbackAmount = 50;
+    double layerOpacity = 0.6;
+    double onionOpacityFirst = 0.3;
+    double onionOpacitySecond = 0.1;
+    double onionOpacityLoop = 0.2;
+    QPolygon stroke;
 
 public slots:
     void clearImage();
@@ -47,28 +64,6 @@ protected:
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
     void paintEvent(QPaintEvent*) override;
-
-private:
-    void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
-
-    MainWindow* mainwindow;
-
-    QColor backgroundColor = QColor(243,200,149);
-    bool scribbling = false;
-    bool onionskinVisible = true;
-    bool onionskinloopVisible = false;
-    int knockbackAmount = 50;
-    double layerOpacity = 0.6;
-    double onionOpacityFirst = 0.3;
-    double onionOpacitySecond = 0.1;
-    double onionOpacityLoop = 0.2;
-
-    Tool currentTool = Tool::PEN;
-    QPolygon stroke;
-    QPen penTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QPen lineTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QPen eraserTool = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QBrush lassoFilltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
 };
 
 #endif

@@ -58,17 +58,8 @@ MainWindow::MainWindow()
     QAction* pasteFrameAct = new QAction(tr("Paste"), this);
     QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
     QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
-    toggleOnionskinAct = new QAction(tr("Toggle onionskin"), this);
-    toggleOnionskinloopAct = new QAction(tr("Toggle onionskin loop"), this);
-    toggleStayOnTopAct = new QAction("Stay on top", this);
-    toggleOnionskinAct->setCheckable(true);
-    toggleOnionskinloopAct->setCheckable(true);
-    toggleStayOnTopAct->setCheckable(true);
-    toggleOnionskinAct->setChecked(true);
 
     // Shortcuts
-    changeKnockbackAct->setShortcut(Qt::Key_0);
-    changeFPSAct->setShortcut(Qt::Key_9);
     knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
     removeKeyAct->setShortcut(tr("W"));
@@ -77,9 +68,6 @@ MainWindow::MainWindow()
     removeFrameAct->setShortcut(tr("V"));
     openPreviewWindowAct->setShortcut(tr("P"));
     openUndoStackWindowAct->setShortcut(tr("O"));
-    toggleOnionskinAct->setShortcut(tr("Y"));
-    toggleOnionskinloopAct->setShortcut(tr("H"));
-    toggleStayOnTopAct->setShortcut(tr("U"));
     copyFrameAct->setShortcut(QKeySequence::Copy);
     cutFrameAct->setShortcut(QKeySequence::Cut);
     pasteFrameAct->setShortcut(QKeySequence::Paste);
@@ -92,10 +80,7 @@ MainWindow::MainWindow()
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(changeUndoAmountAct, SIGNAL(triggered()), this, SLOT(openUndoAmountWindow()));
     connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
-    connect(toggleStayOnTopAct, SIGNAL(triggered()), this, SLOT(toggleStayOnTop()));
     connect(saveAnimationAct, SIGNAL(triggered()), animation, SLOT(saveAnimation()));
-    connect(toggleOnionskinAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskin()));
-    connect(toggleOnionskinloopAct, SIGNAL(triggered()), editor, SLOT(toggleOnionskinloop()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
     connect(addKeyAct, SIGNAL(triggered()), timeline, SLOT(addKey()));
@@ -124,22 +109,18 @@ MainWindow::MainWindow()
     titlebar->getMenubar()->getOptionsMenu()->addAction(pasteFrameAct);
     titlebar->getMenubar()->getOptionsMenu()->addAction(undoAct);
     titlebar->getMenubar()->getOptionsMenu()->addAction(redoAct);
-
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeKnockbackAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeFPSAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(changeUndoAmountAct);
-    titlebar->getMenubar()->getToolsMenu()->addSeparator();
-    titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(toggleOnionskinloopAct);
-    titlebar->getMenubar()->getToolsMenu()->addAction(toggleStayOnTopAct);
+    titlebar->getMenubar()->getOptionsMenu()->addSeparator();
+    titlebar->getMenubar()->getOptionsMenu()->addAction(changeKnockbackAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(changeFPSAct);
+    titlebar->getMenubar()->getOptionsMenu()->addAction(changeUndoAmountAct);
 }
 
 void MainWindow::openPenColorWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getPenTool()->color(), this, QString("Pen color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getPenTool()->setColor(newColor);
     toolbar->setCurrentTool(ToolbarTool::TOOL1);
@@ -147,10 +128,10 @@ void MainWindow::openPenColorWindow()
 
 void MainWindow::openLineColorWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getLineTool()->color(), this, QString("Line color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLineTool()->setColor(newColor);
     toolbar->setCurrentTool(ToolbarTool::TOOL2);
@@ -158,10 +139,10 @@ void MainWindow::openLineColorWindow()
 
 void MainWindow::openLassofillColorWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getLassoFillTool()->color(), this, QString("Lassofill color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->getLassoFillTool()->setColor(newColor);
     toolbar->setCurrentTool(ToolbarTool::TOOL3);
@@ -169,10 +150,10 @@ void MainWindow::openLassofillColorWindow()
 
 void MainWindow::openBackgroundColorWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), this, QString("Background color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (!newColor.isValid()) return;
     editor->setBackgroundColor(newColor);
     toolbar->setCurrentTool(ToolbarTool::TOOL5);
@@ -181,31 +162,31 @@ void MainWindow::openBackgroundColorWindow()
 
 void MainWindow::openKnockbackAmountWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     bool ok;
     int newK = QInputDialog::getInt(this, tr("Knockback amount"), tr("Knockback amount:"), editor->getKnockbackAmount(), 1, 255, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (ok) editor->setKnockbackAmount(newK);
 }
 
 void MainWindow::openChangeFPSWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     bool ok;
     int newFPS = QInputDialog::getInt(this, tr("Change FPS"), tr("Change FPS"), FPS, 1, 72, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (ok) FPS = newFPS;
 }
 
 void MainWindow::openUndoAmountWindow()
 {
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
+    bool onTop = isOnTop;
+    if (onTop) toggleStayOnTop();
     bool ok;
     int undoAmount = QInputDialog::getInt(this, tr("Undo size "), tr("Undo size (This will delete the current undo stack)"), undostackSize, 0, 100, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
+    if (onTop) toggleStayOnTop();
     if (ok) undostackSize = undoAmount; undostack->clear(); undostack->setUndoLimit(undostackSize);
 }
 
@@ -228,11 +209,12 @@ void MainWindow::openUndoStackWindow()
 
 void MainWindow::toggleStayOnTop()
 {
+    isOnTop = !isOnTop;
     #ifdef Q_OS_WIN
-        if (toggleStayOnTopAct->isChecked()) SetWindowPos(reinterpret_cast<HWND>(winId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        if (isOnTop) SetWindowPos(reinterpret_cast<HWND>(winId()), HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
         else SetWindowPos(reinterpret_cast<HWND>(winId()), HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
     #else
-        if (toggleStayOnTopAct->isChecked()) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+        if (isOnTop) setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
         else setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint);
         show();
     #endif
@@ -246,10 +228,13 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Down: timeline->gotoNextLayer(); break;
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
-        case Qt::Key_1: editor->setToolAsPen(); toolbar->setCurrentTool(ToolbarTool::TOOL1);; break;
-        case Qt::Key_2: editor->setToolAsLine(); toolbar->setCurrentTool(ToolbarTool::TOOL2);; break;
-        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setCurrentTool(ToolbarTool::TOOL3);; break;
-        case Qt::Key_4: editor->setToolAsEraser(); toolbar->setCurrentTool(ToolbarTool::TOOL4);; break;
-        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setCurrentTool(ToolbarTool::TOOL5);; break;
+        case Qt::Key_1: editor->setToolAsPen(); toolbar->setCurrentTool(ToolbarTool::TOOL1); break;
+        case Qt::Key_2: editor->setToolAsLine(); toolbar->setCurrentTool(ToolbarTool::TOOL2); break;
+        case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setCurrentTool(ToolbarTool::TOOL3); break;
+        case Qt::Key_4: editor->setToolAsEraser(); toolbar->setCurrentTool(ToolbarTool::TOOL4); break;
+        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
+        case Qt::Key_7: editor->toggleOnionskin(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
+        case Qt::Key_8: editor->toggleOnionskinloop(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
+        case Qt::Key_9: toggleStayOnTop(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
     }
 }
