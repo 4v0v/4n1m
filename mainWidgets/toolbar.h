@@ -77,7 +77,7 @@ class Toolbar : public QWidget
 public:
     Toolbar(MainWindow*, QWidget*);
     void setSuboolbar(Subtoolbar* s) { subtoolbar = s; }
-    Editor* editor() {return mainwindow->getEditor(); }
+    Editor* editor() {return mainwindow->editor; }
     ToolbarTool getCurrentTool() { return currentTool; }
     void setCurrentTool(ToolbarTool t);
     ToolbarButton* sub1() { return subtoolbar->subtool1; }

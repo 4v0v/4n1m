@@ -9,9 +9,9 @@ class Animation: public QWidget
 
 public:
     Animation(MainWindow*);
-    Timeline* timeline() { return mainwindow->getTimeline(); }
-    Editor* editor() { return mainwindow->getEditor(); }
-    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->timeline; }
+    Editor* editor() { return mainwindow->editor; }
+    QUndoStack* undostack() { return mainwindow->undostack; }
 
     QImage* getImageAt(int l, int p) { return &layers[l][p]; }
     QImage copyImageAt(int l, int p) { return layers[l][p].copy(); }

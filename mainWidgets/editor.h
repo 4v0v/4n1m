@@ -9,9 +9,9 @@ class Editor : public QWidget
 
 public:
     Editor(MainWindow*);
-    Timeline* timeline() { return mainwindow->getTimeline(); }
-    Animation* animation() { return mainwindow->getAnimation(); }
-    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->timeline; }
+    Animation* animation() { return mainwindow->animation; }
+    QUndoStack* undostack() { return mainwindow->undostack; }
 
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }

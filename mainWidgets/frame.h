@@ -11,10 +11,10 @@ class Frame : public QWidget
 
 public:
     Frame(MainWindow*, Layer*, int);
-    Timeline* timeline() { return mainwindow->getTimeline(); }
-    Editor* editor() { return mainwindow->getEditor(); }
-    Animation* animation() { return mainwindow->getAnimation(); }
-    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
+    Timeline* timeline() { return mainwindow->timeline; }
+    Editor* editor() { return mainwindow->editor; }
+    Animation* animation() { return mainwindow->animation; }
+    QUndoStack* undostack() { return mainwindow->undostack; }
     Layer* getLayer() { return layer;}
     int getPos() { return framePos; }
 

@@ -16,6 +16,14 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
 
 void Editor::mousePressEvent(QMouseEvent *event)
 {
+    mainwindow->subtoolbar->penOpacityProperty->hide();
+    mainwindow->subtoolbar->penWidthProperty->hide();
+    mainwindow->subtoolbar->lineOpacityProperty->hide();
+    mainwindow->subtoolbar->lineWidthProperty->hide();
+    mainwindow->subtoolbar->lassoOpacityProperty->hide();
+    mainwindow->subtoolbar->eraserWidthProperty->hide();
+    mainwindow->subtoolbar->bgOpacityProperty->hide();
+
     if (
         !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
         currentTool != Tool::EMPTY &&

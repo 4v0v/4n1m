@@ -154,17 +154,17 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     connect(subtool5, &QAbstractButton::clicked, this, [this]{ clickSubtool(ToolbarTool::SUB5); });
 
     QString sliderStylesheet = "QSlider::groove:horizontal{border:0px;height:4px;background:white;margin:2px 0;}\
-                                QSlider::handle:horizontal{background:rgb(50,50,50);border:1px solid #5c5c5c;width:7px;margin:-20px 0;}";
+                                QSlider::handle:horizontal{background:rgb(50,50,50);border:1px solid #5c5c5c;width:9px;margin:-20px 0;}";
 
     penOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
     QSlider* penOpacitySlider = new QSlider(Qt::Horizontal, penOpacityProperty);
     penOpacitySlider->setGeometry(5, 0, 110, 40);
     penOpacitySlider->setMinimum(0);
     penOpacitySlider->setMaximum(255);
-    penOpacitySlider->setValue(this->mainwindow->getEditor()->getPenTool()->color().alpha());
+    penOpacitySlider->setValue(this->mainwindow->editor->getPenTool()->color().alpha());
     penOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
-        QPen* p = this->mainwindow->getEditor()->getPenTool();
+        QPen* p = this->mainwindow->editor->getPenTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), penOpacitySlider->value()));
         toolbar->setCurrentTool(ToolbarTool::TOOL1);
     });
@@ -174,10 +174,10 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     penWidthSlider->setGeometry(5, 0, 110, 40);
     penWidthSlider->setMinimum(1);
     penWidthSlider->setMaximum(20);
-    penWidthSlider->setValue(this->mainwindow->getEditor()->getPenTool()->width());
+    penWidthSlider->setValue(this->mainwindow->editor->getPenTool()->width());
     penWidthSlider->setStyleSheet(sliderStylesheet);
     connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
-        this->mainwindow->getEditor()->getPenTool()->setWidth(penWidthSlider->value());
+        this->mainwindow->editor->getPenTool()->setWidth(penWidthSlider->value());
         toolbar->setCurrentTool(ToolbarTool::TOOL1);
     });
 
@@ -186,10 +186,10 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lineOpacitySlider->setGeometry(5, 0, 110, 40);
     lineOpacitySlider->setMinimum(0);
     lineOpacitySlider->setMaximum(255);
-    lineOpacitySlider->setValue(this->mainwindow->getEditor()->getLineTool()->color().alpha());
+    lineOpacitySlider->setValue(this->mainwindow->editor->getLineTool()->color().alpha());
     lineOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(lineOpacitySlider, &QAbstractSlider::valueChanged, this, [lineOpacitySlider, this]{
-        QPen* p = this->mainwindow->getEditor()->getLineTool();
+        QPen* p = this->mainwindow->editor->getLineTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lineOpacitySlider->value()));
         toolbar->setCurrentTool(ToolbarTool::TOOL2);
     });
@@ -199,10 +199,10 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lineWidthSlider->setGeometry(5, 0, 110, 40);
     lineWidthSlider->setMinimum(1);
     lineWidthSlider->setMaximum(20);
-    lineWidthSlider->setValue(this->mainwindow->getEditor()->getLineTool()->width());
+    lineWidthSlider->setValue(this->mainwindow->editor->getLineTool()->width());
     lineWidthSlider->setStyleSheet(sliderStylesheet);
     connect(lineWidthSlider, &QAbstractSlider::valueChanged, this, [lineWidthSlider, this]{
-        this->mainwindow->getEditor()->getLineTool()->setWidth(lineWidthSlider->value());
+        this->mainwindow->editor->getLineTool()->setWidth(lineWidthSlider->value());
         toolbar->setCurrentTool(ToolbarTool::TOOL2);
     });
 
@@ -211,10 +211,10 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lassoOpacitySlider->setGeometry(5, 0, 110, 40);
     lassoOpacitySlider->setMinimum(0);
     lassoOpacitySlider->setMaximum(255);
-    lassoOpacitySlider->setValue(this->mainwindow->getEditor()->getLassoFillTool()->color().alpha());
+    lassoOpacitySlider->setValue(this->mainwindow->editor->getLassoFillTool()->color().alpha());
     lassoOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
-        QBrush* p = this->mainwindow->getEditor()->getLassoFillTool();
+        QBrush* p = this->mainwindow->editor->getLassoFillTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lassoOpacitySlider->value()));
         toolbar->setCurrentTool(ToolbarTool::TOOL3);
     });
@@ -224,10 +224,10 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     eraserWidthSlider->setGeometry(5, 0, 110, 40);
     eraserWidthSlider->setMinimum(1);
     eraserWidthSlider->setMaximum(50);
-    eraserWidthSlider->setValue(this->mainwindow->getEditor()->getEraserTool()->width());
+    eraserWidthSlider->setValue(this->mainwindow->editor->getEraserTool()->width());
     eraserWidthSlider->setStyleSheet(sliderStylesheet);
     connect(eraserWidthSlider, &QAbstractSlider::valueChanged, this, [eraserWidthSlider, this]{
-        this->mainwindow->getEditor()->getEraserTool()->setWidth(eraserWidthSlider->value());
+        this->mainwindow->editor->getEraserTool()->setWidth(eraserWidthSlider->value());
         toolbar->setCurrentTool(ToolbarTool::TOOL4);
     });
 
@@ -236,13 +236,13 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     bgOpacitySlider->setGeometry(5, 0, 110, 40);
     bgOpacitySlider->setMinimum(0);
     bgOpacitySlider->setMaximum(255);
-    bgOpacitySlider->setValue(this->mainwindow->getEditor()->getBackgroundColor().alpha());
+    bgOpacitySlider->setValue(this->mainwindow->editor->getBackgroundColor().alpha());
     bgOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(bgOpacitySlider, &QAbstractSlider::valueChanged, this, [bgOpacitySlider, this]{
-        QColor p = mainwindow->getEditor()->getBackgroundColor();
+        QColor p = mainwindow->editor->getBackgroundColor();
         p.setAlpha(bgOpacitySlider->value());
-        mainwindow->getEditor()->setBackgroundColor(p);
-        mainwindow->getEditor()->update();
+        mainwindow->editor->setBackgroundColor(p);
+        mainwindow->editor->update();
         toolbar->setCurrentTool(ToolbarTool::TOOL5);
     });
 
@@ -254,7 +254,6 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     eraserWidthProperty->hide();
     bgOpacityProperty->hide();
 }
-
 
 void Subtoolbar::clickSubtool(ToolbarTool sub)
 {
@@ -418,7 +417,6 @@ void ToolbarButton::setIsCurrent(bool b){
         letterAnim->setKeyValueAt(0, 50);
         letterAnim->setKeyValueAt(1, 50);
         letterAnim->start();
-
     } else {
         bgAnim->stop();
         bgAnim->setDuration(300);

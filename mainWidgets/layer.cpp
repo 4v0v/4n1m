@@ -77,7 +77,7 @@ void LayerTitle::mouseMoveEvent(QMouseEvent* event)
     if (newOpacity < 0) newOpacity = 0.0;
     opacity = newOpacity;
     update();
-    mainwindow->getEditor()->update();
+    mainwindow->editor->update();
 }
 
 void LayerTitle::mousePressEvent(QMouseEvent* event)
@@ -88,7 +88,7 @@ void LayerTitle::mousePressEvent(QMouseEvent* event)
     if (newOpacity < 0) newOpacity = 0.0;
     opacity = newOpacity;
     update();
-    mainwindow->getEditor()->update();
+    mainwindow->editor->update();
 }
 
 void LayerTitle::mouseReleaseEvent(QMouseEvent*) { isDown = false; }

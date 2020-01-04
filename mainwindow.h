@@ -70,13 +70,15 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
-    Editor* getEditor() { return editor; }
-    Timeline* getTimeline() { return timeline; }
-    Animation* getAnimation() { return animation; }
-    Titlebar* getTitlebar() { return titlebar; }
-    Toolbar* getToolbar() { return toolbar; }
-    Subtoolbar* getSubtoolbar() { return subtoolbar; }
-    QUndoStack* getUndoStack() { return undostack; }
+
+    Animation* animation;
+    QUndoStack* undostack;
+    Editor* editor;
+    Timeline* timeline;
+    Titlebar* titlebar;
+    Toolbar* toolbar;
+    Subtoolbar* subtoolbar;
+
     int getFPS() { return FPS; }
     QRect getWindowDimensions() { return windowDimensions; }
 
@@ -97,14 +99,6 @@ protected:
     void keyPressEvent(QKeyEvent*) override;
 
 private:
-    Animation* animation;
-    QUndoStack* undostack;
-    Editor* editor;
-    Timeline* timeline;
-    Titlebar* titlebar;
-    Toolbar* toolbar;
-    Subtoolbar* subtoolbar;
-    
     QAction* toggleStayOnTopAct;
     QAction* toggleOnionskinAct;
     QAction* toggleOnionskinloopAct;

@@ -31,9 +31,9 @@ class Timeline : public QWidget
 
 public:
     Timeline(MainWindow*);
-    Editor* editor() { return mainwindow->getEditor(); }
-    Animation* animation() { return mainwindow->getAnimation(); }
-    QUndoStack* undostack() { return mainwindow->getUndoStack(); }
+    Editor* editor() { return mainwindow->editor; }
+    Animation* animation() { return mainwindow->animation; }
+    QUndoStack* undostack() { return mainwindow->undostack; }
 
     int getPos() { return timelinePos; }
     void setPos(int i) { timelinePos = i; }

@@ -178,7 +178,7 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
     vlayout->setMargin(0);
     w->setLayout( vlayout );
 
-    for (int i = 0; i <= mainwindow->getAnimation()->getLastLayerPos(); i++)
+    for (int i = 0; i <= mainwindow->animation->getLastLayerPos(); i++)
     {
         layers.insert(i, new Layer(mainwindow, i));
         vlayout->addWidget(layers[i]);
