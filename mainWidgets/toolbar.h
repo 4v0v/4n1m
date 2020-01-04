@@ -51,19 +51,24 @@ public:
     Editor* editor() {return mainwindow->editor; }
     void setToolbar(Toolbar* t) { toolbar = t;}
     void clickSubtool(ToolbarTool);
+    void initProperties();
     void hideProperties();
     ToolbarButton* subtool1;
     ToolbarButton* subtool2;
     ToolbarButton* subtool3;
     ToolbarButton* subtool4;
     ToolbarButton* subtool5;
+    ToolbarButton* penColorProperty;
     ToolbarButton* penOpacityProperty;
     ToolbarButton* penWidthProperty;
+    ToolbarButton* lineColorProperty;
     ToolbarButton* lineOpacityProperty;
     ToolbarButton* lineWidthProperty;
+    ToolbarButton* lassoColorProperty;
     ToolbarButton* lassoOpacityProperty;
     ToolbarButton* lassoStyleProperty;
     ToolbarButton* eraserWidthProperty;
+    ToolbarButton* bgColorProperty;
     ToolbarButton* bgOpacityProperty;
 
 private:

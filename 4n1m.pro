@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
+    mainWidgets/colorwheel.cpp \
     mainWidgets/frame.cpp \
     mainWidgets/layer.cpp \
     mainWidgets/toolbar.cpp \
@@ -29,6 +30,7 @@ SOURCES += \
     mainWidgets/titlebar.cpp
 
 HEADERS += \
+    mainWidgets/colorwheel.h \
     mainWidgets/frame.h \
     mainWidgets/layer.h \
     mainWidgets/toolbar.h \

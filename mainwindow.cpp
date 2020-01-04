@@ -115,51 +115,6 @@ MainWindow::MainWindow()
     titlebar->getMenubar()->getOptionsMenu()->addAction(changeUndoAmountAct);
 }
 
-void MainWindow::openPenColorWindow()
-{
-    bool onTop = isOnTop;
-    if (onTop) toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getPenTool()->color(), this, QString("Pen color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTop();
-    if (!newColor.isValid()) return;
-    editor->getPenTool()->setColor(newColor);
-    toolbar->setCurrentTool(ToolbarTool::TOOL1);
-}
-
-void MainWindow::openLineColorWindow()
-{
-    bool onTop = isOnTop;
-    if (onTop) toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getLineTool()->color(), this, QString("Line color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTop();
-    if (!newColor.isValid()) return;
-    editor->getLineTool()->setColor(newColor);
-    toolbar->setCurrentTool(ToolbarTool::TOOL2);
-}
-
-void MainWindow::openLassofillColorWindow()
-{
-    bool onTop = isOnTop;
-    if (onTop) toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getLassoFillTool()->color(), this, QString("Lassofill color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTop();
-    if (!newColor.isValid()) return;
-    editor->getLassoFillTool()->setColor(newColor);
-    toolbar->setCurrentTool(ToolbarTool::TOOL3);
-}
-
-void MainWindow::openBackgroundColorWindow()
-{
-    bool onTop = isOnTop;
-    if (onTop) toggleStayOnTop();
-    QColor newColor = QColorDialog::getColor(editor->getBackgroundColor(), this, QString("Background color"), QColorDialog::ShowAlphaChannel);
-    if (onTop) toggleStayOnTop();
-    if (!newColor.isValid()) return;
-    editor->setBackgroundColor(newColor);
-    toolbar->setCurrentTool(ToolbarTool::TOOL5);
-    editor->update();
-}
-
 void MainWindow::openKnockbackAmountWindow()
 {
     bool onTop = isOnTop;

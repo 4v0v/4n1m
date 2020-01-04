@@ -84,11 +84,7 @@ public:
     bool isOnTop = false;
 
 public slots:
-    void openPenColorWindow();
-    void openLineColorWindow();
-    void openLassofillColorWindow();
     void openUndoAmountWindow();
-    void openBackgroundColorWindow();
     void openKnockbackAmountWindow();
     void openChangeFPSWindow();
     void openPreviewWindow();
