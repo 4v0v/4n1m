@@ -35,13 +35,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
 {
     if (currentTool != t)
     {
-        subtoolbar->penOpacityProperty->hide();
-        subtoolbar->penWidthProperty->hide();
-        subtoolbar->lineOpacityProperty->hide();
-        subtoolbar->lineWidthProperty->hide();
-        subtoolbar->lassoOpacityProperty->hide();
-        subtoolbar->eraserWidthProperty->hide();
-        subtoolbar->bgOpacityProperty->hide();
+        subtoolbar->hideProperties();
         currentTool = t;
     }
 
@@ -159,8 +153,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     penOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
     QSlider* penOpacitySlider = new QSlider(Qt::Horizontal, penOpacityProperty);
     penOpacitySlider->setGeometry(5, 0, 110, 40);
-    penOpacitySlider->setMinimum(0);
-    penOpacitySlider->setMaximum(255);
+    penOpacitySlider->setRange(0, 255);
     penOpacitySlider->setValue(this->mainwindow->editor->getPenTool()->color().alpha());
     penOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
@@ -172,8 +165,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     penWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
     QSlider* penWidthSlider = new QSlider(Qt::Horizontal, penWidthProperty);
     penWidthSlider->setGeometry(5, 0, 110, 40);
-    penWidthSlider->setMinimum(1);
-    penWidthSlider->setMaximum(20);
+    penWidthSlider->setRange(1, 30);
     penWidthSlider->setValue(this->mainwindow->editor->getPenTool()->width());
     penWidthSlider->setStyleSheet(sliderStylesheet);
     connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
@@ -184,8 +176,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lineOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
     QSlider* lineOpacitySlider = new QSlider(Qt::Horizontal, lineOpacityProperty);
     lineOpacitySlider->setGeometry(5, 0, 110, 40);
-    lineOpacitySlider->setMinimum(0);
-    lineOpacitySlider->setMaximum(255);
+    lineOpacitySlider->setRange(0, 255);
     lineOpacitySlider->setValue(this->mainwindow->editor->getLineTool()->color().alpha());
     lineOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(lineOpacitySlider, &QAbstractSlider::valueChanged, this, [lineOpacitySlider, this]{
@@ -197,8 +188,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lineWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
     QSlider* lineWidthSlider = new QSlider(Qt::Horizontal, lineWidthProperty);
     lineWidthSlider->setGeometry(5, 0, 110, 40);
-    lineWidthSlider->setMinimum(1);
-    lineWidthSlider->setMaximum(20);
+    lineWidthSlider->setRange(1, 30);
     lineWidthSlider->setValue(this->mainwindow->editor->getLineTool()->width());
     lineWidthSlider->setStyleSheet(sliderStylesheet);
     connect(lineWidthSlider, &QAbstractSlider::valueChanged, this, [lineWidthSlider, this]{
@@ -209,8 +199,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     lassoOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
     QSlider* lassoOpacitySlider = new QSlider(Qt::Horizontal, lassoOpacityProperty);
     lassoOpacitySlider->setGeometry(5, 0, 110, 40);
-    lassoOpacitySlider->setMinimum(0);
-    lassoOpacitySlider->setMaximum(255);
+    lassoOpacitySlider->setRange(0, 255);
     lassoOpacitySlider->setValue(this->mainwindow->editor->getLassoFillTool()->color().alpha());
     lassoOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
@@ -222,8 +211,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     eraserWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 40, SUB_EMPTY);
     QSlider* eraserWidthSlider = new QSlider(Qt::Horizontal, eraserWidthProperty);
     eraserWidthSlider->setGeometry(5, 0, 110, 40);
-    eraserWidthSlider->setMinimum(1);
-    eraserWidthSlider->setMaximum(50);
+    eraserWidthSlider->setRange(1, 50);
     eraserWidthSlider->setValue(this->mainwindow->editor->getEraserTool()->width());
     eraserWidthSlider->setStyleSheet(sliderStylesheet);
     connect(eraserWidthSlider, &QAbstractSlider::valueChanged, this, [eraserWidthSlider, this]{
@@ -234,8 +222,7 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     bgOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
     QSlider* bgOpacitySlider = new QSlider(Qt::Horizontal, bgOpacityProperty);
     bgOpacitySlider->setGeometry(5, 0, 110, 40);
-    bgOpacitySlider->setMinimum(0);
-    bgOpacitySlider->setMaximum(255);
+    bgOpacitySlider->setRange(0, 255);
     bgOpacitySlider->setValue(this->mainwindow->editor->getBackgroundColor().alpha());
     bgOpacitySlider->setStyleSheet(sliderStylesheet);
     connect(bgOpacitySlider, &QAbstractSlider::valueChanged, this, [bgOpacitySlider, this]{
@@ -246,6 +233,11 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
         toolbar->setCurrentTool(ToolbarTool::TOOL5);
     });
 
+    hideProperties();
+}
+
+void Subtoolbar::hideProperties()
+{
     penOpacityProperty->hide();
     penWidthProperty->hide();
     lineOpacityProperty->hide();
@@ -264,13 +256,7 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
     bool isLassoOpacityVisible = lassoOpacityProperty->isVisible();
     bool isEraserWidthVisible = eraserWidthProperty->isVisible();
     bool isBgOpacityVisible = bgOpacityProperty->isVisible();
-    penOpacityProperty->hide();
-    penWidthProperty->hide();
-    lineOpacityProperty->hide();
-    lineWidthProperty->hide();
-    lassoOpacityProperty->hide();
-    eraserWidthProperty->hide();
-    bgOpacityProperty->hide();
+    hideProperties();
 
     switch(toolbar->getCurrentTool())
     {

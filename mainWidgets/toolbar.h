@@ -49,6 +49,7 @@ public:
     Subtoolbar(MainWindow*, QWidget*);
     void setToolbar(Toolbar* t) { toolbar = t;}
     void clickSubtool(ToolbarTool);
+    void hideProperties();
     ToolbarButton* subtool1;
     ToolbarButton* subtool2;
     ToolbarButton* subtool3;
