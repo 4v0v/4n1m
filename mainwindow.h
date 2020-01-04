@@ -86,7 +86,6 @@ public slots:
     void openPenColorWindow();
     void openLineColorWindow();
     void openLassofillColorWindow();
-    void openLassofillStyleWindow();
     void openUndoAmountWindow();
     void openBackgroundColorWindow();
     void openKnockbackAmountWindow();

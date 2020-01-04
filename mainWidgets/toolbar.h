@@ -60,6 +60,7 @@ public:
     ToolbarButton* lineOpacityProperty;
     ToolbarButton* lineWidthProperty;
     ToolbarButton* lassoOpacityProperty;
+    ToolbarButton* lassoStyleProperty;
     ToolbarButton* eraserWidthProperty;
     ToolbarButton* bgOpacityProperty;
 

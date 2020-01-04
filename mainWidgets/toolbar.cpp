@@ -208,6 +208,25 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
         toolbar->setCurrentTool(ToolbarTool::TOOL3);
     });
 
+    lassoStyleProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 98, 158, SUB_EMPTY);
+    int currentStyle =  1;
+    for (int i = 0; i < 5; ++i)
+    {
+        for (int j = 0; j < 3; ++j)
+        {
+            if (currentStyle > 14 ) break;
+            QImage* styleIcon = new QImage(26, 26, QImage::Format_ARGB32);
+                QPainter stylePainter(styleIcon);
+                styleIcon->fill(QColor(Qt::transparent));
+                stylePainter.setPen(QPen(Qt::transparent, 1));
+                stylePainter.setBrush(QBrush(Qt::black, static_cast<Qt::BrushStyle>(currentStyle)));
+                stylePainter.drawRect(1, 1, 24, 24);
+            ToolbarButton* t = new ToolbarButton(mainwindow, lassoStyleProperty, 30*j,  30*i,  30, 30, ToolbarButtonStyle::SUB_ICON, "", *styleIcon);
+            connect(t, &QAbstractButton::clicked, this, [this, currentStyle]{ mainwindow->editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(currentStyle)); toolbar->setCurrentTool(ToolbarTool::TOOL3); });
+            currentStyle += 1;
+        }
+    }
+
     eraserWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 40, SUB_EMPTY);
     QSlider* eraserWidthSlider = new QSlider(Qt::Horizontal, eraserWidthProperty);
     eraserWidthSlider->setGeometry(5, 0, 110, 40);
@@ -245,6 +264,7 @@ void Subtoolbar::hideProperties()
     lassoOpacityProperty->hide();
     eraserWidthProperty->hide();
     bgOpacityProperty->hide();
+    lassoStyleProperty->hide();
 }
 
 void Subtoolbar::clickSubtool(ToolbarTool sub)
@@ -254,6 +274,7 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
     bool isLineOpacityVisible = lineOpacityProperty->isVisible();
     bool isLineWidthVisible = lineWidthProperty->isVisible();
     bool isLassoOpacityVisible = lassoOpacityProperty->isVisible();
+    bool isLassoStyleVisible = lassoStyleProperty->isVisible();
     bool isEraserWidthVisible = eraserWidthProperty->isVisible();
     bool isBgOpacityVisible = bgOpacityProperty->isVisible();
     hideProperties();
@@ -282,7 +303,7 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
             switch(sub){
                 case ToolbarTool::SUB1: mainwindow->openLassofillColorWindow(); break;
                 case ToolbarTool::SUB2: if(!isLassoOpacityVisible) lassoOpacityProperty->show(); break;
-                case ToolbarTool::SUB3: mainwindow->openLassofillStyleWindow(); break;
+                case ToolbarTool::SUB3: if(!isLassoStyleVisible) lassoStyleProperty->show(); break;
                 case ToolbarTool::SUB4: break;
                 case ToolbarTool::SUB5: break;
                 default: break;

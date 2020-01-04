@@ -167,18 +167,6 @@ void MainWindow::openLassofillColorWindow()
     toolbar->setCurrentTool(ToolbarTool::TOOL3);
 }
 
-void MainWindow::openLassofillStyleWindow()
-{
-    bool onTop = toggleStayOnTopAct->isChecked();
-    if (onTop) toggleStayOnTopAct->setChecked(false); toggleStayOnTop();
-    bool ok;
-    int newFillStyle = QInputDialog::getInt(this, tr("Lassofill style"), tr("Lassofill style"), editor->getLassoFillTool()->style(), 1, 14, 1, &ok);
-    if (onTop) toggleStayOnTopAct->setChecked(true); toggleStayOnTop();
-    if (!ok) return;
-    editor->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(newFillStyle));
-    toolbar->setCurrentTool(ToolbarTool::TOOL3);
-}
-
 void MainWindow::openBackgroundColorWindow()
 {
     bool onTop = toggleStayOnTopAct->isChecked();
