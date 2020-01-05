@@ -27,6 +27,7 @@ public:
     void drawLassoFill();
     void drawEraserStroke();
     void drawLine();
+    void drawSelect();
     Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= Tool::EMPTY) { currentTool = t; }
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
@@ -50,6 +51,7 @@ public:
 
     SelectionState selectState = STATE_EMPTY;
     QRect select;
+    QRect dselect;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
     int dx;
     int dy;

@@ -106,7 +106,7 @@ protected:
 private:
     int FPS = 24;
     int undostackSize = 30;
-    QRect windowDimensions = QRect(100, 100, 850, 650);
+    QRect windowDimensions = QRect(-870, 400, 850, 650);
 };
 
 #endif
