@@ -48,6 +48,12 @@ public:
     double onionOpacityLoop = 0.2;
     QPolygon stroke;
 
+    SelectionState selectState = STATE_EMPTY;
+    QRect select;
+    QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
+    int dx;
+    int dy;
+
 public slots:
     void clearImage();
     void knockback();
@@ -57,6 +63,7 @@ public slots:
     void setToolAsLine() { if (!scribbling) changeTool(Tool::LINE); }
     void setToolAsLassoFill() { if (!scribbling) changeTool(Tool::LASSOFILL); }
     void setToolAsEraser() { if (!scribbling) changeTool(Tool::ERASER); }
+    void setToolAsSelect() { if (!scribbling) changeTool(Tool::SELECT); }
     void setToolAsEmpty() { if (!scribbling) changeTool(Tool::EMPTY); }
 
 protected:

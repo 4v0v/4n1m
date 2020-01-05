@@ -17,12 +17,28 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
 void Editor::mousePressEvent(QMouseEvent *event)
 {
     mainwindow->subtoolbar->hideProperties();
-
     if (
         !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
         currentTool != Tool::EMPTY &&
-        currentTool != Tool::ERASER
+        currentTool != Tool::ERASER &&
+        currentTool != Tool::SELECT
     ) timeline()->addKey();
+
+
+    if (selectState == STATE_SELECTED && !select.contains(event->pos())) selectState = STATE_EMPTY;
+    if (selectState == STATE_SELECTED) dx = event->x() - select.x(); dy = event->y() - select.y();
+
+    if (
+        currentTool == Tool::SELECT &&
+        animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
+        selectState != STATE_SELECTED
+    ){
+        selectState = STATE_SELECTING;
+        select.setX(event->x());
+        select.setY(event->y());
+        select.setWidth(1);
+        select.setHeight(1);
+    }
 
     scribbling = true;
     stroke << QPoint(event->pos().x(), event->pos().y());
@@ -38,7 +54,15 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
         case Tool::LASSOFILL: drawLassoFill(); break;
         case Tool::LINE: drawLine(); break;
         case Tool::ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
+        case Tool::SELECT:
+            if (selectState == STATE_SELECTING )
+            {
+                if ( abs(select.width())>2 && abs(select.width())>2) selectState = STATE_SELECTED;
+                else selectState = STATE_EMPTY;
+            }
+
         case Tool::EMPTY: break;
+        default: break;
     }
     stroke.clear();
     update();
@@ -47,6 +71,23 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (!scribbling) return;
+    if (currentTool == Tool::SELECT){
+        int tempx = event->x();
+        if (tempx > width()-1) tempx = width()-1;
+        if (tempx < 0) tempx = 0;
+        int tempy = event->y();
+        if (tempy > height()-1) tempy = height()-1;
+        if (tempy < 0) tempy = 0;
+
+        if (selectState == STATE_SELECTING){
+            select.setWidth(tempx - select.x()); select.setHeight(tempy - select.y());
+        } else if  (selectState == STATE_SELECTED){
+            // cut selection from currentImage
+            // set selection inside selectedImg
+            select.moveTo(event->x() - dx, event->y() - dy);
+        };
+    }
+
     stroke << QPoint(event->pos().x(), event->pos().y());
     update();
 }
@@ -100,8 +141,6 @@ void Editor::paintEvent(QPaintEvent* event)
             // Tool preview
             switch (currentTool)
             {
-                default:
-                    if (stroke.count() < 2) break;
                 case Tool::PEN: {
                     layerPainter.setPen(penTool);
                     if (stroke.count() == 1) layerPainter.drawPoint(stroke.first());
@@ -129,6 +168,17 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
                     layerPainter.drawImage(QPoint(0,0), tempImg);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                    break;
+                } case Tool::SELECT: {
+                    if (selectState == STATE_SELECTING)
+                    {
+                        layerPainter.setPen(QPen(Qt::black, 1, Qt::DashLine));
+                        layerPainter.drawRect(select);
+                    } else if (selectState == STATE_SELECTED)
+                    {
+                        layerPainter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
+                        layerPainter.drawRect(select);
+                    }
                     break;
                 } case Tool::EMPTY: {
                     break;
@@ -199,6 +249,7 @@ void Editor::drawEraserStroke()
 void Editor::knockback()
 {
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
+    selectState = STATE_EMPTY;
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j =  i.copy();;
     QPainter painter(&j);
@@ -214,6 +265,7 @@ void Editor::knockback()
 void Editor::clearImage()
 {
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
+    selectState = STATE_EMPTY;
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();;
     j.fill(Qt::transparent);

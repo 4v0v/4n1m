@@ -7,6 +7,7 @@
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QMainWindow>
+#include <QVector>
 #include <QUndoView>
 #include <QMap>
 #include <QList>
@@ -32,11 +33,18 @@ class Subtoolbar;
 class Layer;
 class Frame;
 
+enum SelectionState {
+    STATE_SELECTING,
+    STATE_SELECTED,
+    STATE_EMPTY
+};
+
 enum Tool {
     EMPTY,
     PEN,
     LASSOFILL,
     ERASER,
+    SELECT,
     LINE
 };
 
@@ -45,6 +53,7 @@ enum ToolbarTool {
     TOOL2,
     TOOL3,
     TOOL4,
+    TOOL6,
     TOOL5,
     SUB1,
     SUB2,

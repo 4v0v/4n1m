@@ -187,9 +187,10 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_2: editor->setToolAsLine(); toolbar->setCurrentTool(ToolbarTool::TOOL2); break;
         case Qt::Key_3: editor->setToolAsLassoFill(); toolbar->setCurrentTool(ToolbarTool::TOOL3); break;
         case Qt::Key_4: editor->setToolAsEraser(); toolbar->setCurrentTool(ToolbarTool::TOOL4); break;
-        case Qt::Key_5: editor->setToolAsEmpty(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
-        case Qt::Key_7: editor->toggleOnionskin(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
-        case Qt::Key_8: editor->toggleOnionskinloop(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
-        case Qt::Key_9: toggleStayOnTop(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
+        case Qt::Key_5: editor->setToolAsSelect(); toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
+        case Qt::Key_6: editor->setToolAsEmpty(); toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
+        case Qt::Key_7: editor->toggleOnionskin(); toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
+        case Qt::Key_8: editor->toggleOnionskinloop(); toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
+        case Qt::Key_9: toggleStayOnTop(); toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
     }
 }

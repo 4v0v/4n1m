@@ -57,7 +57,7 @@ public:
     ToolbarButton* subtool2;
     ToolbarButton* subtool3;
     ToolbarButton* subtool4;
-    ToolbarButton* subtool5;
+    ToolbarButton* subtool6;
     ToolbarButton* penColorProperty;
     ToolbarButton* penOpacityProperty;
     ToolbarButton* penWidthProperty;
@@ -93,14 +93,15 @@ public:
     ToolbarButton* sub2() { return subtoolbar->subtool2; }
     ToolbarButton* sub3() { return subtoolbar->subtool3; }
     ToolbarButton* sub4() { return subtoolbar->subtool4; }
-    ToolbarButton* sub5() { return subtoolbar->subtool5; }
+    ToolbarButton* sub5() { return subtoolbar->subtool6; }
     ToolbarButton* tool1;
     ToolbarButton* tool2;
     ToolbarButton* tool3;
     ToolbarButton* tool4;
-    ToolbarButton* tool5;
     ToolbarButton* tool6;
+    ToolbarButton* tool5;
     ToolbarButton* tool7;
+    ToolbarButton* tool8;
 
 private:
     ToolbarTool currentTool = ToolbarTool::TOOL1;
