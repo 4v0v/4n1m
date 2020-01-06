@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include "mainwindow.h"
+#include "mainWidgets/toolbar.h"
 
 class Editor : public QWidget
 {
@@ -11,6 +12,7 @@ public:
     Editor(MainWindow*);
     Timeline* timeline() { return mainwindow->timeline; }
     Animation* animation() { return mainwindow->animation; }
+    Toolbar* toolbar() { return mainwindow->toolbar; }
     QUndoStack* undostack() { return mainwindow->undostack; }
     int getTool(){ return currentTool; }
     bool isScribbling() { return scribbling; }
@@ -61,12 +63,12 @@ public slots:
     void knockback();
     void toggleOnionskin() { onionskinVisible = !onionskinVisible; update(); }
     void toggleOnionskinloop() { onionskinloopVisible = !onionskinloopVisible; update(); }
-    void setToolAsPen() { if (!scribbling) changeTool(Tool::PEN); }
-    void setToolAsLine() { if (!scribbling) changeTool(Tool::LINE); }
-    void setToolAsLassoFill() { if (!scribbling) changeTool(Tool::LASSOFILL); }
-    void setToolAsEraser() { if (!scribbling) changeTool(Tool::ERASER); }
-    void setToolAsSelect() { if (!scribbling) changeTool(Tool::SELECT); }
-    void setToolAsEmpty() { if (!scribbling) changeTool(Tool::EMPTY); }
+    void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL1); changeTool(PEN); update();}}
+    void setToolAsLine() { if (!scribbling) {toolbar()->setCurrentTool(TOOL2); changeTool(LINE); update();}}
+    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL3); changeTool(LASSOFILL); update();}}
+    void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL4); changeTool(ERASER); update();}}
+    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL5); changeTool(SELECT); update();}}
+    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL6); changeTool(EMPTY); update();}}
 
 protected:
     void mousePressEvent(QMouseEvent*) override;

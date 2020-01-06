@@ -12,14 +12,13 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
 {
     mainwindow = mw;
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
-
     timelineScroll = new TimelineScrollArea(mainwindow, this);
 }
 
 void Timeline::gotoNextFrame()
 {
     if (editor()->isScribbling() || getPos() == 199) return;
-    editor()->selectState = STATE_EMPTY;
+    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()+1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -30,7 +29,7 @@ void Timeline::gotoNextFrame()
 void Timeline::gotoPrevFrame()
 {
     if (editor()->isScribbling() || getPos() == 0) return;
-    editor()->selectState = STATE_EMPTY;
+    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()-1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -41,7 +40,7 @@ void Timeline::gotoPrevFrame()
 void Timeline::gotoNextLayer()
 {
     if (editor()->isScribbling() || getLayer() == animation()->getLastLayerPos()) return;
-    editor()->selectState = STATE_EMPTY;
+    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()+1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -52,7 +51,7 @@ void Timeline::gotoNextLayer()
 void Timeline::gotoPrevLayer()
 {
     if (editor()->isScribbling() || getLayer() == 0) return;
-    editor()->selectState = STATE_EMPTY;
+    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()-1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -63,7 +62,7 @@ void Timeline::gotoPrevLayer()
 void Timeline::gotoFrame(int layer, int pos)
 {
     if (editor()->isScribbling()) return;
-    editor()->selectState = STATE_EMPTY;
+    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     setLayer(layer);
     setPos(pos);
     update();
@@ -111,7 +110,8 @@ void Timeline::removeFrame()
 void Timeline::copyFrame()
 {
     if (!animation()->isKey(getLayer(), getPos())) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->selectState = STATE_EMPTY; 
+    editor()->update();
     clipboard = animation()->copyImageAt(getLayer(), getPos());
 }
 
@@ -144,41 +144,20 @@ void Timeline::pasteFrame()
 TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollArea(t)
 {
     mainwindow = mw;
-
+    setLayoutDirection(Qt::RightToLeft);
     setFocusPolicy(Qt::NoFocus);
+    setWidgetResizable( true );
+    setGeometry(-1, 0, t->width(), 106 );
     setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn);
     horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
     verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
     horizontalScrollBar()->setFocusPolicy(Qt::NoFocus);
     verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
-//    horizontalScrollBar()->installEventFilter(this);
-
-    setLayoutDirection(Qt::RightToLeft);
-
-    setWidgetResizable( true );
-    setGeometry(-1, 0, t->width(), 106 );
-
     setStyleSheet(
-        "QScrollBar:vertical {\
-            background: rgb(50,50,50);\
-            width: 21px;\
-            margin: 0;\
-        }\
-        \
-        QScrollBar:horizontal {\
-            background: rgb(50,50,50);\
-            height: 22px;\
-            margin: 0;\
-        }\
-        \
-        QScrollBar::handle {\
-            background: rgb(50,50,50);\
-        }\
-        \
-        QScrollBar::add-line, QScrollBar::sub-line {\
-            width: 0px;\
-            height: 0px;\
-        }"
+        "QScrollBar:vertical {background: rgb(50,50,50);width: 21px;margin: 0;}\
+        QScrollBar:horizontal {background: rgb(50,50,50);height: 22px;margin: 0;}\
+        QScrollBar::handle {background: rgb(50,50,50);}\
+        QScrollBar::add-line, QScrollBar::sub-line {width: 0px;height: 0px;}"
     );
 
     QWidget* w = new QWidget();
@@ -195,7 +174,6 @@ TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollAre
         vlayout->addWidget(layers[i]);
     }
     vlayout->addStretch(1);
-
     getLayerWidgets()->at(t->getLayer())->getFrameWidgetAt(t->getPos())->toggleIsCurrent();
 }
 

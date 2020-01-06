@@ -40,6 +40,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
     {
         subtoolbar->hideProperties();
         currentTool = t;
+        if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
     }
 
     sub1()->hide();

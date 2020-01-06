@@ -25,7 +25,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
 
     if ( currentTool == Tool::SELECT)
     {
-        if (selectState == STATE_SELECTED && !select.contains(event->pos())){selectState = STATE_EMPTY; drawSelect();}
+        if (selectState == STATE_SELECTED && !select.contains(event->pos())){drawSelect();}
         if (selectState == STATE_SELECTED) dx = event->x() - select.x(); dy = event->y() - select.y();
         if (selectState != STATE_SELECTED && animation()->isKey(timeline()->getLayer(), timeline()->getPos())){
             selectState = STATE_SELECTING;
@@ -35,7 +35,6 @@ void Editor::mousePressEvent(QMouseEvent *event)
             select.setHeight(1);
         }
     }
-
     update();
 }
 
@@ -239,6 +238,7 @@ void Editor::drawLassoFill()
 
 void Editor::drawSelect()
 {
+    selectState = STATE_EMPTY;
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);

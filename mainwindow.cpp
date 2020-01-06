@@ -183,12 +183,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Down: timeline->gotoNextLayer(); break;
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
-        case Qt::Key_1: editor->setToolAsPen();        if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL1); break;
-        case Qt::Key_2: editor->setToolAsLine();       if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL2); break;
-        case Qt::Key_3: editor->setToolAsLassoFill();  if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL3); break;
-        case Qt::Key_4: editor->setToolAsEraser();     if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL4); break;
-        case Qt::Key_5: editor->setToolAsSelect();     if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL5); break;
-        case Qt::Key_6: editor->setToolAsEmpty();      if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
+        case Qt::Key_1: editor->setToolAsPen();        break;
+        case Qt::Key_2: editor->setToolAsLine();       break;
+        case Qt::Key_3: editor->setToolAsLassoFill();  break;
+        case Qt::Key_4: editor->setToolAsEraser();     break;
+        case Qt::Key_5: editor->setToolAsSelect();     break;
+        case Qt::Key_6: editor->setToolAsEmpty();      break;
         case Qt::Key_7: editor->toggleOnionskin();     if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
         case Qt::Key_8: editor->toggleOnionskinloop(); if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
         case Qt::Key_9: toggleStayOnTop();             if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
