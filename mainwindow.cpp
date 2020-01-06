@@ -56,9 +56,10 @@ MainWindow::MainWindow()
     QAction* copyFrameAct = new QAction(tr("Copy"), this);
     QAction* cutFrameAct = new QAction(tr("Cut"), this);
     QAction* pasteFrameAct = new QAction(tr("Paste"), this);
-    QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
-    QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
-
+//    QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
+//    QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
+    QAction* undoAct = new QAction(tr("Undo"), this);
+    QAction* redoAct = new QAction(tr("Redo"), this);
     // Shortcuts
     knockbackAct->setShortcut(tr("A"));
     clearScreenAct->setShortcut(tr("Z"));
@@ -80,6 +81,8 @@ MainWindow::MainWindow()
     connect(openUndoStackWindowAct, SIGNAL(triggered()), this, SLOT(openUndoStackWindow()));
     connect(changeUndoAmountAct, SIGNAL(triggered()), this, SLOT(openUndoAmountWindow()));
     connect(changeFPSAct, SIGNAL(triggered()), this, SLOT(openChangeFPSWindow()));
+    connect(undoAct, SIGNAL(triggered()), this, SLOT(undo()));
+    connect(redoAct, SIGNAL(triggered()), this, SLOT(redo()));
     connect(saveAnimationAct, SIGNAL(triggered()), animation, SLOT(saveAnimation()));
     connect(clearScreenAct, SIGNAL(triggered()), editor, SLOT(clearImage()));
     connect(knockbackAct, SIGNAL(triggered()), editor, SLOT(knockback()));
@@ -90,6 +93,7 @@ MainWindow::MainWindow()
     connect(copyFrameAct, SIGNAL(triggered()), timeline, SLOT(copyFrame()));
     connect(cutFrameAct, SIGNAL(triggered()), timeline, SLOT(cutFrame()));
     connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
+
 
     // Create Menus
     titlebar->getMenubar()->getOptionsMenu()->addAction(saveAnimationAct);
@@ -160,6 +164,18 @@ void MainWindow::openUndoStackWindow()
     undoView->setWindowTitle(tr("Undo Stack"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
     undoView->show();
+}
+
+void MainWindow::undo()
+{
+    if (editor->selectState == STATE_SELECTED) editor->drawSelect();
+    undostack->undo();
+}
+
+void MainWindow::redo()
+{
+    if (editor->selectState == STATE_SELECTED) editor->selectState = STATE_EMPTY; editor->update();
+    undostack->redo();
 }
 
 void MainWindow::toggleStayOnTop()

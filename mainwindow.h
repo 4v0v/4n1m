@@ -99,6 +99,8 @@ public slots:
     void openPreviewWindow();
     void openUndoStackWindow();
     void toggleStayOnTop();
+    void undo();
+    void redo();
 
 protected:
     void keyPressEvent(QKeyEvent*) override;
