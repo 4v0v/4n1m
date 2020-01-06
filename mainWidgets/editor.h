@@ -63,12 +63,12 @@ public slots:
     void knockback();
     void toggleOnionskin() { onionskinVisible = !onionskinVisible; update(); }
     void toggleOnionskinloop() { onionskinloopVisible = !onionskinloopVisible; update(); }
-    void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL1); changeTool(PEN); update();}}
-    void setToolAsLine() { if (!scribbling) {toolbar()->setCurrentTool(TOOL2); changeTool(LINE); update();}}
-    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL3); changeTool(LASSOFILL); update();}}
-    void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL4); changeTool(ERASER); update();}}
-    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL5); changeTool(SELECT); update();}}
-    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL6); changeTool(EMPTY); update();}}
+    void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_PEN); changeTool(PEN); update();}}
+    void setToolAsLine() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_LINE); changeTool(LINE); update();}}
+    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_LASSO); changeTool(LASSOFILL); update();}}
+    void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_ERASER); changeTool(ERASER); update();}}
+    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_SELECT); changeTool(SELECT); update();}}
+    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_OTHER); changeTool(EMPTY); update();}}
 
 protected:
     void mousePressEvent(QMouseEvent*) override;

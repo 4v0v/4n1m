@@ -38,7 +38,7 @@ MainWindow::MainWindow()
     subtoolbar = new Subtoolbar(this, window);
     toolbar->setSuboolbar(subtoolbar);
     subtoolbar->setToolbar(toolbar);
-    toolbar->setCurrentTool(ToolbarTool::TOOL1);
+    toolbar->setCurrentTool(ToolbarTool::TOOL_pen);
 
     // Create Actions
     QAction* saveAnimationAct = new QAction(tr("Save animation"), this);
@@ -189,8 +189,8 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_4: editor->setToolAsEraser();     break;
         case Qt::Key_5: editor->setToolAsSelect();     break;
         case Qt::Key_6: editor->setToolAsEmpty();      break;
-        case Qt::Key_7: editor->toggleOnionskin();     if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
-        case Qt::Key_8: editor->toggleOnionskinloop(); if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
-        case Qt::Key_9: toggleStayOnTop();             if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL6); break;
+        case Qt::Key_7: editor->toggleOnionskin();     if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL_other); break;
+        case Qt::Key_8: editor->toggleOnionskinloop(); if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL_other); break;
+        case Qt::Key_9: toggleStayOnTop();             if(!editor->isScribbling()) toolbar->setCurrentTool(ToolbarTool::TOOL_other); break;
     }
 }

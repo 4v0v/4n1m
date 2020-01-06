@@ -49,12 +49,12 @@ enum Tool {
 };
 
 enum ToolbarTool {
-    TOOL1,
-    TOOL2,
-    TOOL3,
-    TOOL4,
-    TOOL6,
-    TOOL5,
+    TOOL_pen,
+    TOOL_line,
+    TOOL_lasso,
+    TOOL_eraser,
+    TOOL_other,
+    TOOL_select,
     SUB1,
     SUB2,
     SUB3,

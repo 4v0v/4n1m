@@ -100,7 +100,7 @@ public:
     ToolbarButton* tool8;
 
 private:
-    ToolbarTool currentTool = ToolbarTool::TOOL1;
+    ToolbarTool currentTool = ToolbarTool::TOOL_pen;
     MainWindow* mainwindow;
     QWidget* parent;
     Subtoolbar* subtoolbar;
