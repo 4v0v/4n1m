@@ -15,14 +15,14 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
     setFocusPolicy(Qt::NoFocus);
     setGeometry(0, 50, 40, 320);
 
-    tool1 = new ToolbarButton(mainwindow, this, 0,  0,  40, 40, ToolbarButtonStyle::TOOL_TEXT, "pen");
-    tool2 = new ToolbarButton(mainwindow, this, 0,  40, 40, 40, ToolbarButtonStyle::TOOL_TEXT, "line");
-    tool3 = new ToolbarButton(mainwindow, this, 0,  80, 40, 40, ToolbarButtonStyle::TOOL_TEXT, "lasso");
-    tool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, ToolbarButtonStyle::TOOL_TEXT, "eraser");
-    tool5 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, ToolbarButtonStyle::TOOL_TEXT, "select");
-    tool6 = new ToolbarButton(mainwindow, this, 0, 200, 40, 40, ToolbarButtonStyle::TOOL_TEXT, "other");
-    tool7 = new ToolbarButton(mainwindow, this, 0, 240, 40, 40, ToolbarButtonStyle::TOOL_WHITE, "knockback");
-    tool8 = new ToolbarButton(mainwindow, this, 0, 280, 40, 40, ToolbarButtonStyle::TOOL_RED, "selection");
+    tool1 = new ToolbarButton(mainwindow, this, 0,  0,  40, 40, TOOL_TEXT, "pen");
+    tool2 = new ToolbarButton(mainwindow, this, 0,  40, 40, 40, TOOL_TEXT, "line");
+    tool3 = new ToolbarButton(mainwindow, this, 0,  80, 40, 40, TOOL_TEXT, "lasso");
+    tool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, TOOL_TEXT, "eraser");
+    tool5 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, TOOL_TEXT, "select");
+    tool6 = new ToolbarButton(mainwindow, this, 0, 200, 40, 40, TOOL_TEXT, "other");
+    tool7 = new ToolbarButton(mainwindow, this, 0, 240, 40, 40, TOOL_WHITE, "knockback");
+    tool8 = new ToolbarButton(mainwindow, this, 0, 280, 40, 40, TOOL_RED, "selection");
 
     connect(tool1, &QAbstractButton::pressed, this, [this]{ editor()->setToolAsPen(); });
     connect(tool2, &QAbstractButton::pressed, this, [this]{ editor()->setToolAsLine(); });
@@ -77,7 +77,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
         opacityPainter.drawPie(0, 0, 19, 19, 270*16, 180*16);
 
     switch (t) {
-        case ToolbarTool::TOOL_pen: {
+        case TOOL_PEN: {
             QString penOpacity = QString::fromUtf8((std::to_string((editor()->getPenTool()->color().alpha()*100)/255) + "%").c_str());
             QString penWidth = QString::fromUtf8((std::to_string(editor()->getPenTool()->width())).c_str());
             colorPainter.setBrush(editor()->getPenTool()->color());
@@ -88,7 +88,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             sub3()->show(); sub3()->setText(penWidth); sub3()->setImage(*widthIcon); sub3()->setStyle(SUB_TEXTICON);
             subtoolbar->setGeometry(40, 70, 40, 120);
             break;
-       } case ToolbarTool::TOOL_line: {
+       } case TOOL_LINE: {
             QString lineOpacity = QString::fromUtf8((std::to_string((editor()->getLineTool()->color().alpha()*100)/255) + "%").c_str());
             QString lineWidth = QString::fromUtf8((std::to_string(editor()->getLineTool()->width())).c_str());
             colorPainter.setBrush(editor()->getLineTool()->color());
@@ -99,7 +99,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             sub3()->show(); sub3()->setText(lineWidth); sub3()->setImage(*widthIcon); sub3()->setStyle(SUB_TEXTICON);
             subtoolbar->setGeometry(40, 70, 40, 120);
             break;
-        } case ToolbarTool::TOOL_lasso: {
+        } case TOOL_LASSO: {
             QString fillOpacity = QString::fromUtf8((std::to_string((editor()->getLassoFillTool()->color().alpha()*100)/255) + "%").c_str());
             colorPainter.setBrush(editor()->getLassoFillTool()->color());
             colorPainter.drawEllipse(0,0, 25, 25);
@@ -111,17 +111,17 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             sub3()->show(); sub3()->setImage(*styleIcon); sub3()->setStyle(SUB_ICON);
             subtoolbar->setGeometry(40, 70, 40, 120);
             break;
-        } case ToolbarTool::TOOL_eraser: {
+        } case TOOL_ERASER: {
             QString eraserWidth = QString::fromUtf8((std::to_string(editor()->getEraserTool()->width())).c_str());
             tool4->setIsCurrent(true);
             sub1()->show(); sub1()->setText(eraserWidth); sub1()->setImage(*widthIcon); sub1()->setStyle(SUB_TEXTICON);
             subtoolbar->setGeometry(40, 70, 40, 40);
             break;
-        } case ToolbarTool::TOOL_select: {
+        } case TOOL_SELECT: {
             tool5->setIsCurrent(true);
             subtoolbar->setGeometry(40, 70, 0, 0);
             break;
-        } case ToolbarTool::TOOL_other: {
+        } case TOOL_OTHER: {
             QString backgroundOpacity = QString::fromUtf8((std::to_string((editor()->getBackgroundColor().alpha()*100)/255) + "%").c_str());
             colorPainter.setBrush(editor()->getBackgroundColor());
             colorPainter.drawEllipse(0,0, 25, 25);
@@ -147,17 +147,17 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     setFocusPolicy(Qt::NoFocus);
     setGeometry(40, 80, 40, 200);
 
-    subtool1 = new ToolbarButton(mainwindow, this, 0, 0, 40, 40, ToolbarButtonStyle::SUB_ICON);
-    subtool2 = new ToolbarButton(mainwindow, this, 0, 40, 40, 40, ToolbarButtonStyle::SUB_ICON);
-    subtool3 = new ToolbarButton(mainwindow, this, 0, 80, 40, 40, ToolbarButtonStyle::SUB_ICON);
-    subtool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, ToolbarButtonStyle::SUB_ICON);
-    subtool6 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, ToolbarButtonStyle::SUB_ICON);
+    subtool1 = new ToolbarButton(mainwindow, this, 0, 0, 40, 40, SUB_ICON);
+    subtool2 = new ToolbarButton(mainwindow, this, 0, 40, 40, 40, SUB_ICON);
+    subtool3 = new ToolbarButton(mainwindow, this, 0, 80, 40, 40, SUB_ICON);
+    subtool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, SUB_ICON);
+    subtool6 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, SUB_ICON);
 
-    connect(subtool1, &QAbstractButton::pressed, this, [this]{ clickSubtool(ToolbarTool::SUB1); });
-    connect(subtool2, &QAbstractButton::pressed, this, [this]{ clickSubtool(ToolbarTool::SUB2); });
-    connect(subtool3, &QAbstractButton::pressed, this, [this]{ clickSubtool(ToolbarTool::SUB3); });
-    connect(subtool4, &QAbstractButton::pressed, this, [this]{ clickSubtool(ToolbarTool::SUB4); });
-    connect(subtool6, &QAbstractButton::pressed, this, [this]{ clickSubtool(ToolbarTool::SUB5); });
+    connect(subtool1, &QAbstractButton::pressed, this, [this]{ clickSubtool(SUB1); });
+    connect(subtool2, &QAbstractButton::pressed, this, [this]{ clickSubtool(SUB2); });
+    connect(subtool3, &QAbstractButton::pressed, this, [this]{ clickSubtool(SUB3); });
+    connect(subtool4, &QAbstractButton::pressed, this, [this]{ clickSubtool(SUB4); });
+    connect(subtool6, &QAbstractButton::pressed, this, [this]{ clickSubtool(SUB5); });
 
     initProperties();
     hideProperties();
@@ -174,12 +174,12 @@ void Subtoolbar::initProperties()
     connect(penColorwheel, &ColorWheel::colorChanged, this, [penColorwheel, this]{
         QPen* p = editor()->getPenTool();
         p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_pen);
+        toolbar->setCurrentTool(TOOL_PEN);
     });
     connect(penColorwheel, &ColorWheel::colorSelected, this, [penColorwheel, this]{
         QPen* p = editor()->getPenTool();
         p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_pen);
+        toolbar->setCurrentTool(TOOL_PEN);
     });
 
     lineColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
@@ -188,12 +188,12 @@ void Subtoolbar::initProperties()
     connect(lineColorwheel, &ColorWheel::colorChanged, this, [lineColorwheel, this]{
         QPen* p = editor()->getLineTool();
         p->setColor(QColor(lineColorwheel->color().red(), lineColorwheel->color().green(), lineColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_line);
+        toolbar->setCurrentTool(TOOL_LINE);
     });
     connect(lineColorwheel, &ColorWheel::colorSelected, this, [lineColorwheel, this]{
         QPen* p = editor()->getLineTool();
         p->setColor(QColor(lineColorwheel->color().red(), lineColorwheel->color().green(), lineColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_line);
+        toolbar->setCurrentTool(TOOL_LINE);
     });
 
     lassoColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
@@ -202,12 +202,12 @@ void Subtoolbar::initProperties()
     connect(lassoColorwheel, &ColorWheel::colorChanged, this, [lassoColorwheel, this]{
         QBrush* p = editor()->getLassoFillTool();
         p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_lasso);
+        toolbar->setCurrentTool(TOOL_LASSO);
     });
     connect(lassoColorwheel, &ColorWheel::colorSelected, this, [lassoColorwheel, this]{
         QBrush* p = editor()->getLassoFillTool();
         p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_lasso);
+        toolbar->setCurrentTool(TOOL_LASSO);
     });
 
     bgColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
@@ -218,14 +218,14 @@ void Subtoolbar::initProperties()
         QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
         editor()->setBackgroundColor(q);
         editor()->update();
-        toolbar->setCurrentTool(ToolbarTool::TOOL_other);
+        toolbar->setCurrentTool(TOOL_OTHER);
     });
     connect(bgColorwheel, &ColorWheel::colorSelected, this, [bgColorwheel, this]{
         QColor p = editor()->getBackgroundColor();
         QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
         editor()->setBackgroundColor(q);
         editor()->update();
-        toolbar->setCurrentTool(ToolbarTool::TOOL_other);
+        toolbar->setCurrentTool(TOOL_OTHER);
     });
 
     penOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
@@ -237,7 +237,7 @@ void Subtoolbar::initProperties()
     connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
         QPen* p = editor()->getPenTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), penOpacitySlider->value()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_pen);
+        toolbar->setCurrentTool(TOOL_PEN);
     });
 
     penWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
@@ -248,7 +248,7 @@ void Subtoolbar::initProperties()
     penWidthSlider->setStyleSheet(sliderStylesheet);
     connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
         editor()->getPenTool()->setWidth(penWidthSlider->value());
-        toolbar->setCurrentTool(ToolbarTool::TOOL_pen);
+        toolbar->setCurrentTool(TOOL_PEN);
     });
 
     lineOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
@@ -260,7 +260,7 @@ void Subtoolbar::initProperties()
     connect(lineOpacitySlider, &QAbstractSlider::valueChanged, this, [lineOpacitySlider, this]{
         QPen* p = editor()->getLineTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lineOpacitySlider->value()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_line);
+        toolbar->setCurrentTool(TOOL_LINE);
     });
 
     lineWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
@@ -271,7 +271,7 @@ void Subtoolbar::initProperties()
     lineWidthSlider->setStyleSheet(sliderStylesheet);
     connect(lineWidthSlider, &QAbstractSlider::valueChanged, this, [lineWidthSlider, this]{
         editor()->getLineTool()->setWidth(lineWidthSlider->value());
-        toolbar->setCurrentTool(ToolbarTool::TOOL_line);
+        toolbar->setCurrentTool(TOOL_LINE);
     });
 
     lassoOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
@@ -283,7 +283,7 @@ void Subtoolbar::initProperties()
     connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
         QBrush* p = editor()->getLassoFillTool();
         p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lassoOpacitySlider->value()));
-        toolbar->setCurrentTool(ToolbarTool::TOOL_lasso);
+        toolbar->setCurrentTool(TOOL_LASSO);
     });
 
     lassoStyleProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 98, 158, SUB_EMPTY);
@@ -299,8 +299,8 @@ void Subtoolbar::initProperties()
                 stylePainter.setPen(QPen(Qt::transparent, 1));
                 stylePainter.setBrush(QBrush(QColor(50,50,50), static_cast<Qt::BrushStyle>(currentStyle)));
                 stylePainter.drawRect(1, 1, 24, 24);
-            ToolbarButton* t = new ToolbarButton(mainwindow, lassoStyleProperty, 30*j,  30*i,  30, 30, ToolbarButtonStyle::SUB_ICON, "", false, *styleIcon);
-            connect(t, &QAbstractButton::pressed, this, [this, currentStyle]{ editor()->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(currentStyle)); toolbar->setCurrentTool(ToolbarTool::TOOL_lasso); });
+            ToolbarButton* t = new ToolbarButton(mainwindow, lassoStyleProperty, 30*j,  30*i,  30, 30, SUB_ICON, "", false, *styleIcon);
+            connect(t, &QAbstractButton::pressed, this, [this, currentStyle]{ editor()->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(currentStyle)); toolbar->setCurrentTool(TOOL_LASSO); });
             currentStyle += 1;
         }
     }
@@ -313,7 +313,7 @@ void Subtoolbar::initProperties()
     eraserWidthSlider->setStyleSheet(sliderStylesheet);
     connect(eraserWidthSlider, &QAbstractSlider::valueChanged, this, [eraserWidthSlider, this]{
         editor()->getEraserTool()->setWidth(eraserWidthSlider->value());
-        toolbar->setCurrentTool(ToolbarTool::TOOL_eraser);
+        toolbar->setCurrentTool(TOOL_ERASER);
     });
 
     bgOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
@@ -327,7 +327,7 @@ void Subtoolbar::initProperties()
         p.setAlpha(bgOpacitySlider->value());
         editor()->setBackgroundColor(p);
         editor()->update();
-        toolbar->setCurrentTool(ToolbarTool::TOOL_other);
+        toolbar->setCurrentTool(TOOL_OTHER);
     });
 }
 
@@ -365,58 +365,58 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
 
     switch(toolbar->getCurrentTool())
     {
-        case ToolbarTool::TOOL_pen:
+        case TOOL_PEN:
             switch(sub){
-                case ToolbarTool::SUB1: if(!isPenColorVisible) penColorProperty->show(); break;
-                case ToolbarTool::SUB2: if(!isPenOpacityVisible) penOpacityProperty->show(); break;
-                case ToolbarTool::SUB3: if(!isPenWidthVisible) penWidthProperty->show(); break;
-                case ToolbarTool::SUB4: break;
-                case ToolbarTool::SUB5: break;
+                case SUB1: if(!isPenColorVisible) penColorProperty->show(); break;
+                case SUB2: if(!isPenOpacityVisible) penOpacityProperty->show(); break;
+                case SUB3: if(!isPenWidthVisible) penWidthProperty->show(); break;
+                case SUB4: break;
+                case SUB5: break;
                 default: break;
             } break;
-        case ToolbarTool::TOOL_line:
+        case TOOL_LINE:
             switch(sub){
-                case ToolbarTool::SUB1: if(!isLineColorVisible) lineColorProperty->show(); break;
-                case ToolbarTool::SUB2: if(!isLineOpacityVisible) lineOpacityProperty->show(); break;
-                case ToolbarTool::SUB3: if(!isLineWidthVisible) lineWidthProperty->show(); break;
-                case ToolbarTool::SUB4: break;
-                case ToolbarTool::SUB5: break;
+                case SUB1: if(!isLineColorVisible) lineColorProperty->show(); break;
+                case SUB2: if(!isLineOpacityVisible) lineOpacityProperty->show(); break;
+                case SUB3: if(!isLineWidthVisible) lineWidthProperty->show(); break;
+                case SUB4: break;
+                case SUB5: break;
                 default: break;
             } break;
-        case ToolbarTool::TOOL_lasso:
+        case TOOL_LASSO:
             switch(sub){
-                case ToolbarTool::SUB1: if(!isLassoColorVisible) lassoColorProperty->show(); break;
-                case ToolbarTool::SUB2: if(!isLassoOpacityVisible) lassoOpacityProperty->show(); break;
-                case ToolbarTool::SUB3: if(!isLassoStyleVisible) lassoStyleProperty->show(); break;
-                case ToolbarTool::SUB4: break;
-                case ToolbarTool::SUB5: break;
+                case SUB1: if(!isLassoColorVisible) lassoColorProperty->show(); break;
+                case SUB2: if(!isLassoOpacityVisible) lassoOpacityProperty->show(); break;
+                case SUB3: if(!isLassoStyleVisible) lassoStyleProperty->show(); break;
+                case SUB4: break;
+                case SUB5: break;
                 default: break;
             } break;
-        case ToolbarTool::TOOL_eraser:
+        case TOOL_ERASER:
             switch(sub){
-                case ToolbarTool::SUB1: if(!isEraserWidthVisible) eraserWidthProperty->show(); break;
-                case ToolbarTool::SUB2: break;
-                case ToolbarTool::SUB3: break;
-                case ToolbarTool::SUB4: break;
-                case ToolbarTool::SUB5: break;
+                case SUB1: if(!isEraserWidthVisible) eraserWidthProperty->show(); break;
+                case SUB2: break;
+                case SUB3: break;
+                case SUB4: break;
+                case SUB5: break;
                 default: break;
             } break;
-        case ToolbarTool::TOOL_select:
+        case TOOL_SELECT:
             switch(sub){
-                case ToolbarTool::SUB1: break;
-                case ToolbarTool::SUB2: break;
-                case ToolbarTool::SUB3: break;
-                case ToolbarTool::SUB4: break;
-                case ToolbarTool::SUB5: break;
+                case SUB1: break;
+                case SUB2: break;
+                case SUB3: break;
+                case SUB4: break;
+                case SUB5: break;
                 default: break;
         } break;
-        case ToolbarTool::TOOL_other:
+        case TOOL_OTHER:
             switch(sub){
-                case ToolbarTool::SUB1: if(!isBgColorVisible) bgColorProperty->show(); break;
-                case ToolbarTool::SUB2: if(!isBgOpacityVisible) bgOpacityProperty->show(); break;
-                case ToolbarTool::SUB3: editor()->toggleOnionskin(); editor()->setToolAsEmpty();  break;
-                case ToolbarTool::SUB4: editor()->toggleOnionskinloop(); editor()->setToolAsEmpty(); break;
-                case ToolbarTool::SUB5: mainwindow->toggleStayOnTop(); editor()->setToolAsEmpty(); break;
+                case SUB1: if(!isBgColorVisible) bgColorProperty->show(); break;
+                case SUB2: if(!isBgOpacityVisible) bgOpacityProperty->show(); break;
+                case SUB3: editor()->toggleOnionskin(); editor()->setToolAsEmpty();  break;
+                case SUB4: editor()->toggleOnionskinloop(); editor()->setToolAsEmpty(); break;
+                case SUB5: mainwindow->toggleStayOnTop(); editor()->setToolAsEmpty(); break;
                 default: break;
             } break;
         default:
