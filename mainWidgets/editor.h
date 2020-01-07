@@ -55,8 +55,9 @@ public:
     QRect select;
     QRect dselect;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
-    int dx;
-    int dy;
+    QImage internetExplorerChanImg = QImage(1, 1, QImage::Format_ARGB32);
+    int dxselect;
+    int dyselect;
 
 public slots:
     void clearImage();

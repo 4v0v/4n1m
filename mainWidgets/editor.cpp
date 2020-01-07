@@ -26,13 +26,10 @@ void Editor::mousePressEvent(QMouseEvent *event)
     if ( currentTool == Tool::SELECT)
     {
         if (selectState == STATE_SELECTED && !select.contains(event->pos())){drawSelect();}
-        if (selectState == STATE_SELECTED) dx = event->x() - select.x(); dy = event->y() - select.y();
+        if (selectState == STATE_SELECTED) dxselect = event->x() - select.x(); dyselect = event->y() - select.y();
         if (selectState != STATE_SELECTED && animation()->isKey(timeline()->getLayer(), timeline()->getPos())){
             selectState = STATE_SELECTING;
-            select.setX(event->x());
-            select.setY(event->y());
-            select.setWidth(1);
-            select.setHeight(1);
+            select.setRect(event->x(), event->y(), 1, 1);
         }
     }
     update();
@@ -50,7 +47,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
         case Tool::SELECT:
             if (selectState == STATE_SELECTING )
             {
-                if ( abs(select.width())>2 && abs(select.width())>2) {
+                if ( abs(select.width())>5 && abs(select.width())>5) {
                     selectState = STATE_SELECTED;
                     if (select.width() < 0) {
                         int tempw = select.width();
@@ -62,6 +59,9 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
                         int tempy = select.y();
                         select.setY(tempy + temph); select.setHeight(abs(temph));
                     }
+                    //////// TODO
+                    // internetExplorerChanImg = QImage(width(), height(), QImage::Format_ARGB32);
+                    ///////
                     dselect.setRect(select.x(), select.y(), select.width(), select.height());
                     selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
                 }
@@ -78,15 +78,16 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (!scribbling) return;
     if (currentTool == Tool::SELECT){
-        int tempx = event->x();
-        if (tempx > width()) tempx = width();
-        if (tempx < 0) tempx = 0;
-        int tempy = event->y();
-        if (tempy > height()) tempy = height();
-        if (tempy < 0) tempy = 0;
-
+        int tempx = event->x(); if (tempx > width()) tempx = width(); if (tempx < 0) tempx = 0;
+        int tempy = event->y(); if (tempy > height()) tempy = height(); if (tempy < 0) tempy = 0;
         if (selectState == STATE_SELECTING) {select.setWidth(tempx - select.x()); select.setHeight(tempy - select.y());}
-        else if (selectState == STATE_SELECTED) {select.moveTo(event->x() - dx, event->y() - dy);}
+        else if (selectState == STATE_SELECTED) {
+            select.moveTo(event->x() - dxselect, event->y() - dyselect);
+            /////////TODO
+//            QPainter painter(&internetExplorerChanImg);
+//            painter.drawImage(QPoint(select.x(), select.y()), selectedImg);
+            ////////
+        }
     }
 
     stroke << QPoint(event->pos().x(), event->pos().y());
@@ -178,12 +179,17 @@ void Editor::paintEvent(QPaintEvent* event)
                     }
                     else if (selectState == STATE_SELECTED)
                     {
+                        /////////////// if copy part TODO
                         layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
                         layerPainter.drawImage(QPoint(dselect.x(),dselect.y()), selectedImg);
+                        ///////////////
                         layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+                        ///////////// TODO
+                        /////layerPainter.drawImage(QPoint(0, 0), internetExplorerChanImg);
+                        /////////////////
+                        layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
                         layerPainter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
                         layerPainter.drawRect(select);
-                        layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
                     }
                     break;
                 } case Tool::EMPTY: {
@@ -242,9 +248,14 @@ void Editor::drawSelect()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);
+    ///////////////////// if copy
     painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
     painter.drawImage(QPoint(dselect.x(),dselect.y()), selectedImg);
+    /////////////////////
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    ///////////// TODO
+    /////painter.drawImage(QPoint(0, 0), internetExplorerChanImg);
+    /////////////////
     painter.drawImage(QPoint(select.x(), select.y()), selectedImg);
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
