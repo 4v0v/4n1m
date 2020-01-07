@@ -18,7 +18,7 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
 void Timeline::gotoNextFrame()
 {
     if (editor()->isScribbling() || getPos() == 199) return;
-    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
+    editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()+1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -29,7 +29,7 @@ void Timeline::gotoNextFrame()
 void Timeline::gotoPrevFrame()
 {
     if (editor()->isScribbling() || getPos() == 0) return;
-    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
+    editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()-1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -40,7 +40,7 @@ void Timeline::gotoPrevFrame()
 void Timeline::gotoNextLayer()
 {
     if (editor()->isScribbling() || getLayer() == animation()->getLastLayerPos()) return;
-    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
+    editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()+1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -51,7 +51,7 @@ void Timeline::gotoNextLayer()
 void Timeline::gotoPrevLayer()
 {
     if (editor()->isScribbling() || getLayer() == 0) return;
-    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
+    editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setLayer(getLayer()-1);
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
@@ -62,7 +62,7 @@ void Timeline::gotoPrevLayer()
 void Timeline::gotoFrame(int layer, int pos)
 {
     if (editor()->isScribbling()) return;
-    if (editor()->selectState == STATE_SELECTED) editor()->drawSelect();
+    editor()->drawSelect();
     setLayer(layer);
     setPos(pos);
     update();

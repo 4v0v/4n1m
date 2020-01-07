@@ -56,8 +56,6 @@ MainWindow::MainWindow()
     QAction* copyFrameAct = new QAction(tr("Copy"), this);
     QAction* cutFrameAct = new QAction(tr("Cut"), this);
     QAction* pasteFrameAct = new QAction(tr("Paste"), this);
-//    QAction* undoAct = undostack->createUndoAction(this, tr("&Undo"));
-//    QAction* redoAct = undostack->createRedoAction(this, tr("&Redo"));
     QAction* undoAct = new QAction(tr("Undo"), this);
     QAction* redoAct = new QAction(tr("Redo"), this);
     // Shortcuts
@@ -168,7 +166,7 @@ void MainWindow::openUndoStackWindow()
 
 void MainWindow::undo()
 {
-    if (editor->selectState == STATE_SELECTED) editor->drawSelect();
+    editor->drawSelect();
     undostack->undo();
 }
 
@@ -200,7 +198,7 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         case Qt::Key_Left: timeline->gotoPrevFrame(); break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
         case Qt::Key_1: editor->setToolAsPen();        break;
-        case Qt::Key_2: editor->setToolAsLine();       break;
+        case Qt::Key_2: editor->setToolAsShape();       break;
         case Qt::Key_3: editor->setToolAsLassoFill();  break;
         case Qt::Key_4: editor->setToolAsEraser();     break;
         case Qt::Key_5: editor->setToolAsSelect();     break;

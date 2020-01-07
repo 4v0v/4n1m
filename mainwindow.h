@@ -36,7 +36,10 @@ class Frame;
 enum SelectionState {
     STATE_SELECTING,
     STATE_SELECTED,
-    STATE_EMPTY
+    STATE_EMPTY,
+    CUT_MODE,
+    COPY_MODE,
+    IECHAN_MODE
 };
 
 enum Tool {
@@ -45,12 +48,15 @@ enum Tool {
     LASSOFILL,
     ERASER,
     SELECT,
-    LINE
+    SHAPE,
+    LINE,
+    RECTANGLE,
+    ELLIPSE
 };
 
 enum ToolbarTool {
     TOOL_PEN,
-    TOOL_LINE,
+    TOOL_SHAPE,
     TOOL_LASSO,
     TOOL_ERASER,
     TOOL_OTHER,
@@ -108,7 +114,7 @@ protected:
 private:
     int FPS = 24;
     int undostackSize = 30;
-    QRect windowDimensions = QRect(-870, 400, 850, 650);
+    QRect windowDimensions = QRect(100, 100, 850, 650);
 };
 
 #endif

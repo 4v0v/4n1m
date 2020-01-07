@@ -57,9 +57,10 @@ public:
     ToolbarButton* penColorProperty;
     ToolbarButton* penOpacityProperty;
     ToolbarButton* penWidthProperty;
-    ToolbarButton* lineColorProperty;
-    ToolbarButton* lineOpacityProperty;
-    ToolbarButton* lineWidthProperty;
+    ToolbarButton* shapeStyleProperty;
+    ToolbarButton* shapeColorProperty;
+    ToolbarButton* shapeOpacityProperty;
+    ToolbarButton* shapeWidthProperty;
     ToolbarButton* lassoColorProperty;
     ToolbarButton* lassoOpacityProperty;
     ToolbarButton* lassoStyleProperty;
