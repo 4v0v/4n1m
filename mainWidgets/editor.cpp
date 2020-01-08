@@ -57,6 +57,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     if (prevMode == COPY_MODE)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
+                        // faire que selectedImg != dselectedImg
 
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
