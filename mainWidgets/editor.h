@@ -53,7 +53,7 @@ public:
     QPolygon stroke;
 
     SelectionState selectState = STATE_EMPTY;
-    SelectionState selectMode = CUT_MODE;
+    SelectionState selectMode = EMPTY_MODE;
     QRect select;
     QRect dselect;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
