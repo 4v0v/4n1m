@@ -57,32 +57,31 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     if (prevMode == COPY_MODE)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
-                        // faire que selectedImg != dselectedImg
-
+                        QImage tempImg = selectedImg.copy();
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
-                        selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                        selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
                     else if (prevMode == IECHAN_MODE && prevMode != nextMode)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
-
+                        QImage tempImg = selectedImg.copy();
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
-                        selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                        selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
                     else if (prevMode == CUT_MODE && prevMode != nextMode)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
-
+                        QImage tempImg = selectedImg.copy();
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
-                        selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                        selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
 
