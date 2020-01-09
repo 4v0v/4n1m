@@ -49,23 +49,15 @@ void Layer::paintEvent(QPaintEvent*)
 LayerTitle::LayerTitle(MainWindow* mw) : QLabel(mw)
 {
     mainwindow = mw;
-    setStyleSheet(
-        "QLabel {"
-            "qproperty-alignment: AlignCenter;"
-            "color: rgb(50,50,50);"
-            "font-size: 12px;"
-            "min-width: 75;"
-        "}"
-    );
+    setStyleSheet("QLabel { qproperty-alignment: AlignCenter; color: rgb(50,50,50); font-size: 12px; min-width: 75; }");
 }
 
 void LayerTitle::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
-    QPainterPath path;
-    path.addRect(0, 0, width() * opacity, height());
-    painter.fillPath(path, QColor(175, 175, 175));
-    painter.drawPath(path);
+    painter.setPen(QPen(QColor(50, 50, 50), 1));
+    painter.setBrush(QBrush(QColor(175, 175, 175)));
+    painter.drawRect(0, 0, width() * opacity, height());
     QLabel::paintEvent(event);
 }
 
