@@ -46,7 +46,8 @@ enum SelectionState {
 enum Tool {
     EMPTY,
     PEN,
-    LASSOFILL,
+    LASSO,
+    FILL,
     ERASER,
     SELECT,
     SHAPE,
@@ -58,7 +59,7 @@ enum Tool {
 enum ToolbarTool {
     TOOL_PEN,
     TOOL_SHAPE,
-    TOOL_LASSO,
+    TOOL_FILL,
     TOOL_ERASER,
     TOOL_OTHER,
     TOOL_SELECT,

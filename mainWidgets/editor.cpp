@@ -99,7 +99,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
     switch (currentTool)
     {
         case Tool::PEN: drawPenStroke(); break;
-        case Tool::LASSOFILL: drawLassoFill(); break;
+        case Tool::FILL: drawFill(); break;
         case Tool::SHAPE: drawShape(); break;
         case Tool::ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
         case Tool::SELECT:
@@ -213,22 +213,23 @@ void Editor::paintEvent(QPaintEvent* event)
                 } case Tool::SHAPE: {
                     if (stroke.count() < 2) break;
                     layerPainter.setPen(shapeTool);
-                    switch(currentShapeSubtool){
-                        case LINE:
-                            layerPainter.drawPolyline(QPolygon() << stroke.first() << stroke.last()); break;
-                        case RECTANGLE:
-                            layerPainter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-                        case ELLIPSE:
-                            layerPainter.drawEllipse(stroke.first().x(), stroke.first().y(), stroke.last().x() - stroke.first().x(), stroke.last().y() - stroke.first().y()); break;
-                        default:
-                            break;
+                    switch(shapeSubtool){
+                        case LINE: layerPainter.drawPolyline(QPolygon() << stroke.first() << stroke.last()); break;
+                        case RECTANGLE: layerPainter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+                        case ELLIPSE: layerPainter.drawEllipse(stroke.first().x(), stroke.first().y(), stroke.last().x() - stroke.first().x(), stroke.last().y() - stroke.first().y()); break;
+                        default: break;
                     }
                     break;
-                } case Tool::LASSOFILL: {
+                } case Tool::FILL: {
                     if (stroke.count() < 2) break;
-                    QPainterPath path;
-                    path.addPolygon(stroke);
-                    layerPainter.fillPath(path, lassoFilltool);
+                    layerPainter.setPen(Qt::transparent);
+                    layerPainter.setBrush(filltool);
+                    switch(fillSubtool){
+                        case LASSO: layerPainter.drawPolygon(stroke); break;
+                        case RECTANGLE: layerPainter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+                        case ELLIPSE: layerPainter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+                        default: break;
+                    }
                     break;
                 } case Tool::ERASER: {
                     if (stroke.count() < 1) break;
@@ -297,31 +298,28 @@ void Editor::drawShape()
     QImage j = i.copy();
     QPainter painter(&j);
     painter.setPen(shapeTool);
-
-    switch(currentShapeSubtool){
-        case LINE:
-            painter.drawPolyline(QPolygon() << stroke.first() << stroke.last());
-            break;
-        case RECTANGLE:
-            painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y());
-            break;
-        case ELLIPSE:
-            painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y());
-            break;
-        default:
-            break;
+    switch(shapeSubtool){
+        case LINE: painter.drawPolyline(QPolygon() << stroke.first() << stroke.last()); break;
+        case RECTANGLE: painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+        case ELLIPSE: painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+        default: break;
     }
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
-void Editor::drawLassoFill()
+void Editor::drawFill()
 {
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);
-    QPainterPath path;
-    path.addPolygon(stroke);
-    painter.fillPath(path, lassoFilltool);
+    painter.setPen(Qt::transparent);
+    painter.setBrush(filltool);
+    switch(fillSubtool){
+        case LASSO: painter.drawPolygon(stroke); break;
+        case RECTANGLE: painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+        case ELLIPSE: painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+        default: break;
+    }
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 

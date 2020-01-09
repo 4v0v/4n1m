@@ -22,12 +22,12 @@ public:
     QPen* getPenTool() { return &penTool; }
     QPen* getShapeTool() { return &shapeTool; }
     QPen* getEraserTool() { return &eraserTool; }
-    QBrush* getLassoFillTool() { return &lassoFilltool; }
+    QBrush* getFillTool() { return &filltool; }
     int getKnockbackAmount() { return knockbackAmount; }
     void setKnockbackAmount(int k) { knockbackAmount = k; }
     void drawPenStroke();
-    void drawLassoFill();
     void drawEraserStroke();
+    void drawFill();
     void drawShape();
     void drawSelect();
     Tool getCurrentTool() {return currentTool; }
@@ -36,14 +36,15 @@ public:
 
     MainWindow* mainwindow;
     Tool currentTool = PEN;
-    Tool currentShapeSubtool = LINE;
+    Tool shapeSubtool = LINE;
+    Tool fillSubtool = LASSO;
     bool scribbling = false;
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;
     QPen penTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen shapeTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserTool = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
-    QBrush lassoFilltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
+    QBrush filltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
     QColor backgroundColor = QColor(243,200,149);
     int knockbackAmount = 50;
     double layerOpacity = 0.6;
@@ -54,6 +55,7 @@ public:
 
     SelectionState selectState = STATE_EMPTY;
     SelectionState selectMode = EMPTY_MODE;
+    Tool selectSubtool = RECTANGLE;
     QRect select;
     QRect dselect;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
@@ -68,7 +70,7 @@ public slots:
     void toggleOnionskinloop() { onionskinloopVisible = !onionskinloopVisible; update(); }
     void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_PEN); changeTool(PEN); update();}}
     void setToolAsShape() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_SHAPE); changeTool(SHAPE); update();}}
-    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_LASSO); changeTool(LASSOFILL); update();}}
+    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_FILL); changeTool(FILL); update();}}
     void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_ERASER); changeTool(ERASER); update();}}
     void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_SELECT); changeTool(SELECT); update();}}
     void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_OTHER); changeTool(EMPTY); update();}}

@@ -17,7 +17,7 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
 
     tool1 = new ToolbarButton(mainwindow, this, 0,  0,  40, 40, TOOL_TEXT, "pen");
     tool2 = new ToolbarButton(mainwindow, this, 0,  40, 40, 40, TOOL_TEXT, "shape");
-    tool3 = new ToolbarButton(mainwindow, this, 0,  80, 40, 40, TOOL_TEXT, "lasso");
+    tool3 = new ToolbarButton(mainwindow, this, 0,  80, 40, 40, TOOL_TEXT, "fill");
     tool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, TOOL_TEXT, "eraser");
     tool5 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, TOOL_TEXT, "select");
     tool6 = new ToolbarButton(mainwindow, this, 0, 200, 40, 40, TOOL_TEXT, "other");
@@ -79,7 +79,11 @@ void Toolbar::setCurrentTool(ToolbarTool t)
         shapeIcon->fill(Qt::transparent);
         QPainter shapePainter(shapeIcon);
         shapePainter.setPen(QPen(QColor(50,50,50), 2));
-
+    QImage* fillShapeIcon = new QImage(26, 26, QImage::Format_ARGB32);
+        fillShapeIcon->fill(Qt::transparent);
+        QPainter fillShapePainter(fillShapeIcon);
+        fillShapePainter.setPen(Qt::transparent);
+        fillShapePainter.setBrush(QBrush(QColor(50,50,50)));
 
     switch (t) {
         case TOOL_PEN: {
@@ -99,11 +103,11 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             colorPainter.setBrush(editor()->getShapeTool()->color());
             colorPainter.drawEllipse(0,0, 25, 25);
 
-            if (editor()->currentShapeSubtool == LINE){
+            if (editor()->shapeSubtool == LINE){
                 shapePainter.drawLine(5, 23, 21, 3);
-            } else if (editor()->currentShapeSubtool == RECTANGLE){
+            } else if (editor()->shapeSubtool == RECTANGLE){
                 shapePainter.drawRect(2,3,22,22);
-            } else if (editor()->currentShapeSubtool == ELLIPSE){
+            } else if (editor()->shapeSubtool == ELLIPSE){
                 shapePainter.drawEllipse(2,3,22,22);
             }
 
@@ -114,17 +118,27 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             sub4()->show(); sub4()->setText(shapeWidth)  ; sub4()->setImage(*widthIcon); sub4()->setStyle(SUB_TEXTICON);
             subtoolbar->setGeometry(40, 70, 40, 160);
             break;
-        } case TOOL_LASSO: {
-            QString fillOpacity = QString::fromUtf8((std::to_string((editor()->getLassoFillTool()->color().alpha()*100)/255) + "%").c_str());
-            colorPainter.setBrush(editor()->getLassoFillTool()->color());
+        } case TOOL_FILL: {
+            QString fillOpacity = QString::fromUtf8((std::to_string((editor()->getFillTool()->color().alpha()*100)/255) + "%").c_str());
+            colorPainter.setBrush(editor()->getFillTool()->color());
             colorPainter.drawEllipse(0,0, 25, 25);
-            stylePainter.setBrush(QBrush(QColor(50,50,50), editor()->getLassoFillTool()->style()));
+            stylePainter.setBrush(QBrush(QColor(50,50,50), editor()->getFillTool()->style()));
             stylePainter.drawRect(1, 1, 24, 24);
+
+            if (editor()->fillSubtool == LASSO){
+                fillShapePainter.drawLine(5, 23, 21, 3);
+            } else if (editor()->fillSubtool == RECTANGLE){
+                fillShapePainter.drawRect(2,3,22,22);
+            } else if (editor()->fillSubtool == ELLIPSE){
+                fillShapePainter.drawEllipse(2,3,22,22);
+            }
+
             tool3->setIsCurrent(true);
-            sub1()->show(); sub1()->setImage(*colorIcon); sub1()->setStyle(SUB_ICON);
-            sub2()->show(); sub2()->setText(fillOpacity); sub2()->setImage(*opacityIcon); sub2()->setStyle(SUB_TEXTICON);
-            sub3()->show(); sub3()->setImage(*styleIcon); sub3()->setStyle(SUB_ICON);
-            subtoolbar->setGeometry(40, 70, 40, 120);
+            sub1()->show(); sub1()->setImage(*fillShapeIcon); sub1()->setStyle(SUB_ICON);
+            sub2()->show(); sub2()->setImage(*colorIcon); sub2()->setStyle(SUB_ICON);
+            sub3()->show(); sub3()->setText(fillOpacity); sub3()->setImage(*opacityIcon); sub3()->setStyle(SUB_TEXTICON);
+            sub4()->show(); sub4()->setImage(*styleIcon); sub4()->setStyle(SUB_ICON);
+            subtoolbar->setGeometry(40, 70, 40, 160);
             break;
         } case TOOL_ERASER: {
             QString eraserWidth = QString::fromUtf8((std::to_string(editor()->getEraserTool()->width())).c_str());
@@ -184,165 +198,190 @@ void Subtoolbar::initProperties()
                                 QSlider::handle:horizontal{background:rgb(50,50,50);border:1px solid #5c5c5c;width:9px;margin:-20px 0;}";
 
     penColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
-    ColorWheel* penColorwheel = new ColorWheel(penColorProperty);
-    penColorwheel->resize(120, 120);
-    connect(penColorwheel, &ColorWheel::colorChanged, this, [penColorwheel, this]{
-        QPen* p = editor()->getPenTool();
-        p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_PEN);
-    });
-    connect(penColorwheel, &ColorWheel::colorSelected, this, [penColorwheel, this]{
-        QPen* p = editor()->getPenTool();
-        p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_PEN);
-    });
-
-    lassoColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
-    ColorWheel* lassoColorwheel = new ColorWheel(lassoColorProperty);
-    lassoColorwheel->resize(120, 120);
-    connect(lassoColorwheel, &ColorWheel::colorChanged, this, [lassoColorwheel, this]{
-        QBrush* p = editor()->getLassoFillTool();
-        p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_LASSO);
-    });
-    connect(lassoColorwheel, &ColorWheel::colorSelected, this, [lassoColorwheel, this]{
-        QBrush* p = editor()->getLassoFillTool();
-        p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_LASSO);
-    });
+        ColorWheel* penColorwheel = new ColorWheel(penColorProperty);
+        penColorwheel->resize(120, 120);
+        connect(penColorwheel, &ColorWheel::colorChanged, this, [penColorwheel, this]{
+            QPen* p = editor()->getPenTool();
+            p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_PEN);
+        });
+        connect(penColorwheel, &ColorWheel::colorSelected, this, [penColorwheel, this]{
+            QPen* p = editor()->getPenTool();
+            p->setColor(QColor(penColorwheel->color().red(), penColorwheel->color().green(), penColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_PEN);
+        });
 
     bgColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
-    ColorWheel* bgColorwheel = new ColorWheel(bgColorProperty);
-    bgColorwheel->resize(120, 120);
-    connect(bgColorwheel, &ColorWheel::colorChanged, this, [bgColorwheel, this]{
-        QColor p = editor()->getBackgroundColor();
-        QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
-        editor()->setBackgroundColor(q);
-        editor()->update();
-        toolbar->setCurrentTool(TOOL_OTHER);
-    });
-    connect(bgColorwheel, &ColorWheel::colorSelected, this, [bgColorwheel, this]{
-        QColor p = editor()->getBackgroundColor();
-        QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
-        editor()->setBackgroundColor(q);
-        editor()->update();
-        toolbar->setCurrentTool(TOOL_OTHER);
-    });
+        ColorWheel* bgColorwheel = new ColorWheel(bgColorProperty);
+        bgColorwheel->resize(120, 120);
+        connect(bgColorwheel, &ColorWheel::colorChanged, this, [bgColorwheel, this]{
+            QColor p = editor()->getBackgroundColor();
+            QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
+            editor()->setBackgroundColor(q);
+            editor()->update();
+            toolbar->setCurrentTool(TOOL_OTHER);
+        });
+        connect(bgColorwheel, &ColorWheel::colorSelected, this, [bgColorwheel, this]{
+            QColor p = editor()->getBackgroundColor();
+            QColor q = QColor(bgColorwheel->color().red(), bgColorwheel->color().green(), bgColorwheel->color().blue(), p.alpha());
+            editor()->setBackgroundColor(q);
+            editor()->update();
+            toolbar->setCurrentTool(TOOL_OTHER);
+        });
 
     penOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
-    QSlider* penOpacitySlider = new QSlider(Qt::Horizontal, penOpacityProperty);
-    penOpacitySlider->setGeometry(5, 0, 110, 40);
-    penOpacitySlider->setRange(0, 255);
-    penOpacitySlider->setValue(editor()->getPenTool()->color().alpha());
-    penOpacitySlider->setStyleSheet(sliderStylesheet);
-    connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
-        QPen* p = editor()->getPenTool();
-        p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), penOpacitySlider->value()));
-        toolbar->setCurrentTool(TOOL_PEN);
-    });
+        QSlider* penOpacitySlider = new QSlider(Qt::Horizontal, penOpacityProperty);
+        penOpacitySlider->setGeometry(5, 0, 110, 40);
+        penOpacitySlider->setRange(0, 255);
+        penOpacitySlider->setValue(editor()->getPenTool()->color().alpha());
+        penOpacitySlider->setStyleSheet(sliderStylesheet);
+        connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
+            QPen* p = editor()->getPenTool();
+            p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), penOpacitySlider->value()));
+            toolbar->setCurrentTool(TOOL_PEN);
+        });
 
     penWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
-    QSlider* penWidthSlider = new QSlider(Qt::Horizontal, penWidthProperty);
-    penWidthSlider->setGeometry(5, 0, 110, 40);
-    penWidthSlider->setRange(1, 30);
-    penWidthSlider->setValue(editor()->getPenTool()->width());
-    penWidthSlider->setStyleSheet(sliderStylesheet);
-    connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
-        editor()->getPenTool()->setWidth(penWidthSlider->value());
-        toolbar->setCurrentTool(TOOL_PEN);
-    });
+        QSlider* penWidthSlider = new QSlider(Qt::Horizontal, penWidthProperty);
+        penWidthSlider->setGeometry(5, 0, 110, 40);
+        penWidthSlider->setRange(1, 30);
+        penWidthSlider->setValue(editor()->getPenTool()->width());
+        penWidthSlider->setStyleSheet(sliderStylesheet);
+        connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
+            editor()->getPenTool()->setWidth(penWidthSlider->value());
+            toolbar->setCurrentTool(TOOL_PEN);
+        });
 
     shapeStyleProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 98, 40, SUB_EMPTY);
-    QImage* lineIcon = new QImage(26, 26, QImage::Format_ARGB32);
-        lineIcon->fill(Qt::transparent);
-        QPainter linePainter(lineIcon);
-        linePainter.setPen(QPen(QColor(50,50,50), 2));
-        linePainter.drawLine(2, 20, 20, 2);
-    QImage* rectIcon = new QImage(26, 26, QImage::Format_ARGB32);
-        rectIcon->fill(Qt::transparent);
-        QPainter rectPainter(rectIcon);
-        rectPainter.setPen(QPen(QColor(50,50,50), 2));
-        rectPainter.drawRect(2,2,20,20);
-    QImage* ellipseIcon = new QImage(26, 26, QImage::Format_ARGB32);
-        ellipseIcon->fill(Qt::transparent);
-        QPainter ellipsePainter(ellipseIcon);
-        ellipsePainter.setPen(QPen(QColor(50,50,50), 2));
-        ellipsePainter.drawEllipse(2,2,20,20);
-
-    ToolbarButton* lineProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 0,0, 30,30, SUB_ICON, "", false, *lineIcon);
-    ToolbarButton* rectProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 30,0, 30,30, SUB_ICON, "", false, *rectIcon);
-    ToolbarButton* ellipseProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 60,0, 30,30, SUB_ICON, "", false, *ellipseIcon);
-    connect(lineProperty, &QAbstractButton::pressed, this, [this]{ editor()->currentShapeSubtool = LINE; toolbar->setCurrentTool(TOOL_SHAPE);});
-    connect(rectProperty, &QAbstractButton::pressed, this, [this]{ editor()->currentShapeSubtool = RECTANGLE; toolbar->setCurrentTool(TOOL_SHAPE);});
-    connect(ellipseProperty, &QAbstractButton::pressed, this, [this]{ editor()->currentShapeSubtool = ELLIPSE; toolbar->setCurrentTool(TOOL_SHAPE);});
+        QImage* lineIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            lineIcon->fill(Qt::transparent);
+            QPainter linePainter(lineIcon);
+            linePainter.setPen(QPen(QColor(50,50,50), 2));
+            linePainter.drawLine(2, 20, 20, 2);
+        QImage* rectIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            rectIcon->fill(Qt::transparent);
+            QPainter rectPainter(rectIcon);
+            rectPainter.setPen(QPen(QColor(50,50,50), 2));
+            rectPainter.drawRect(2,2,20,20);
+        QImage* ellipseIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            ellipseIcon->fill(Qt::transparent);
+            QPainter ellipsePainter(ellipseIcon);
+            ellipsePainter.setPen(QPen(QColor(50,50,50), 2));
+            ellipsePainter.drawEllipse(2,2,20,20);
+        ToolbarButton* lineProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 0,0, 30,30, SUB_ICON, "", false, *lineIcon);
+        ToolbarButton* rectProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 30,0, 30,30, SUB_ICON, "", false, *rectIcon);
+        ToolbarButton* ellipseProperty = new ToolbarButton(mainwindow, shapeStyleProperty, 60,0, 30,30, SUB_ICON, "", false, *ellipseIcon);
+        connect(lineProperty, &QAbstractButton::pressed, this, [this]{ editor()->shapeSubtool = LINE; toolbar->setCurrentTool(TOOL_SHAPE);});
+        connect(rectProperty, &QAbstractButton::pressed, this, [this]{ editor()->shapeSubtool = RECTANGLE; toolbar->setCurrentTool(TOOL_SHAPE);});
+        connect(ellipseProperty, &QAbstractButton::pressed, this, [this]{ editor()->shapeSubtool = ELLIPSE; toolbar->setCurrentTool(TOOL_SHAPE);});
 
     shapeColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 120, SUB_EMPTY);
-    ColorWheel* shapeColorwheel = new ColorWheel(shapeColorProperty);
-    shapeColorwheel->resize(120, 120);
-    connect(shapeColorwheel, &ColorWheel::colorChanged, this, [shapeColorwheel, this]{
-        QPen* p = editor()->getShapeTool();
-        p->setColor(QColor(shapeColorwheel->color().red(), shapeColorwheel->color().green(), shapeColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_SHAPE);
-    });
-    connect(shapeColorwheel, &ColorWheel::colorSelected, this, [shapeColorwheel, this]{
-        QPen* p = editor()->getShapeTool();
-        p->setColor(QColor(shapeColorwheel->color().red(), shapeColorwheel->color().green(), shapeColorwheel->color().blue(), p->color().alpha()));
-        toolbar->setCurrentTool(TOOL_SHAPE);
-    });
+        ColorWheel* shapeColorwheel = new ColorWheel(shapeColorProperty);
+        shapeColorwheel->resize(120, 120);
+        connect(shapeColorwheel, &ColorWheel::colorChanged, this, [shapeColorwheel, this]{
+            QPen* p = editor()->getShapeTool();
+            p->setColor(QColor(shapeColorwheel->color().red(), shapeColorwheel->color().green(), shapeColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_SHAPE);
+        });
+        connect(shapeColorwheel, &ColorWheel::colorSelected, this, [shapeColorwheel, this]{
+            QPen* p = editor()->getShapeTool();
+            p->setColor(QColor(shapeColorwheel->color().red(), shapeColorwheel->color().green(), shapeColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_SHAPE);
+        });
 
     shapeOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
-    QSlider* shapeOpacitySlider = new QSlider(Qt::Horizontal, shapeOpacityProperty);
-    shapeOpacitySlider->setGeometry(5, 0, 110, 40);
-    shapeOpacitySlider->setRange(0, 255);
-    shapeOpacitySlider->setValue(editor()->getShapeTool()->color().alpha());
-    shapeOpacitySlider->setStyleSheet(sliderStylesheet);
-    connect(shapeOpacitySlider, &QAbstractSlider::valueChanged, this, [shapeOpacitySlider, this]{
-        QPen* p = editor()->getShapeTool();
-        p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), shapeOpacitySlider->value()));
-        toolbar->setCurrentTool(TOOL_SHAPE);
-    });
+        QSlider* shapeOpacitySlider = new QSlider(Qt::Horizontal, shapeOpacityProperty);
+        shapeOpacitySlider->setGeometry(5, 0, 110, 40);
+        shapeOpacitySlider->setRange(0, 255);
+        shapeOpacitySlider->setValue(editor()->getShapeTool()->color().alpha());
+        shapeOpacitySlider->setStyleSheet(sliderStylesheet);
+        connect(shapeOpacitySlider, &QAbstractSlider::valueChanged, this, [shapeOpacitySlider, this]{
+            QPen* p = editor()->getShapeTool();
+            p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), shapeOpacitySlider->value()));
+            toolbar->setCurrentTool(TOOL_SHAPE);
+        });
 
     shapeWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 190, 120, 40, SUB_EMPTY);
-    QSlider* shapeWidthSlider = new QSlider(Qt::Horizontal, shapeWidthProperty);
-    shapeWidthSlider->setGeometry(5, 0, 110, 40);
-    shapeWidthSlider->setRange(1, 30);
-    shapeWidthSlider->setValue(editor()->getShapeTool()->width());
-    shapeWidthSlider->setStyleSheet(sliderStylesheet);
-    connect(shapeWidthSlider, &QAbstractSlider::valueChanged, this, [shapeWidthSlider, this]{
-        editor()->getShapeTool()->setWidth(shapeWidthSlider->value());
-        toolbar->setCurrentTool(TOOL_SHAPE);
-    });
+        QSlider* shapeWidthSlider = new QSlider(Qt::Horizontal, shapeWidthProperty);
+        shapeWidthSlider->setGeometry(5, 0, 110, 40);
+        shapeWidthSlider->setRange(1, 30);
+        shapeWidthSlider->setValue(editor()->getShapeTool()->width());
+        shapeWidthSlider->setStyleSheet(sliderStylesheet);
+        connect(shapeWidthSlider, &QAbstractSlider::valueChanged, this, [shapeWidthSlider, this]{
+            editor()->getShapeTool()->setWidth(shapeWidthSlider->value());
+            toolbar->setCurrentTool(TOOL_SHAPE);
+        });
 
-    lassoOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 40, SUB_EMPTY);
-    QSlider* lassoOpacitySlider = new QSlider(Qt::Horizontal, lassoOpacityProperty);
-    lassoOpacitySlider->setGeometry(5, 0, 110, 40);
-    lassoOpacitySlider->setRange(0, 255);
-    lassoOpacitySlider->setValue(editor()->getLassoFillTool()->color().alpha());
-    lassoOpacitySlider->setStyleSheet(sliderStylesheet);
-    connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
-        QBrush* p = editor()->getLassoFillTool();
-        p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lassoOpacitySlider->value()));
-        toolbar->setCurrentTool(TOOL_LASSO);
-    });
+    fillShapeProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 98, 40, SUB_EMPTY);
+        QImage* lassofillIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            lassofillIcon->fill(Qt::transparent);
+            QPainter lassofillPainter(lassofillIcon);
+            lassofillPainter.setPen(Qt::transparent);
+            lassofillPainter.setBrush(QBrush(QColor(50,50,50)));
+            lassofillPainter.drawLine(2, 20, 20, 2);
+        QImage* rectfillIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            rectfillIcon->fill(Qt::transparent);
+            QPainter rectfillPainter(rectfillIcon);
+            rectfillPainter.setPen(Qt::transparent);
+            rectfillPainter.setBrush(QBrush(QColor(50,50,50)));
+            rectfillPainter.drawRect(2,2,20,20);
+        QImage* ellipsefillIcon = new QImage(26, 26, QImage::Format_ARGB32);
+            ellipsefillIcon->fill(Qt::transparent);
+            QPainter ellipsefillPainter(ellipsefillIcon);
+            ellipsefillPainter.setPen(Qt::transparent);
+            ellipsefillPainter.setBrush(QBrush(QColor(50,50,50)));
+            ellipsefillPainter.drawEllipse(2,2,20,20);
+        ToolbarButton* lassofillProperty = new ToolbarButton(mainwindow, fillShapeProperty, 0,0, 30,30, SUB_ICON, "", false, *lassofillIcon);
+        ToolbarButton* rectfillProperty = new ToolbarButton(mainwindow, fillShapeProperty, 30,0, 30,30, SUB_ICON, "", false, *rectfillIcon);
+        ToolbarButton* ellipsefillProperty = new ToolbarButton(mainwindow, fillShapeProperty, 60,0, 30,30, SUB_ICON, "", false, *ellipsefillIcon);
+        connect(lassofillProperty, &QAbstractButton::pressed, this, [this]{ editor()->fillSubtool = LASSO; toolbar->setCurrentTool(TOOL_FILL);});
+        connect(rectfillProperty, &QAbstractButton::pressed, this, [this]{ editor()->fillSubtool = RECTANGLE; toolbar->setCurrentTool(TOOL_FILL);});
+        connect(ellipsefillProperty, &QAbstractButton::pressed, this, [this]{ editor()->fillSubtool = ELLIPSE; toolbar->setCurrentTool(TOOL_FILL);});
 
-    lassoStyleProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 98, 158, SUB_EMPTY);
-    int currentStyle =  1;
-    for (int i = 0; i < 5; ++i)
-    {
-        for (int j = 0; j < 3; ++j)
+    fillColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 110, 120, 120, SUB_EMPTY);
+        ColorWheel* lassoColorwheel = new ColorWheel(fillColorProperty);
+        lassoColorwheel->resize(120, 120);
+        connect(lassoColorwheel, &ColorWheel::colorChanged, this, [lassoColorwheel, this]{
+            QBrush* p = editor()->getFillTool();
+            p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_FILL);
+        });
+        connect(lassoColorwheel, &ColorWheel::colorSelected, this, [lassoColorwheel, this]{
+            QBrush* p = editor()->getFillTool();
+            p->setColor(QColor(lassoColorwheel->color().red(), lassoColorwheel->color().green(), lassoColorwheel->color().blue(), p->color().alpha()));
+            toolbar->setCurrentTool(TOOL_FILL);
+        });
+
+    fillOpacityProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 120, 40, SUB_EMPTY);
+        QSlider* lassoOpacitySlider = new QSlider(Qt::Horizontal, fillOpacityProperty);
+        lassoOpacitySlider->setGeometry(5, 0, 110, 40);
+        lassoOpacitySlider->setRange(0, 255);
+        lassoOpacitySlider->setValue(editor()->getFillTool()->color().alpha());
+        lassoOpacitySlider->setStyleSheet(sliderStylesheet);
+        connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
+            QBrush* p = editor()->getFillTool();
+            p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lassoOpacitySlider->value()));
+            toolbar->setCurrentTool(TOOL_FILL);
+        });
+
+    fillStyleProperty = new ToolbarButton(mainwindow, mainwindow, 80, 190, 98, 158, SUB_EMPTY);
+        int currentStyle =  1;
+        for (int i = 0; i < 5; ++i)
         {
-            if (currentStyle > 14 ) break;
-            QImage* styleIcon = new QImage(26, 26, QImage::Format_ARGB32);
-                QPainter stylePainter(styleIcon);
-                styleIcon->fill(QColor(Qt::transparent));
-                stylePainter.setPen(QPen(Qt::transparent, 1));
-                stylePainter.setBrush(QBrush(QColor(50,50,50), static_cast<Qt::BrushStyle>(currentStyle)));
-                stylePainter.drawRect(1, 1, 24, 24);
-            ToolbarButton* t = new ToolbarButton(mainwindow, lassoStyleProperty, 30*j,  30*i,  30, 30, SUB_ICON, "", false, *styleIcon);
-            connect(t, &QAbstractButton::pressed, this, [this, currentStyle]{ editor()->getLassoFillTool()->setStyle(static_cast<Qt::BrushStyle>(currentStyle)); toolbar->setCurrentTool(TOOL_LASSO); });
-            currentStyle += 1;
+            for (int j = 0; j < 3; ++j)
+            {
+                if (currentStyle > 14 ) break;
+                QImage* styleIcon = new QImage(26, 26, QImage::Format_ARGB32);
+                    QPainter stylePainter(styleIcon);
+                    styleIcon->fill(QColor(Qt::transparent));
+                    stylePainter.setPen(QPen(Qt::transparent, 1));
+                    stylePainter.setBrush(QBrush(QColor(50,50,50), static_cast<Qt::BrushStyle>(currentStyle)));
+                    stylePainter.drawRect(1, 1, 24, 24);
+                ToolbarButton* t = new ToolbarButton(mainwindow, fillStyleProperty, 30*j,  30*i,  30, 30, SUB_ICON, "", false, *styleIcon);
+                connect(t, &QAbstractButton::pressed, this, [this, currentStyle]{ editor()->getFillTool()->setStyle(static_cast<Qt::BrushStyle>(currentStyle)); toolbar->setCurrentTool(TOOL_FILL); });
+                currentStyle += 1;
+            }
         }
-    }
 
     eraserWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 40, SUB_EMPTY);
     QSlider* eraserWidthSlider = new QSlider(Qt::Horizontal, eraserWidthProperty);
@@ -379,12 +418,13 @@ void Subtoolbar::hideProperties()
     shapeColorProperty->hide();
     shapeOpacityProperty->hide();
     shapeWidthProperty->hide();
-    lassoColorProperty->hide();
-    lassoOpacityProperty->hide();
+    fillShapeProperty->hide();
+    fillColorProperty->hide();
+    fillOpacityProperty->hide();
+    fillStyleProperty->hide();
     eraserWidthProperty->hide();
     bgColorProperty->hide();
     bgOpacityProperty->hide();
-    lassoStyleProperty->hide();
 }
 
 void Subtoolbar::clickSubtool(ToolbarTool sub)
@@ -396,9 +436,10 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
     bool isShapeColorVisible = shapeColorProperty->isVisible();
     bool isShapeOpacityVisible = shapeOpacityProperty->isVisible();
     bool isShapeWidthVisible = shapeWidthProperty->isVisible();
-    bool isLassoColorVisible = lassoColorProperty->isVisible();
-    bool isLassoOpacityVisible = lassoOpacityProperty->isVisible();
-    bool isLassoStyleVisible = lassoStyleProperty->isVisible();
+    bool isFillShapeVisible = fillShapeProperty->isVisible();
+    bool isFillColorVisible = fillColorProperty->isVisible();
+    bool isFillOpacityVisible = fillOpacityProperty->isVisible();
+    bool isFillStyleVisible = fillStyleProperty->isVisible();
     bool isEraserWidthVisible = eraserWidthProperty->isVisible();
     bool isBgColorVisible = bgColorProperty->isVisible();
     bool isBgOpacityVisible = bgOpacityProperty->isVisible();
@@ -424,12 +465,12 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
                 case SUB5: break;
                 default: break;
             } break;
-        case TOOL_LASSO:
+        case TOOL_FILL:
             switch(sub){
-                case SUB1: if(!isLassoColorVisible) lassoColorProperty->show(); break;
-                case SUB2: if(!isLassoOpacityVisible) lassoOpacityProperty->show(); break;
-                case SUB3: if(!isLassoStyleVisible) lassoStyleProperty->show(); break;
-                case SUB4: break;
+                case SUB1: if(!isFillShapeVisible) fillShapeProperty->show(); break;
+                case SUB2: if(!isFillColorVisible) fillColorProperty->show(); break;
+                case SUB3: if(!isFillOpacityVisible) fillOpacityProperty->show(); break;
+                case SUB4: if(!isFillStyleVisible) fillStyleProperty->show(); break;
                 case SUB5: break;
                 default: break;
             } break;
