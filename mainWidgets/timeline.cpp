@@ -17,7 +17,19 @@ Timeline::Timeline(MainWindow* mw): QWidget(mw)
 
 void Timeline::gotoNextFrame()
 {
-    if (editor()->isScribbling() || getPos() == 199) return;
+    if (editor()->isScribbling()) return;
+
+    if (getPos() + 2 > getLayerWidgetAt(0)->frames.count())
+    {
+        for( auto j = timelineScroll->layers.begin(); j != timelineScroll->layers.end(); ++j )
+        {
+            Frame* f = new Frame(mainwindow, j.i->t(), getPos() + 1);
+            Layer* l = j.i->t();
+            l->frames.insert(getPos() + 1, f);
+            l->hlayout->addWidget(l->frames[getPos() + 1]);
+            l->update();
+        }
+    };
     editor()->drawSelect();
     getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
     setPos(getPos()+1);

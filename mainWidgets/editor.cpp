@@ -38,10 +38,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
             case STATE_SELECTED:
                 if (!select.contains(event->pos())) // if click is !inside selected zone
                 {
-                    if (selectMode != EMPTY_MODE)
-                    {
-                        drawSelect();
-                    }
+                    if (selectMode != EMPTY_MODE) drawSelect();
                     selectState = STATE_SELECTING;
                     select.setRect(event->x(), event->y(), 1, 1);
                 }

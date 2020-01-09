@@ -11,17 +11,15 @@ public:
     LayerTitle(MainWindow*);
     double getOpacity() { return opacity; }
 
+    MainWindow* mainwindow;
+    bool isDown = false;
+    double opacity = 1.0;
+
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseMoveEvent(QMouseEvent*) override;
     void mouseReleaseEvent(QMouseEvent*) override;
-
-private:
-    MainWindow* mainwindow;
-
-    bool isDown = false;
-    double opacity = 1.0;
 };
 
 //////////////////////////////////////////////////////////
@@ -38,19 +36,20 @@ public:
     Animation* animation() { return mainwindow->animation; }
     QUndoStack* undostack() { return mainwindow->undostack; }
     int getPos() { return layerPos; }
-
     Frame* getFrameWidgetAt(int p) { return frames[p]; }
     LayerTitle* getLayerTitle() { return layerTitle; }
 
-protected:
-    void paintEvent(QPaintEvent*) override;
-
-private:
     MainWindow* mainwindow;
     int layerPos;
     double opacity = 1.0;
     QList<Frame*> frames;
     LayerTitle* layerTitle;
+    int initialFrameNumber = 200;
+    QHBoxLayout* hlayout;
+
+protected:
+    void paintEvent(QPaintEvent*) override;
+
 };
 
 #endif

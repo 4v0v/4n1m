@@ -33,13 +33,12 @@ public:
     void foreachLayerRevert(std::function<void(int)>, int = 0, int = 0);
     int getAnimationLength();
 
+    MainWindow* mainwindow;
+    QMap<int, QMap<int, QImage>> layers;
+
 public slots:
     void saveAnimation();
-    
-private:
-    MainWindow* mainwindow;
 
-    QMap<int, QMap<int, QImage>> layers;
 };
 
 #endif

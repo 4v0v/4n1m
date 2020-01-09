@@ -15,7 +15,7 @@ Layer::Layer(MainWindow* mw, int l): QWidget(mw)
 
     setMaximumHeight(28);
     setMinimumHeight(28);
-    QHBoxLayout *hlayout = new QHBoxLayout();
+    hlayout = new QHBoxLayout();
     hlayout->setSpacing(0);
     hlayout->setMargin(0);
     setLayout( hlayout );
@@ -24,7 +24,7 @@ Layer::Layer(MainWindow* mw, int l): QWidget(mw)
     layerTitle->setText(tr(("Layer_" + std::to_string(getPos())).c_str()));
     hlayout->addWidget(layerTitle);
 
-    for (int i =0; i < 200; i++)
+    for (int i =0; i < initialFrameNumber; i++)
     {
         frames.insert(i, new Frame(mainwindow, this, i));
         hlayout->addWidget(frames[i]);

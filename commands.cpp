@@ -90,7 +90,17 @@ InsertFrameCommand::InsertFrameCommand(int l, int p, Animation* o, QUndoCommand*
 void InsertFrameCommand::undo()
 {
     animation->foreachKey(layer, [this](int i){
-        if (i > 198) return;
+        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
+        {
+            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
+            {
+                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
+                Layer* l = j.i->t();
+                l->frames.insert(i+1, f);
+                l->hlayout->addWidget(l->frames[i + 1]);
+                l->update();
+            }
+        };
         animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
         animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKeyNoAnim();
         QImage img = animation->copyImageAt(layer, i);
@@ -104,7 +114,17 @@ void InsertFrameCommand::undo()
 void InsertFrameCommand::redo()
 {
     animation->foreachKeyRevert(layer, [this](int i){
-        if (i > 198) return;
+        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
+        {
+            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
+            {
+                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
+                Layer* l = j.i->t();
+                l->frames.insert(i+1, f);
+                l->hlayout->addWidget(l->frames[i + 1]);
+                l->update();
+            }
+        };
         animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKeyNoAnim();
         animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
         QImage img = animation->copyImageAt(layer, i);
@@ -127,7 +147,17 @@ RemoveFrameCommand::RemoveFrameCommand(int l, int p, Animation* o, QUndoCommand*
 void RemoveFrameCommand::undo()
 {
     animation->foreachKeyRevert(layer, [this](int i){
-        if (i > 198) return;
+        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
+        {
+            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
+            {
+                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
+                Layer* l = j.i->t();
+                l->frames.insert(i+1, f);
+                l->hlayout->addWidget(l->frames[i + 1]);
+                l->update();
+            }
+        };
         animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKeyNoAnim();
         animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
         QImage img = animation->copyImageAt(layer, i);
@@ -141,7 +171,17 @@ void RemoveFrameCommand::undo()
 void RemoveFrameCommand::redo()
 {
     animation->foreachKey(layer, [this](int i){
-        if (i > 198) return;
+        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
+        {
+            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
+            {
+                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
+                Layer* l = j.i->t();
+                l->frames.insert(i+1, f);
+                l->hlayout->addWidget(l->frames[i + 1]);
+                l->update();
+            }
+        };
         animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
         animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKeyNoAnim();
         QImage img = animation->copyImageAt(layer, i);
