@@ -19,16 +19,16 @@ void Editor::mousePressEvent(QMouseEvent *event)
     mainwindow->subtoolbar->hideProperties();
     if (
         !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
-        currentTool != Tool::EMPTY &&
-        currentTool != Tool::ERASER &&
-        currentTool != Tool::SELECT
+        currentTool != EMPTY &&
+        currentTool != ERASER &&
+        currentTool != SELECT
     ) timeline()->addKey();
 
     scribbling = true;
     stroke << QPoint(event->pos().x(), event->pos().y());
 
     if ( animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
-         currentTool == Tool::SELECT
+         currentTool == SELECT
     ){
         switch (selectState) {
             case STATE_EMPTY:
@@ -98,11 +98,11 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
     scribbling = false;
     switch (currentTool)
     {
-        case Tool::PEN: drawPenStroke(); break;
-        case Tool::FILL: drawFill(); break;
-        case Tool::SHAPE: drawShape(); break;
-        case Tool::ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
-        case Tool::SELECT:
+        case PEN: drawPenStroke(); break;
+        case FILL: drawFill(); break;
+        case SHAPE: drawShape(); break;
+        case ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
+        case SELECT:
             switch (selectState)
             {
                 case STATE_SELECTING:
@@ -134,7 +134,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
 void Editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (!scribbling) return;
-    if (currentTool == Tool::SELECT){
+    if (currentTool == SELECT){
         int tempx = event->x(); if (tempx > width()) tempx = width(); if (tempx < 0) tempx = 0;
         int tempy = event->y(); if (tempy > height()) tempy = height(); if (tempy < 0) tempy = 0;
         if (selectState == STATE_SELECTING)
@@ -205,12 +205,12 @@ void Editor::paintEvent(QPaintEvent* event)
             // Tool preview
             switch (currentTool)
             {
-                case Tool::PEN: {
+                case PEN: {
                     layerPainter.setPen(penTool);
                     if (stroke.count() == 1) layerPainter.drawPoint(stroke.first());
                     else if (stroke.count() > 1) layerPainter.drawPolyline(stroke);
                     break;
-                } case Tool::SHAPE: {
+                } case SHAPE: {
                     if (stroke.count() < 2) break;
                     layerPainter.setPen(shapeTool);
                     switch(shapeSubtool){
@@ -220,7 +220,7 @@ void Editor::paintEvent(QPaintEvent* event)
                         default: break;
                     }
                     break;
-                } case Tool::FILL: {
+                } case FILL: {
                     if (stroke.count() < 2) break;
                     layerPainter.setPen(Qt::transparent);
                     layerPainter.setBrush(filltool);
@@ -231,7 +231,7 @@ void Editor::paintEvent(QPaintEvent* event)
                         default: break;
                     }
                     break;
-                } case Tool::ERASER: {
+                } case ERASER: {
                     if (stroke.count() < 1) break;
                     QImage tempImg = img.copy();
                     tempImg.fill(Qt::transparent);
@@ -243,7 +243,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.drawImage(QPoint(0,0), tempImg);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                     break;
-                } case Tool::SELECT: {
+                } case SELECT: {
                     if (selectState == STATE_SELECTING)
                     {
                         layerPainter.setPen(QPen(Qt::black, 1, Qt::DashLine));
@@ -273,7 +273,7 @@ void Editor::paintEvent(QPaintEvent* event)
         globalPainter.drawImage(event->rect(), img, event->rect());
         globalPainter.setOpacity(1.0);
 
-        if (currentTool == Tool::ERASER && scribbling)
+        if (currentTool == ERASER && scribbling)
         {
             globalPainter.setPen(QPen(Qt::red, 2));
             globalPainter.drawEllipse(stroke.last().x() -eraserTool.width()/2 , stroke.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());

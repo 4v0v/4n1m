@@ -31,7 +31,7 @@ public:
     void drawShape();
     void drawSelect();
     Tool getCurrentTool() {return currentTool; }
-    void changeTool(Tool t= Tool::EMPTY) { currentTool = t; }
+    void changeTool(Tool t= EMPTY) { currentTool = t; }
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
 
     MainWindow* mainwindow;
@@ -68,12 +68,12 @@ public slots:
     void knockback();
     void toggleOnionskin() { onionskinVisible = !onionskinVisible; update(); }
     void toggleOnionskinloop() { onionskinloopVisible = !onionskinloopVisible; update(); }
-    void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_PEN); changeTool(PEN); update();}}
-    void setToolAsShape() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_SHAPE); changeTool(SHAPE); update();}}
-    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_FILL); changeTool(FILL); update();}}
-    void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_ERASER); changeTool(ERASER); update();}}
-    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_SELECT); changeTool(SELECT); update();}}
-    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL_OTHER); changeTool(EMPTY); update();}}
+    void setToolAsPen() { if (!scribbling) {toolbar()->setCurrentTool(TOOL1); changeTool(PEN); update();}}
+    void setToolAsShape() { if (!scribbling) {toolbar()->setCurrentTool(TOOL2); changeTool(SHAPE); update();}}
+    void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL3); changeTool(FILL); update();}}
+    void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL4); changeTool(ERASER); update();}}
+    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL6); changeTool(SELECT); update();}}
+    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL5); changeTool(EMPTY); update();}}
 
 protected:
     void mousePressEvent(QMouseEvent*) override;

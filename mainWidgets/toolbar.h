@@ -10,9 +10,9 @@ class ToolbarButton : public QPushButton
     Q_PROPERTY(int letterColorAnim READ getLetterColor WRITE setLetterColor)
 
 public:
-    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = ToolbarButtonStyle::TOOL_TEXT, QString = "", bool = false, QImage i = QImage(1, 1, QImage::Format_ARGB32));
+    ToolbarButton(MainWindow*, QWidget*, int, int, int, int, ToolbarButtonStyle = TOOL_TEXT, QString = "", bool = false, QImage i = QImage(1, 1, QImage::Format_ARGB32));
     Editor* editor() {return mainwindow->editor; }
-    void setStyle(ToolbarButtonStyle s = ToolbarButtonStyle::TOOL_TEXT){ style = s; update(); };
+    void setStyle(ToolbarButtonStyle s = TOOL_TEXT){ style = s; update(); };
     void setText(QString t = ""){ text = t; }
     void setImage(QImage i = QImage(1, 1, QImage::Format_ARGB32)){ image = i; }
     int getBgColor() { return bgColor.red(); }
@@ -68,6 +68,7 @@ public:
     ToolbarButton* eraserWidthProperty;
     ToolbarButton* bgColorProperty;
     ToolbarButton* bgOpacityProperty;
+    ToolbarButton* selectStyleProperty;
 
 private:
     MainWindow* mainwindow;
@@ -102,7 +103,7 @@ public:
     ToolbarButton* tool8;
 
 private:
-    ToolbarTool currentTool = ToolbarTool::TOOL_PEN;
+    ToolbarTool currentTool = TOOL1;
     MainWindow* mainwindow;
     QWidget* parent;
     Subtoolbar* subtoolbar;

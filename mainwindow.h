@@ -57,12 +57,12 @@ enum Tool {
 };
 
 enum ToolbarTool {
-    TOOL_PEN,
-    TOOL_SHAPE,
-    TOOL_FILL,
-    TOOL_ERASER,
-    TOOL_OTHER,
-    TOOL_SELECT,
+    TOOL1,
+    TOOL2,
+    TOOL3,
+    TOOL4,
+    TOOL5,
+    TOOL6,
     SUB1,
     SUB2,
     SUB3,
