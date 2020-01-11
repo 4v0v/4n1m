@@ -56,6 +56,7 @@ public:
     SelectionState selectState = STATE_EMPTY;
     SelectionState selectMode = EMPTY_MODE;
     Tool selectSubtool = RECTANGLE;
+    QPolygon pselect;
     QRect select;
     QRect dselect;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);

@@ -34,6 +34,8 @@ void Editor::mousePressEvent(QMouseEvent *event)
             case STATE_EMPTY:
                 selectState = STATE_SELECTING;
                 select.setRect(event->x(), event->y(), 1, 1);
+                pselect.clear();
+                pselect << QPoint(event->x(), event->y());
                 break;
             case STATE_SELECTED:
                 if (!select.contains(event->pos())) // if click is !inside selected zone
@@ -41,6 +43,8 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     if (selectMode != EMPTY_MODE) drawSelect();
                     selectState = STATE_SELECTING;
                     select.setRect(event->x(), event->y(), 1, 1);
+                    pselect.clear();
+                    pselect << QPoint(event->x(), event->y());
                 }
                 else // if click is inside selected zone
                 {
@@ -55,9 +59,12 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
                         QImage tempImg = selectedImg.copy();
+                        QPolygon tempPolygon(pselect);
+
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+                        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
                         selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
@@ -65,9 +72,11 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
                         QImage tempImg = selectedImg.copy();
+                        QPolygon tempPolygon(pselect);
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+                        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
                         selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
@@ -75,9 +84,11 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     {
                         QRect tempSelect = QRect(select.x(), select.y(), select.width(), select.height());
                         QImage tempImg = selectedImg.copy();
+                        QPolygon tempPolygon(pselect);
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+                        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
                         selectedImg = tempImg;
                         selectState = STATE_SELECTED;
                     }
@@ -106,17 +117,44 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
             switch (selectState)
             {
                 case STATE_SELECTING:
-                    if ( abs(select.width())>5 && abs(select.width())>5) { //TODO a la place, regarder si il y au - 1 pixel à l'intérieur de la sélection
+                    bool canSelect;
+
+                    if (selectSubtool == RECTANGLE) canSelect = abs(select.width())>5 && abs(select.height())>5;
+                    else canSelect = abs(pselect.boundingRect().width())>5 && abs(pselect.boundingRect().height())>5;
+
+                    if ( canSelect ) { //TODO a la place, regarder si il y au - 1 pixel à l'intérieur de la sélection
                         // retourner le rect si il est négatif
+                        if (selectSubtool == LASSO) select = pselect.boundingRect();
                         if (select.width() < 0) { int tempw = select.width(); int tempx = select.x(); select.setX(tempx + tempw); select.setWidth(abs(tempw)); }
                         if (select.height() < 0) { int temph = select.height(); int tempy = select.y(); select.setY(tempy + temph); select.setHeight(abs(temph));}
                         dselect.setRect(select.x(), select.y(), select.width(), select.height());
-                        selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+
+                        QImage simg;
+                        if (selectSubtool == RECTANGLE) simg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                        else
+                        {
+                            simg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                            QImage lassoImg = QImage(select.width(), select.height(), QImage::Format_ARGB32);
+                            lassoImg.fill(Qt::transparent);
+                            QPolygon tempPoly(pselect);
+//                            tempPoly.putPoints(0, pselect.size(), pselect);
+                            tempPoly.translate(-select.x(), -select.y());
+                            QPainter p(&lassoImg);
+                            p.setBrush(Qt::black);
+                            p.drawPolygon(tempPoly);
+
+                            QPainter p2(&simg);
+                            p2.setCompositionMode( QPainter::CompositionMode_SourceIn);
+                            p2.drawImage(QPoint(0,0), lassoImg);
+                        }
+
+                        selectedImg = simg;
                         selectState = STATE_SELECTED;
                     }
                     else {
                         select.setRect(0,0,0,0);
                         dselect.setRect(0,0,0,0);
+                        pselect.clear();
                         selectedImg =  QImage(1, 1, QImage::Format_ARGB32);
                         internetExplorerChanImg =  QImage(width(), height(), QImage::Format_ARGB32);
                         selectState = STATE_EMPTY;
@@ -140,10 +178,12 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
         if (selectState == STATE_SELECTING)
         {
             select.setWidth(tempx - select.x()); select.setHeight(tempy - select.y());
+            pselect << QPoint(event->x(), event->y());
         }
         else if (selectState == STATE_SELECTED)
         {
             select.moveTo(event->x() - dxselect, event->y() - dyselect);
+            pselect.translate(event->x() - pselect.boundingRect().x() - dxselect, event->y() - pselect.boundingRect().y() - dyselect);
             if (selectMode == IECHAN_MODE)
             {
                 QPainter painter(&internetExplorerChanImg);
@@ -247,7 +287,8 @@ void Editor::paintEvent(QPaintEvent* event)
                     if (selectState == STATE_SELECTING)
                     {
                         layerPainter.setPen(QPen(Qt::black, 1, Qt::DashLine));
-                        layerPainter.drawRect(select);
+                        if (selectSubtool == RECTANGLE) layerPainter.drawRect(select);
+                        if (selectSubtool == LASSO) layerPainter.drawPolygon(pselect);
                     }
                     else if (selectState == STATE_SELECTED)
                     {
@@ -263,6 +304,11 @@ void Editor::paintEvent(QPaintEvent* event)
                         layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
                         layerPainter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
                         layerPainter.drawRect(select);
+                        if (selectSubtool == LASSO)
+                        {
+                            layerPainter.setPen(QPen(Qt::red, 1, Qt::DashLine));
+                            layerPainter.drawPolygon(pselect);
+                        }
                     }
                     break;
                 } default : break;
@@ -345,6 +391,7 @@ void Editor::drawSelect()
 
     select.setRect(0,0,0,0);
     dselect.setRect(0,0,0,0);
+    pselect.clear();
     selectedImg =  QImage(1, 1, QImage::Format_ARGB32);
     internetExplorerChanImg =  QImage(width(), height(), QImage::Format_ARGB32);
     selectState = STATE_EMPTY;
