@@ -326,6 +326,7 @@ void Editor::paintEvent(QPaintEvent* event)
                         {
                             layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
                             layerPainter.setBrush(Qt::black);
+                            layerPainter.setPen(Qt::transparent);
                             if (selectSubtool == RECTANGLE) layerPainter.drawRect(dselect);
                             if (selectSubtool == LASSO)
                             {
@@ -414,6 +415,7 @@ void Editor::drawSelect()
     {
         painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
         painter.setBrush(Qt::black);
+        painter.setPen(Qt::transparent);
         if (selectSubtool == RECTANGLE) painter.drawRect(dselect);
         if (selectSubtool == LASSO)
         {
@@ -454,63 +456,64 @@ void Editor::knockback()
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
+    QImage k;
+    QImage l;
 
-//    if (selectState == STATE_SELECTED)
-//    {
-//        QRect tempSelect(select);
-//        QPolygon tempPolygon(pselect);
+    if (selectState == STATE_SELECTED)
+    {
+        QRect tempSelect(select);
+        QPolygon tempPolygon(pselect);
 
-//        if (selectMode != EMPTY_MODE)
-//        {
-//            drawSelect();
-//            i = animation()->copyImageAt(timeline()->getLayer(), getPos());
-//            j = i.copy();
-//        }
-//        QImage k = i.copy();
-//        QPainter p(&j);
-//        QPainter p2(&k);
+        drawSelect();
+        i = animation()->copyImageAt(timeline()->getLayer(), getPos());
+        j = i.copy();
+        k = i.copy();
+        l = i.copy();
+        l.fill(Qt::transparent);
 
-//        select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
-//        dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
-//        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
-//        selectState = STATE_SELECTED;
-//        selectMode = CUT_MODE;
+        QPainter painter1(&j);
+        QPainter painter2(&k);
+        QPainter painter3(&l);
 
-//        p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-//        p.setBrush(Qt::black);
-//        if (selectSubtool == RECTANGLE) p.drawRect(tempSelect);
-//        if (selectSubtool == LASSO) p.drawPolygon(tempPolygon);
+        // k is the full image knocked back
+        for (int y = 0; y < k.height(); y++) {
+            QRgb* rgb = (QRgb*)k.scanLine(y);
+            for (int x = 0; x < k.width(); x++) {
+                rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
+            }
+        }
+        // l is an empty image with only the selectShape
+        painter3.setBrush(Qt::black);
+        if (selectSubtool == RECTANGLE) painter3.drawRect(tempSelect);
+        if (selectSubtool == LASSO) painter3.drawPolygon(tempPolygon);
+        painter2.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+        painter2.drawImage(QPoint(0,0), l);
+        painter1.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+        painter1.drawImage(QPoint(0,0), l);
+        painter1.setCompositionMode(QPainter::CompositionMode_SourceOver);
+        painter1.drawImage(QPoint(0,0), k);
 
-//        for (int y = 0; y < k.height(); y++) {
-//            QRgb* rgb = (QRgb*)k.scanLine(y);
-//            for (int x = 0; x < k.width(); x++) {
-//                rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
-//            }
-//        }
-//        p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-//        p.drawImage(QPoint(0,0), k);
-
-//        QImage simg;
-//        if (selectSubtool == RECTANGLE) simg = k.copy(select);
-//        else
-//        {
-//            simg = k.copy(select);
-//            QImage lassoImg = QImage(select.width(), select.height(), QImage::Format_ARGB32);
-//            lassoImg.fill(Qt::transparent);
-//            QPolygon tempPoly(pselect);
-//            tempPoly.translate(-select.x(), -select.y());
-//            QPainter p(&lassoImg);
-//            p.setBrush(Qt::black);
-//            p.drawPolygon(tempPoly);
-
-//            QPainter p2(&simg);
-//            p2.setCompositionMode( QPainter::CompositionMode_SourceIn);
-//            p2.drawImage(QPoint(0,0), lassoImg);
-//        }
-
-//        selectedImg = simg;
-
-//    } else {
+        select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+        dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
+        if (selectSubtool == RECTANGLE) selectedImg = j.copy(select);
+        if (selectSubtool == LASSO)
+        {
+            selectedImg = j.copy(select);
+            QImage lassoImg = QImage(select.width(), select.height(), QImage::Format_ARGB32);
+            lassoImg.fill(Qt::transparent);
+            QPolygon tempPoly(pselect);
+            tempPoly.translate(-select.x(), -select.y());
+            QPainter p(&lassoImg);
+            p.setBrush(Qt::black);
+            p.drawPolygon(tempPoly);
+            QPainter p2(&selectedImg);
+            p2.setCompositionMode( QPainter::CompositionMode_DestinationIn);
+            p2.drawImage(QPoint(0,0), lassoImg);
+        }
+        selectState = STATE_SELECTED;
+        selectMode = CUT_MODE;
+    } else {
         for (int y = 0; y < j.height(); y++) {
             QRgb* rgb = (QRgb*)j.scanLine(y);
             for (int x = 0; x < j.width(); x++) {
@@ -518,7 +521,7 @@ void Editor::knockback()
             }
         }
         resetSelect();
-//    }
+    }
 
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
