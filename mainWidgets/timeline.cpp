@@ -84,14 +84,14 @@ void Timeline::gotoFrame(int layer, int pos)
 void Timeline::addKey()
 {
     if (editor()->isScribbling() || animation()->isKey(getLayer(), getPos())) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->resetSelect();
     undostack()->push(new AddImageCommand(QImage(editor()->width(), editor()->height(), QImage::Format_ARGB32), getLayer(), getPos(), animation()));
 }
 
 void Timeline::removeKey()
 {
     if (editor()->isScribbling() || !animation()->isKey(getLayer(), getPos())) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->resetSelect();
     QImage i = animation()->copyImageAt(getLayer(), getPos());
     undostack()->push(new RemoveImageCommand(i, getLayer(), getPos(), animation()));
 }
@@ -103,7 +103,7 @@ void Timeline::insertFrame()
         animation()->getKeyCount(getLayer()) == 0 ||
         getPos() >= animation()->getLastKey(getLayer())
     ) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->resetSelect();
     undostack()->push(new InsertFrameCommand(getLayer(), getPos(), animation()));
 }
 
@@ -115,15 +115,14 @@ void Timeline::removeFrame()
         getPos() >= animation()->getLastKey(getLayer()) ||
         animation()->isKey(getLayer(), getPos() + 1)
     ) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->resetSelect();
     undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), animation()));
 }
 
 void Timeline::copyFrame()
 {
     if (!animation()->isKey(getLayer(), getPos())) return;
-    editor()->selectState = STATE_EMPTY; 
-    editor()->update();
+    editor()->resetSelect();
     clipboard = animation()->copyImageAt(getLayer(), getPos());
 }
 
@@ -137,7 +136,7 @@ void Timeline::cutFrame()
 void Timeline::pasteFrame()
 {
     if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
-    editor()->selectState = STATE_EMPTY;
+    editor()->resetSelect();
    
     if (animation()->isKey(getLayer(), getPos()))
     {

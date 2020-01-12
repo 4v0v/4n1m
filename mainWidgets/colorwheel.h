@@ -58,7 +58,7 @@ private:
     int mWheelThickness = 10;
     QRect mWheelRect;
     QRect mSquareRect;
-    QColor mCurrentColor = Qt::red;
+    QColor mCurrentColor = QColor(1,0,0);
     bool mIsInWheel = false;
     bool mIsInSquare = false;
 };

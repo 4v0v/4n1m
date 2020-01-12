@@ -172,7 +172,7 @@ void MainWindow::undo()
 
 void MainWindow::redo()
 {
-    if (editor->selectState == STATE_SELECTED) editor->selectState = STATE_EMPTY; editor->update();
+    if (editor->selectState == STATE_SELECTED) editor->resetSelect();
     undostack->redo();
 }
 

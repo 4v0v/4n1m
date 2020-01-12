@@ -33,6 +33,7 @@ public:
     Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= EMPTY) { currentTool = t; }
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
+    void resetSelect();
 
     MainWindow* mainwindow;
     Tool currentTool = PEN;
