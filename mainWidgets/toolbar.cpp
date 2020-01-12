@@ -130,7 +130,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             stylePainter.drawRect(1, 1, 24, 24);
 
             if (editor()->fillSubtool == LASSO){
-                fillShapePainter.drawLine(5, 23, 21, 3);
+                fillShapePainter.drawImage(QPoint(0,0), QImage(":/icons/lasso.png"));
             } else if (editor()->fillSubtool == RECTANGLE){
                 fillShapePainter.drawRect(2,3,22,22);
             } else if (editor()->fillSubtool == ELLIPSE){
@@ -323,12 +323,7 @@ void Subtoolbar::initProperties()
         });
 
     fillShapeProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 98, 40, SUB_EMPTY);
-        QImage* lassofillIcon = new QImage(26, 26, QImage::Format_ARGB32);
-            lassofillIcon->fill(Qt::transparent);
-            QPainter lassofillPainter(lassofillIcon);
-            lassofillPainter.setPen(Qt::transparent);
-            lassofillPainter.setBrush(QBrush(QColor(50,50,50)));
-            lassofillPainter.drawLine(2, 20, 20, 2);
+        QImage* lassofillIcon = new QImage(":/icons/lasso.png");
         QImage* rectfillIcon = new QImage(26, 26, QImage::Format_ARGB32);
             rectfillIcon->fill(Qt::transparent);
             QPainter rectfillPainter(rectfillIcon);
