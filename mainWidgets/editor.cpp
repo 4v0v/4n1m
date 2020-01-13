@@ -37,8 +37,13 @@ void Editor::mousePressEvent(QMouseEvent *event)
                 pselect.clear();
                 pselect << QPoint(event->x(), event->y());
                 break;
-            case STATE_SELECTED:
-                if (!select.contains(event->pos())) // if click is !inside selected zone
+            case STATE_SELECTED:{
+                QRect topRight = QRect(select.topRight().x() - 5, select.topRight().y() - 5, 10, 10);
+
+                if (topRight.contains(event->pos())){
+                    selectState = STATE_TOPRIGHT;
+                }
+                else if (!select.contains(event->pos())) // if click is !inside selected zone
                 {
                     if (selectMode != EMPTY_MODE) drawSelect();
                     selectState = STATE_SELECTING;
@@ -136,6 +141,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     dyselect = event->y() - select.y();
                 }
                 break;
+            }
             default: break;
         }
     }
@@ -154,6 +160,9 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
         case SELECT:
             switch (selectState)
             {
+                case STATE_TOPRIGHT:
+                    selectState = STATE_SELECTED;
+                    break;
                 case STATE_SELECTING:
                     bool canSelect;
 
@@ -209,6 +218,13 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
         {
             select.setWidth(tempx - select.x()); select.setHeight(tempy - select.y());
             pselect << QPoint(event->x(), event->y());
+        }
+        else if (selectState == STATE_TOPRIGHT)
+        {
+            select.setTopRight(event->pos());
+            qreal scaleX = (  select.width()*1. / (event->x()*1. - select.x()*1.));
+            qreal scaleY = (  select.height()*1. / (event->y()*1. - select.y()*1.));
+            selectedImg = selectedImg.scaled(selectedImg.width(), selectedImg.height());
         }
         else if (selectState == STATE_SELECTED)
         {
@@ -320,7 +336,7 @@ void Editor::paintEvent(QPaintEvent* event)
                         if (selectSubtool == RECTANGLE) layerPainter.drawRect(select);
                         if (selectSubtool == LASSO) layerPainter.drawPolygon(pselect);
                     }
-                    else if (selectState == STATE_SELECTED)
+                    else if (selectState == STATE_SELECTED || selectState == STATE_TOPRIGHT)
                     {
                         if (selectMode == CUT_MODE || selectMode == EMPTY_MODE)
                         {
@@ -340,10 +356,13 @@ void Editor::paintEvent(QPaintEvent* event)
                             layerPainter.drawImage(QPoint(0, 0), internetExplorerChanImg);
                         }
                         layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
-                        layerPainter.setPen(QPen(Qt::blue, 1, Qt::DashLine));
+                        layerPainter.setPen(QPen(selectState == STATE_TOPRIGHT ? Qt::green : Qt::blue, 1, Qt::DashLine));
                         layerPainter.setBrush(Qt::transparent);
                         if (selectSubtool == RECTANGLE) layerPainter.drawRect(select);
                         if (selectSubtool == LASSO) layerPainter.drawPolygon(pselect);
+                        layerPainter.setPen(QPen(Qt::black));
+                        layerPainter.setBrush(Qt::red);
+                        layerPainter.drawRect(select.topRight().x() - 5, select.topRight().y() - 5, 10, 10);
                     }
                     break;
                 } default : break;

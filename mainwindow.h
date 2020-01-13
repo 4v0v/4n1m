@@ -37,6 +37,7 @@ enum SelectionState {
     STATE_SELECTING,
     STATE_SELECTED,
     STATE_EMPTY,
+    STATE_TOPRIGHT,
     EMPTY_MODE,
     CUT_MODE,
     COPY_MODE,
