@@ -41,11 +41,12 @@ void Editor::mousePressEvent(QMouseEvent *event)
                 QRect topRight = QRect(select.topRight().x() - 5, select.topRight().y() - 5, 10, 10);
 
                 if (topRight.contains(event->pos())){
+                    selectedImgScaled = selectedImg.copy();
                     selectState = STATE_TOPRIGHT;
                 }
                 else if (!select.contains(event->pos())) // if click is !inside selected zone
                 {
-                    if (selectMode != EMPTY_MODE) drawSelect();
+                    if (selectMode != EMPTY_MODE || isScaled) drawSelect();
                     selectState = STATE_SELECTING;
                     select.setRect(event->x(), event->y(), 1, 1);
                     pselect.clear();
@@ -60,16 +61,59 @@ void Editor::mousePressEvent(QMouseEvent *event)
                     else if( event->modifiers().testFlag(Qt::ShiftModifier) && !event->modifiers().testFlag(Qt::ControlModifier)) nextMode = IECHAN_MODE;
                     else nextMode = CUT_MODE;
 
-                    if (prevMode == COPY_MODE)
+                    if (prevMode == EMPTY_MODE && isScaled)
                     {
                         QRect tempSelect(select);
                         QPolygon tempPolygon(pselect);
+
                         drawSelect();
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         pselect.putPoints(0, tempPolygon.size(), tempPolygon);
-                        if (selectSubtool == RECTANGLE) selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
-                        if (selectSubtool == LASSO)
+
+                        QImage tempImage;
+                        if (isScaled) tempImage = selectedImgScaled.copy();
+                        else tempImage = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+
+                        if (selectSubtool == RECTANGLE)
+                        {
+                            selectedImg = tempImage;
+                        }
+                        else if (selectSubtool == LASSO)
+                        {
+                            selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                            QImage lassoImg = QImage(select.width(), select.height(), QImage::Format_ARGB32);
+                            lassoImg.fill(Qt::transparent);
+                            QPolygon tempPoly(pselect);
+                            tempPoly.translate(-select.x(), -select.y());
+                            QPainter p(&lassoImg);
+                            p.setBrush(Qt::black);
+                            p.drawPolygon(tempPoly);
+                            QPainter p2(&selectedImg);
+                            p2.setCompositionMode( QPainter::CompositionMode_DestinationIn);
+                            p2.drawImage(QPoint(0,0), lassoImg);
+                        }
+                        selectState = STATE_SELECTED;
+                    }
+                    if (prevMode == COPY_MODE)
+                    {
+                        QRect tempSelect(select);
+                        QPolygon tempPolygon(pselect);
+
+                        drawSelect();
+                        select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+                        dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
+                        pselect.putPoints(0, tempPolygon.size(), tempPolygon);
+
+                        QImage tempImage;
+                        if (isScaled) tempImage = selectedImgScaled.copy();
+                        else tempImage = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+
+                        if (selectSubtool == RECTANGLE)
+                        {
+                            selectedImg = tempImage;
+                        }
+                        else if (selectSubtool == LASSO)
                         {
                             selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
                             QImage lassoImg = QImage(select.width(), select.height(), QImage::Format_ARGB32);
@@ -115,10 +159,16 @@ void Editor::mousePressEvent(QMouseEvent *event)
                         QRect tempSelect(select);
                         QPolygon tempPolygon(pselect);
                         drawSelect();
+                        qDebug() << "3";
                         select.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         pselect.putPoints(0, tempPolygon.size(), tempPolygon);
-                        if (selectSubtool == RECTANGLE) selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+
+                        QImage tempImage;
+                        if (isScaled) tempImage = selectedImgScaled.copy();
+                        else tempImage = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+
+                        if (selectSubtool == RECTANGLE) selectedImg = tempImage;
                         if (selectSubtool == LASSO)
                         {
                             selectedImg = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
@@ -161,6 +211,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
             switch (selectState)
             {
                 case STATE_TOPRIGHT:
+                    selectedImg = selectedImg.scaled(select.width(), select.height());
                     selectState = STATE_SELECTED;
                     break;
                 case STATE_SELECTING:
@@ -221,10 +272,9 @@ void Editor::mouseMoveEvent(QMouseEvent *event)
         }
         else if (selectState == STATE_TOPRIGHT)
         {
+            if (!isScaled) isScaled = true;
             select.setTopRight(event->pos());
-            qreal scaleX = (  select.width()*1. / (event->x()*1. - select.x()*1.));
-            qreal scaleY = (  select.height()*1. / (event->y()*1. - select.y()*1.));
-            selectedImg = selectedImg.scaled(selectedImg.width(), selectedImg.height());
+            selectedImgScaled = selectedImg.scaled(select.width(), select.height());
         }
         else if (selectState == STATE_SELECTED)
         {
@@ -355,7 +405,11 @@ void Editor::paintEvent(QPaintEvent* event)
                         if (selectMode == IECHAN_MODE) {
                             layerPainter.drawImage(QPoint(0, 0), internetExplorerChanImg);
                         }
-                        layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
+
+                        selectState == STATE_TOPRIGHT ?
+                                    layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImgScaled) :
+                                    layerPainter.drawImage(QPoint(select.x(), select.y()), selectedImg);
+
                         layerPainter.setPen(QPen(selectState == STATE_TOPRIGHT ? Qt::green : Qt::blue, 1, Qt::DashLine));
                         layerPainter.setBrush(Qt::transparent);
                         if (selectSubtool == RECTANGLE) layerPainter.drawRect(select);
@@ -425,12 +479,12 @@ void Editor::drawFill()
 
 void Editor::drawSelect()
 {
-    if (selectState != STATE_SELECTED || selectMode == EMPTY_MODE) { resetSelect(); return;}
+    if ((selectState != STATE_SELECTED || selectMode == EMPTY_MODE) && !isScaled) { resetSelect(); return;}
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     QPainter painter(&j);
 
-    if (selectMode == CUT_MODE)
+    if (selectMode == CUT_MODE || selectMode == EMPTY_MODE)
     {
         painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
         painter.setBrush(Qt::black);
@@ -597,7 +651,9 @@ void Editor::resetSelect()
     select.setRect(0,0,0,0);
     dselect.setRect(0,0,0,0);
     pselect.clear();
-    selectedImg =  QImage(1, 1, QImage::Format_ARGB32);
+    isScaled = false;
+    selectedImg = QImage(1, 1, QImage::Format_ARGB32);
+    selectedImgScaled = selectedImg.copy();
     internetExplorerChanImg =  QImage(width(), height(), QImage::Format_ARGB32);
     selectState = STATE_EMPTY;
     selectMode = EMPTY_MODE;

@@ -60,7 +60,9 @@ public:
     QPolygon pselect;
     QRect select;
     QRect dselect;
+    bool isScaled = false;
     QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
+    QImage selectedImgScaled = QImage(1, 1, QImage::Format_ARGB32);
     QImage internetExplorerChanImg = QImage(1, 1, QImage::Format_ARGB32);
     int dxselect;
     int dyselect;
