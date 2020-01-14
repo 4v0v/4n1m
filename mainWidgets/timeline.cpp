@@ -98,23 +98,14 @@ void Timeline::removeKey()
 
 void Timeline::insertFrame()
 {
-    if (
-        editor()->isScribbling() ||
-        animation()->getKeyCount(getLayer()) == 0 ||
-        getPos() >= animation()->getLastKey(getLayer())
-    ) return;
+    if (editor()->isScribbling() || animation()->getKeyCount(getLayer()) == 0 || getPos() >= animation()->getLastKey(getLayer())) return;
     editor()->resetSelect();
     undostack()->push(new InsertFrameCommand(getLayer(), getPos(), animation()));
 }
 
 void Timeline::removeFrame()
 {
-    if (
-        editor()->isScribbling() ||
-        animation()->getKeyCount(getLayer()) == 0 ||
-        getPos() >= animation()->getLastKey(getLayer()) ||
-        animation()->isKey(getLayer(), getPos() + 1)
-    ) return;
+    if (editor()->isScribbling() || animation()->getKeyCount(getLayer()) == 0 || getPos() >= animation()->getLastKey(getLayer()) || animation()->isKey(getLayer(), getPos() + 1)) return;
     editor()->resetSelect();
     undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), animation()));
 }

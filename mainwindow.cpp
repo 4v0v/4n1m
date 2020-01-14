@@ -193,12 +193,12 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key())
     {
-        case Qt::Key_Up: timeline->gotoPrevLayer(); break;
-        case Qt::Key_Down: timeline->gotoNextLayer(); break;
-        case Qt::Key_Left: timeline->gotoPrevFrame(); break;
+        case Qt::Key_Up: timeline->gotoPrevLayer();    break;
+        case Qt::Key_Down: timeline->gotoNextLayer();  break;
+        case Qt::Key_Left: timeline->gotoPrevFrame();  break;
         case Qt::Key_Right: timeline->gotoNextFrame(); break;
         case Qt::Key_1: editor->setToolAsPen();        break;
-        case Qt::Key_2: editor->setToolAsShape();       break;
+        case Qt::Key_2: editor->setToolAsShape();      break;
         case Qt::Key_3: editor->setToolAsLassoFill();  break;
         case Qt::Key_4: editor->setToolAsEraser();     break;
         case Qt::Key_5: editor->setToolAsSelect();     break;
