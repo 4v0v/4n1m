@@ -151,9 +151,9 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             subtoolbar->setGeometry(40, 70, 40, 40);
             break;
         } case TOOL6: {
-            if (editor()->selectSubtool == LASSO){
+            if (editor()->selectTool->subtool == LASSO){
                 selectStylePainter.drawEllipse(2,3,22,22);
-            } else if (editor()->selectSubtool == RECTANGLE){
+            } else if (editor()->selectTool->subtool == RECTANGLE){
                 selectStylePainter.drawRect(2,3,22,22);
             }
             tool5->setIsCurrent(true);
@@ -401,8 +401,8 @@ void Subtoolbar::initProperties()
             selectlassoPainter.drawEllipse(2,2,20,20);
         ToolbarButton* selectrectProperty = new ToolbarButton(mainwindow, selectStyleProperty, 0, 2, 30,30, SUB_ICON, "", false, *selectrectIcon);
         ToolbarButton* selectlassoProperty = new ToolbarButton(mainwindow, selectStyleProperty, 30, 2, 30,30, SUB_ICON, "", false, *selectlassoIcon);
-        connect(selectrectProperty, &QAbstractButton::pressed, this, [this]{ editor()->drawSelect(); editor()->selectSubtool = RECTANGLE; toolbar->setCurrentTool(TOOL6);});
-        connect(selectlassoProperty, &QAbstractButton::pressed, this, [this]{ editor()->drawSelect(); editor()->selectSubtool = LASSO; toolbar->setCurrentTool(TOOL6);});
+        connect(selectrectProperty, &QAbstractButton::pressed, this, [this]{ editor()->drawSelect(); editor()->selectTool->subtool = RECTANGLE; toolbar->setCurrentTool(TOOL6);});
+        connect(selectlassoProperty, &QAbstractButton::pressed, this, [this]{ editor()->drawSelect(); editor()->selectTool->subtool = LASSO; toolbar->setCurrentTool(TOOL6);});
 
     eraserWidthProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 40, SUB_EMPTY);
         QSlider* eraserWidthSlider = new QSlider(Qt::Horizontal, eraserWidthProperty);

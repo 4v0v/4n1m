@@ -33,15 +33,15 @@ class Subtoolbar;
 class Layer;
 class Frame;
 
-enum SelectionState {
+enum State {
+    STATE_EMPTY,
     STATE_SELECTING,
     STATE_SELECTED,
-    STATE_EMPTY,
-    STATE_TOPRIGHT,
-    EMPTY_MODE,
-    CUT_MODE,
-    COPY_MODE,
-    IECHAN_MODE
+    STATE_MOVING,
+    STATE_SCALING_TR,
+    STATE_SCALING_TL,
+    STATE_SCALING_BR,
+    STATE_SCALING_BL
 };
 
 enum Tool {

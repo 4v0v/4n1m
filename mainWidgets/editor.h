@@ -3,6 +3,7 @@
 
 #include "mainwindow.h"
 #include "mainWidgets/toolbar.h"
+#include "mainWidgets/selecttool.h"
 
 class Editor : public QWidget
 {
@@ -33,12 +34,12 @@ public:
     Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= EMPTY) { currentTool = t; }
     void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
-    void resetSelect();
 
     MainWindow* mainwindow;
     Tool currentTool = PEN;
     Tool shapeSubtool = LINE;
     Tool fillSubtool = LASSO;
+    SelectTool* selectTool;
     bool scribbling = false;
     bool onionskinVisible = true;
     bool onionskinloopVisible = false;
@@ -53,19 +54,6 @@ public:
     double onionOpacitySecond = 0.1;
     double onionOpacityLoop = 0.2;
     QPolygon stroke;
-
-    SelectionState selectState = STATE_EMPTY;
-    SelectionState selectMode = EMPTY_MODE;
-    Tool selectSubtool = RECTANGLE;
-    QPolygon pselect;
-    QRect select;
-    QRect dselect;
-    bool isScaled = false;
-    QImage selectedImg = QImage(1, 1, QImage::Format_ARGB32);
-    QImage selectedImgScaled = QImage(1, 1, QImage::Format_ARGB32);
-    QImage internetExplorerChanImg = QImage(1, 1, QImage::Format_ARGB32);
-    int dxselect;
-    int dyselect;
 
 public slots:
     void clearImage();

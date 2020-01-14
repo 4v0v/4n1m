@@ -20,6 +20,7 @@ SOURCES += \
     mainWidgets/colorwheel.cpp \
     mainWidgets/frame.cpp \
     mainWidgets/layer.cpp \
+    mainWidgets/selecttool.cpp \
     mainWidgets/toolbar.cpp \
     mainwindow.cpp \
     animation.cpp \
@@ -33,6 +34,7 @@ HEADERS += \
     mainWidgets/colorwheel.h \
     mainWidgets/frame.h \
     mainWidgets/layer.h \
+    mainWidgets/selecttool.h \
     mainWidgets/toolbar.h \
     mainwindow.h \
     animation.h \
