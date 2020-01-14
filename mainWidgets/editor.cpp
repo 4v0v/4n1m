@@ -71,9 +71,7 @@ void Editor::mousePressEvent(QMouseEvent *event)
                         dselect.setRect(tempSelect.x(), tempSelect.y(), tempSelect.width(), tempSelect.height());
                         pselect.putPoints(0, tempPolygon.size(), tempPolygon);
 
-                        QImage tempImage;
-                        if (isScaled) tempImage = selectedImgScaled.copy();
-                        else tempImage = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(select);
+                        QImage tempImage = selectedImgScaled.copy();
 
                         if (selectSubtool == RECTANGLE)
                         {
