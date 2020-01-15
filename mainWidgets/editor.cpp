@@ -156,6 +156,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     break;
                 } case SELECT: {
                     selectTool->paint(event, &layerPainter);
+                    break;
                 } default : break;
             }
         }
@@ -217,6 +218,7 @@ void Editor::drawFill()
 void Editor::drawSelect()
 {
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
+    qDebug() << "test";
     selectTool->draw();
 }
 
@@ -248,7 +250,6 @@ void Editor::knockback()
             rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
         }
     }
-
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
@@ -258,7 +259,6 @@ void Editor::clearImage()
     QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
     QImage j = i.copy();
     j.fill(Qt::transparent);
-
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 

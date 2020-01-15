@@ -22,6 +22,8 @@ public:
     void paint(QPaintEvent*, QPainter*);
     void draw();
     void reset();
+    void knockback();
+    void clear();
 
     MainWindow* mainwindow;
     Tool subtool = RECTANGLE;

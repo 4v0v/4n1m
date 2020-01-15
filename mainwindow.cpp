@@ -166,12 +166,13 @@ void MainWindow::openUndoStackWindow()
 
 void MainWindow::undo()
 {
-    editor->drawSelect();
+    editor->selectTool->reset();
     undostack->undo();
 }
 
 void MainWindow::redo()
 {
+    editor->selectTool->reset();
     undostack->redo();
 }
 

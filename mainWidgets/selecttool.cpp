@@ -31,13 +31,22 @@ void SelectTool::mousePress(QMouseEvent* event)
             else if (bottomLeft.contains(event->pos()))  state = STATE_SCALING_BL;
             else if (rectZone.contains(event->pos()))
             {
-                state = STATE_MOVING;
+                if (event->modifiers() == Qt::ControlModifier) {reset(); qDebug() << "ctrl";}
+                else if (event->modifiers() == Qt::ShiftModifier) {reset(); qDebug() << "shift";}
+                else state = STATE_MOVING;
                 deltaPosition.setX(event->x() - rectZone.x());
                 deltaPosition.setY(event->y() - rectZone.y());
             }
             else if (!rectZone.contains(event->pos()))
             {
+                if (rectZone.width() != initialRectZone.width() ||
+                    rectZone.height() != initialRectZone.height() ||
+                    rectZone.x() != initialRectZone.x() ||
+                    rectZone.y() != initialRectZone.y()
+                ) draw();
                 reset();
+                state = STATE_SELECTING;
+                rectZone.setRect(event->x(), event->y(), 0, 0);
             }
             break;
         default: break;
@@ -73,6 +82,7 @@ void SelectTool::mouseRelease(QMouseEvent*)
 
     switch (state) {
         case STATE_SELECTING:
+            if (tempW < 20 || tempH < 20) {reset(); break;}
             state = STATE_SELECTED;
             rectZone.setRect(tempX, tempY, tempW, tempH);
             initialRectZone.setRect(rectZone.x(), rectZone.y(), rectZone.width(), rectZone.height());
@@ -105,27 +115,30 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter)
             painter->drawRect(rectZone);
             break;
         case STATE_MOVING:
-            painter->setPen(QPen(Qt::black, 1, Qt::DashLine));
-            painter->setBrush(QBrush(Qt::BrushStyle::Dense6Pattern));
+            painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
+            painter->setBrush(Qt::black);
             painter->drawRect(initialRectZone);
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
             painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
             painter->setPen(QPen(Qt::darkGreen, 1, Qt::DashLine));
             painter->setBrush(QBrush(Qt::transparent));
             painter->drawRect(rectZone);
             break;
         case STATE_SCALING_TR: case STATE_SCALING_TL: case STATE_SCALING_BR: case STATE_SCALING_BL:
-            painter->setPen(QPen(Qt::black, 1, Qt::DashLine));
-            painter->setBrush(QBrush(Qt::BrushStyle::Dense6Pattern));
+            painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
+            painter->setBrush(Qt::black);
             painter->drawRect(initialRectZone);
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
             painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
             painter->setPen(QPen(Qt::yellow, 1, Qt::DashLine));
             painter->setBrush(QBrush(Qt::transparent));
             painter->drawRect(rectZone);
             break;
        case STATE_SELECTED:
-            painter->setPen(QPen(Qt::black, 1, Qt::DashLine));
-            painter->setBrush(QBrush(Qt::BrushStyle::Dense6Pattern));
+            painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
+            painter->setBrush(Qt::black);
             painter->drawRect(initialRectZone);
+            painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
             painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
             painter->setPen(QPen(Qt::blue, 1, Qt::DashLine));
             painter->setBrush(QBrush(Qt::transparent));
@@ -145,7 +158,25 @@ void SelectTool::draw()
 {
     QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
     QImage j = i.copy();
+    QPainter painter(&j);
+    int tempX = rectZone.x() > rectZone.x() + rectZone.width() ? rectZone.x() + rectZone.width(): rectZone.x();
+    int tempY = rectZone.y() > rectZone.y() + rectZone.height() ? rectZone.y() + rectZone.height(): rectZone.y();
+
+    painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    painter.setBrush(Qt::black);
+    painter.drawRect(initialRectZone);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter.drawImage(QPoint(tempX, tempY), deltaImage);
+
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
+}
+
+void SelectTool::knockback()
+{
+}
+
+void SelectTool::clear()
+{
 }
 
 void SelectTool::reset()
