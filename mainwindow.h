@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <QApplication>
 #include <QWindow>
+#include <QWindow>
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QMainWindow>
@@ -46,6 +47,7 @@ enum State {
     STATE_COPY,
     STATE_IECHAN,
     STATE_FRAME,
+    STATE_QCLIPBOARD
 };
 
 enum Tool {
@@ -92,6 +94,9 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
+    int getFPS() { return FPS; }
+    QRect getWindowDimensions() { return windowDimensions; }
+    void externalCopy();
 
     Animation* animation;
     QUndoStack* undostack;
@@ -100,10 +105,12 @@ public:
     Titlebar* titlebar;
     Toolbar* toolbar;
     Subtoolbar* subtoolbar;
-
-    int getFPS() { return FPS; }
-    QRect getWindowDimensions() { return windowDimensions; }
     bool isOnTop = false;
+    int FPS = 24;
+    int undostackSize = 30;
+    QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
+    State clipboardState = STATE_EMPTY;
+    QRect windowDimensions = QRect(100, 100, 850, 650);
 
 public slots:
     void openUndoAmountWindow();
@@ -115,16 +122,11 @@ public slots:
     void undo();
     void redo();
     void copy();
+    void cut();
     void paste();
 
 protected:
     void keyPressEvent(QKeyEvent*) override;
-
-private:
-    int FPS = 24;
-    int undostackSize = 30;
-    State clipboardState = STATE_EMPTY;
-    QRect windowDimensions = QRect(100, 100, 850, 650);
 };
 
 #endif

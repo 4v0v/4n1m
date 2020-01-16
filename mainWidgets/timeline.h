@@ -42,7 +42,6 @@ public:
 
     MainWindow* mainwindow;
     TimelineScrollArea* timelineScroll;
-    QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     int timelinePos = 0;
     int timelineLayer = 0;
 
@@ -56,9 +55,6 @@ public slots:
     void removeKey();
     void insertFrame();
     void removeFrame();
-    void copyFrame();
-    void cutFrame();
-    void pasteFrame();
 
 };
 

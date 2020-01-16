@@ -88,10 +88,10 @@ MainWindow::MainWindow()
     connect(removeKeyAct, SIGNAL(triggered()), timeline, SLOT(removeKey()));
     connect(insertFrameAct, SIGNAL(triggered()), timeline, SLOT(insertFrame()));
     connect(removeFrameAct, SIGNAL(triggered()), timeline, SLOT(removeFrame()));
-    connect(copyFrameAct, SIGNAL(triggered()), timeline, SLOT(copyFrame()));
-    connect(cutFrameAct, SIGNAL(triggered()), timeline, SLOT(cutFrame()));
-    connect(pasteFrameAct, SIGNAL(triggered()), timeline, SLOT(pasteFrame()));
-
+    connect(copyFrameAct, SIGNAL(triggered()), this, SLOT(copy()));
+    connect(cutFrameAct, SIGNAL(triggered()), this, SLOT(cut()));
+    connect(pasteFrameAct, SIGNAL(triggered()), this, SLOT(paste()));
+    connect(QApplication::clipboard(), &QClipboard::dataChanged, this, [this]{ this->externalCopy(); });
 
     // Create Menus
     titlebar->getMenubar()->getOptionsMenu()->addAction(saveAnimationAct);
@@ -165,18 +165,69 @@ void MainWindow::openUndoStackWindow()
     undoView->show();
 }
 
+void MainWindow::externalCopy()
+{
+    QImage* img = new QImage(QApplication::clipboard()->image());
+
+    if (img->width() > 0 && img->height() > 0)
+    {
+        clipboardState = STATE_QCLIPBOARD;
+        clipboard = img->copy();
+    }
+}
+
 void MainWindow::copy()
 {
-    // si selection, mettre la selection dans le buffer
-    // sinon mettre frame dans le buffer
+    if (editor->isScribbling() || !animation->isKey(timeline->getLayer(), timeline->getPos())) return;
+    if (editor->selectTool->state == STATE_SELECTED)
+    {
+        clipboard = editor->selectTool->deltaImage.copy();
+        QApplication::clipboard()->setImage(clipboard, QClipboard::Clipboard);
+        clipboardState = STATE_QCLIPBOARD;
+    } else {
+        clipboardState = STATE_FRAME;
+        clipboard = animation->copyImageAt(timeline->getLayer(), timeline->getPos());
+    }
+}
+
+void MainWindow::cut()
+{
+    if (editor->isScribbling() || !animation->isKey(timeline->getLayer(), timeline->getPos())) return;
+    copy();
+    if (clipboardState == STATE_FRAME){
+        timeline->removeKey();
+    } else if (clipboardState == STATE_QCLIPBOARD) {
+
+    }
 }
 
 void MainWindow::paste()
 {
-    QImage clipboard = QApplication::clipboard()->image();
-
-    // si le buffer windows a qqchose, le coller
-    //sinon coller frame
+    if (editor->isScribbling() || (clipboard.width() <= 1 && clipboard.height() <= 1) ) return;
+    if (clipboardState == STATE_FRAME){
+        if (animation->isKey(timeline->getLayer(), timeline->getPos()))
+        {
+            QImage i = animation->copyImageAt(timeline->getLayer(), timeline->getPos());
+            QImage j = i.copy();
+            QPainter p(&j);
+            p.drawImage(QPoint(0,0), clipboard.copy());
+            undostack->push(new ModifyImageCommand(i, j, timeline->getLayer(), timeline->getPos(), animation));
+        }
+        else undostack->push(new AddImageCommand(clipboard.copy(), timeline->getLayer(), timeline->getPos(), animation));
+    } else if (clipboardState == STATE_QCLIPBOARD){
+        if (animation->isKey(timeline->getLayer(), timeline->getPos()))
+        {
+            if (editor->selectTool->state == STATE_SELECTED) editor->drawSelect();
+            editor->setToolAsSelect();
+            editor->selectTool->subtool = RECTANGLE;
+            toolbar->setCurrentTool(TOOL5);
+            editor->selectTool->state = STATE_SELECTED;
+            editor->selectTool->initialImage = clipboard.copy();
+            editor->selectTool->deltaImage = clipboard.copy();
+            editor->selectTool->deltaRectZone = QRect(editor->mousePosition.x() - clipboard.width()/2, editor->mousePosition.y() - clipboard.height()/2, clipboard.width(), clipboard.height());
+            editor->update();
+        }
+    }
 }
 
 void MainWindow::undo()

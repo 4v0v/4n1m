@@ -13,6 +13,7 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
     setCursor(Qt::CrossCursor);
     selectTool = new SelectTool(mainwindow);
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 530);
+    setMouseTracking(true);
 }
 
 void Editor::mousePressEvent(QMouseEvent* event)
@@ -41,6 +42,8 @@ void Editor::mousePressEvent(QMouseEvent* event)
 
 void Editor::mouseMoveEvent(QMouseEvent* event)
 {
+    mousePosition.setX(event->x());
+    mousePosition.setY(event->y());
     if (!scribbling) return;
     switch (currentTool)
     {

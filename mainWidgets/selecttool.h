@@ -20,7 +20,7 @@ public:
     void mouseMove(QMouseEvent*);
     void mouseRelease(QMouseEvent*);
     void paint(QPaintEvent*, QPainter*);
-    void draw(State = STATE_EMPTY);
+    void draw();
     void reset();
     void knockback();
     void clear();
@@ -28,9 +28,8 @@ public:
     MainWindow* mainwindow;
     Tool subtool = RECTANGLE;
     State state = STATE_EMPTY;
-    State mode = STATE_EMPTY;
-    QRect rectZone = QRect(0,0,1,1);
     QRect initialRectZone = QRect(0,0,1,1);
+    QRect deltaRectZone = QRect(0,0,1,1);
     QImage initialImage = QImage(1, 1, QImage::Format_ARGB32);
     QImage deltaImage = QImage(1, 1, QImage::Format_ARGB32);
     QImage cutCopyImage = QImage(1, 1, QImage::Format_ARGB32);

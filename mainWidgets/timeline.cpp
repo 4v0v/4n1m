@@ -105,34 +105,6 @@ void Timeline::removeFrame()
     undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), animation()));
 }
 
-void Timeline::copyFrame()
-{
-    if (!animation()->isKey(getLayer(), getPos())) return;
-    clipboard = animation()->copyImageAt(getLayer(), getPos());
-}
-
-void Timeline::cutFrame()
-{
-    if (editor()->isScribbling() || !animation()->isKey(getLayer(), getPos())) return;
-    copyFrame();
-    removeKey();
-}
-
-void Timeline::pasteFrame()
-{
-    if (clipboard.width() <= 1 && clipboard.height() <= 1 ) return;
-   
-    if (animation()->isKey(getLayer(), getPos()))
-    {
-        QImage i = animation()->copyImageAt(getLayer(), getPos());
-        QImage j = i.copy();
-        QPainter p(&j);
-        p.drawImage(QPoint(0,0), clipboard.copy());
-        undostack()->push(new ModifyImageCommand(i, j, getLayer(), getPos(), animation()));
-    }
-    else undostack()->push(new AddImageCommand(clipboard.copy(), getLayer(), getPos(), animation()));
-}
-
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 

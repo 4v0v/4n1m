@@ -54,6 +54,7 @@ public:
     double onionOpacitySecond = 0.1;
     double onionOpacityLoop = 0.2;
     QPolygon stroke;
+    QPoint mousePosition = QPoint(0,0);
 
 public slots:
     void clearImage();
@@ -64,8 +65,8 @@ public slots:
     void setToolAsShape() { if (!scribbling) {toolbar()->setCurrentTool(TOOL2); changeTool(SHAPE); update();}}
     void setToolAsLassoFill() { if (!scribbling) {toolbar()->setCurrentTool(TOOL3); changeTool(FILL); update();}}
     void setToolAsEraser() { if (!scribbling) {toolbar()->setCurrentTool(TOOL4); changeTool(ERASER); update();}}
-    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL6); changeTool(SELECT); update();}}
-    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL5); changeTool(EMPTY); update();}}
+    void setToolAsSelect() { if (!scribbling) {toolbar()->setCurrentTool(TOOL5); changeTool(SELECT); update();}}
+    void setToolAsEmpty() { if (!scribbling) {toolbar()->setCurrentTool(TOOL6); changeTool(EMPTY); update();}}
 
 protected:
     void mousePressEvent(QMouseEvent*) override;
