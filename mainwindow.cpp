@@ -135,6 +135,7 @@ void MainWindow::openChangeFPSWindow()
     int newFPS = QInputDialog::getInt(this, tr("Change FPS"), tr("Change FPS"), FPS, 1, 72, 1, &ok);
     if (onTop) toggleStayOnTop();
     if (ok) FPS = newFPS;
+
 }
 
 void MainWindow::openUndoAmountWindow()
@@ -162,6 +163,20 @@ void MainWindow::openUndoStackWindow()
     undoView->setWindowTitle(tr("Undo Stack"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
     undoView->show();
+}
+
+void MainWindow::copy()
+{
+    // si selection, mettre la selection dans le buffer
+    // sinon mettre frame dans le buffer
+}
+
+void MainWindow::paste()
+{
+    QImage clipboard = QApplication::clipboard()->image();
+
+    // si le buffer windows a qqchose, le coller
+    //sinon coller frame
 }
 
 void MainWindow::undo()

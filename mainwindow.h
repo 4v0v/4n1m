@@ -44,7 +44,8 @@ enum State {
     STATE_MOVING,
     STATE_CUT,
     STATE_COPY,
-    STATE_IECHAN
+    STATE_IECHAN,
+    STATE_FRAME,
 };
 
 enum Tool {
@@ -113,6 +114,8 @@ public slots:
     void toggleStayOnTop();
     void undo();
     void redo();
+    void copy();
+    void paste();
 
 protected:
     void keyPressEvent(QKeyEvent*) override;
@@ -120,6 +123,7 @@ protected:
 private:
     int FPS = 24;
     int undostackSize = 30;
+    State clipboardState = STATE_EMPTY;
     QRect windowDimensions = QRect(100, 100, 850, 650);
 };
 

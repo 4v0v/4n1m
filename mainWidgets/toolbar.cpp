@@ -167,9 +167,8 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             tool6->setIsCurrent(true);
             sub1()->show(); sub1()->setImage(*colorIcon); sub1()->setStyle(SUB_ICON);
             sub2()->show(); sub2()->setText(backgroundOpacity); sub2()->setImage(*opacityIcon); sub2()->setStyle(SUB_TEXTICON);
-            sub3()->show(); sub3()->setText("onion"); sub3()->setIsCurrent(editor()->onionskinVisible); sub3()->setStyle(SUB_TOGGLE);
-            sub4()->show(); sub4()->setText("oloop"); sub4()->setIsCurrent(editor()->onionskinloopVisible); sub4()->setStyle(SUB_TOGGLE);
-            sub5()->show(); sub5()->setText("ontop"); sub5()->setIsCurrent(mainwindow->isOnTop); sub5()->setStyle(SUB_TOGGLE);
+            sub3()->show(); sub3()->setText("onion"); sub3()->setImage(*widthIcon); sub3()->setStyle(SUB_TEXTICON);
+            sub4()->show(); sub4()->setText("ontop"); sub4()->setIsCurrent(mainwindow->isOnTop); sub4()->setStyle(SUB_TOGGLE);
             subtoolbar->setGeometry(40, 70, 40, 200);
             break;
         } default: break;
@@ -428,6 +427,85 @@ void Subtoolbar::initProperties()
             editor()->update();
             toolbar->setCurrentTool(TOOL5);
         });
+
+    onionskinProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 180, 80, SUB_EMPTY);
+        QSlider* slider1 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider1->setGeometry(0, 5, 20, 70);
+            slider1->setRange(0, 100);
+            slider1->setValue(editor()->onionOpacityLoop * 100);
+        QSlider* slider2 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider2->setGeometry(20, 5, 20, 70);
+            slider2->setRange(0, 100);
+            slider2->setValue(editor()->onionOpacitySecond * 100);
+        QSlider* slider3 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider3->setGeometry(40, 5, 20, 70);
+            slider3->setRange(0, 100);
+            slider3->setValue(editor()->onionOpacityFirst * 100);
+        QSlider* slider4 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider4->setGeometry(60, 5, 20, 70);
+            slider4->setRange(0, 100);
+            slider4->setValue(editor()->onionOpacityFirst * 100);
+        QSlider* slider5 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider5->setGeometry(80, 5, 20, 70);
+            slider5->setRange(0, 100);
+            slider5->setValue(editor()->onionOpacitySecond * 100);
+        QSlider* slider6 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider6->setGeometry(100, 5, 20, 70);
+            slider6->setRange(0, 100);
+            slider6->setValue(editor()->onionOpacityLoop * 100);
+
+        connect(slider1, &QAbstractSlider::valueChanged, this, [slider1, slider6, this]{
+            slider6->setValue(slider1->value());
+            editor()->onionOpacityLoop = slider1->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+        connect(slider2, &QAbstractSlider::valueChanged, this, [slider2, slider5, this]{
+            slider5->setValue(slider2->value());
+            editor()->onionOpacitySecond = slider2->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+        connect(slider3, &QAbstractSlider::valueChanged, this, [slider3, slider4, this]{
+            slider4->setValue(slider3->value());
+            editor()->onionOpacityFirst = slider3->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+        connect(slider4, &QAbstractSlider::valueChanged, this, [slider4, slider3, this]{
+            slider3->setValue(slider4->value());
+            editor()->onionOpacityFirst = slider4->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+        connect(slider5, &QAbstractSlider::valueChanged, this, [slider5, slider2, this]{
+            slider2->setValue(slider5->value());
+            editor()->onionOpacitySecond = slider5->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+        connect(slider6, &QAbstractSlider::valueChanged, this, [slider6, slider1, this]{
+            slider1->setValue(slider6->value());
+            editor()->onionOpacityLoop = slider6->value() / 100.0;
+            editor()->update();
+            toolbar->setCurrentTool(TOOL5);
+        });
+
+        ToolbarButton* loop =  new ToolbarButton(mainwindow, onionskinProperty, 140, 40, 40,40, SUB_TOGGLE, "loop", editor()->onionskinloopVisible);
+        connect(loop, &QAbstractButton::pressed, this, [this, loop]{
+            if (!editor()->onionskinVisible) return;
+            editor()->toggleOnionskinloop();
+            loop->setIsCurrent(editor()->onionskinloopVisible);
+        });
+        ToolbarButton* onion =  new ToolbarButton(mainwindow, onionskinProperty, 140, 0, 40,40, SUB_TOGGLE, "onion", editor()->onionskinVisible);
+        connect(onion, &QAbstractButton::pressed, this, [this, onion, loop]{
+            editor()->toggleOnionskin();
+            onion->setIsCurrent(editor()->onionskinVisible);
+            if (!editor()->onionskinVisible){
+                if (editor()->onionskinloopVisible) editor()->toggleOnionskinloop();
+                loop->setIsCurrent(editor()->onionskinloopVisible);
+            }
+        });
 }
 
 void Subtoolbar::hideProperties()
@@ -447,6 +525,7 @@ void Subtoolbar::hideProperties()
     bgColorProperty->hide();
     bgOpacityProperty->hide();
     selectStyleProperty->hide();
+    onionskinProperty->hide();
 }
 
 void Subtoolbar::clickSubtool(ToolbarTool sub)
@@ -465,7 +544,8 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
     bool isEraserWidthVisible = eraserWidthProperty->isVisible();
     bool isBgColorVisible = bgColorProperty->isVisible();
     bool isBgOpacityVisible = bgOpacityProperty->isVisible();
-    bool isSelectStyleisible = selectStyleProperty->isVisible();
+    bool isSelectStyleVisible = selectStyleProperty->isVisible();
+    bool isOnionskinVisible = onionskinProperty->isVisible();
     hideProperties();
 
     switch(toolbar->getCurrentTool())
@@ -508,7 +588,7 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
             } break;
         case TOOL6:
             switch(sub){
-                case SUB1: if (!isSelectStyleisible) selectStyleProperty->show(); break;
+                case SUB1: if (!isSelectStyleVisible) selectStyleProperty->show(); break;
                 case SUB2: break;
                 case SUB3: break;
                 case SUB4: break;
@@ -519,9 +599,9 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
             switch(sub){
                 case SUB1: if(!isBgColorVisible) bgColorProperty->show(); break;
                 case SUB2: if(!isBgOpacityVisible) bgOpacityProperty->show(); break;
-                case SUB3: editor()->toggleOnionskin(); editor()->setToolAsEmpty();  break;
-                case SUB4: editor()->toggleOnionskinloop(); editor()->setToolAsEmpty(); break;
-                case SUB5: mainwindow->toggleStayOnTop(); editor()->setToolAsEmpty(); break;
+                case SUB3: if (!isOnionskinVisible) onionskinProperty->show(); break;
+                case SUB4: mainwindow->toggleStayOnTop(); editor()->setToolAsEmpty(); break;
+                case SUB5: break;
                 default: break;
             } break;
         default:

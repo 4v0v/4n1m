@@ -69,6 +69,7 @@ public:
     ToolbarButton* bgColorProperty;
     ToolbarButton* bgOpacityProperty;
     ToolbarButton* selectStyleProperty;
+    ToolbarButton* onionskinProperty;
 
 private:
     MainWindow* mainwindow;
