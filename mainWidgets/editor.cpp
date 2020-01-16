@@ -218,8 +218,8 @@ void Editor::drawFill()
 void Editor::drawSelect()
 {
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
-    qDebug() << "test";
     selectTool->draw();
+    selectTool->reset();
 }
 
 void Editor::drawEraserStroke()

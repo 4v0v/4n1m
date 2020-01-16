@@ -41,7 +41,10 @@ enum State {
     STATE_SCALING_TL,
     STATE_SCALING_BR,
     STATE_SCALING_BL,
-    STATE_MOVING
+    STATE_MOVING,
+    STATE_CUT,
+    STATE_COPY,
+    STATE_IECHAN
 };
 
 enum Tool {
