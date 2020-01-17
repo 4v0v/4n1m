@@ -39,8 +39,8 @@ void SelectTool::mousePress(QMouseEvent* event)
             {
                 draw();
                 reset();
-                state = STATE_SELECTING;
                 deltaRectZone.setRect(event->x(), event->y(), 0, 0);
+                state = STATE_SELECTING;
             }
             break;
         default: break;
