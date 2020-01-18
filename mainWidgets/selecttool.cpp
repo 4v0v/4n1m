@@ -132,9 +132,8 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter)
         if (subtool == LASSO) painter->drawPolygon(initialPolyZone);
         painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
-        painter->setPen(QPen(state == STATE_SELECTED ? Qt::blue : Qt::yellow, 1, Qt::DashLine)); painter->setBrush(QBrush(Qt::transparent));
+        painter->setPen(QPen(state == STATE_SELECTED && !pasted ? Qt::blue : Qt::yellow, 1, Qt::DashLine)); painter->setBrush(QBrush(Qt::transparent));
         painter->drawRect(deltaRectZone);
-
         if (state == STATE_SELECTED){
             painter->setPen(Qt::black); painter->setBrush(pasted ? Qt::yellow :Qt::red);
             painter->drawRect(deltaRectZone.topRight().x() - 5, deltaRectZone.topRight().y() - 5, 10, 10);
