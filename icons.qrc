@@ -2,5 +2,6 @@
 <RCC version="1.0">
  <qresource>
      <file>icons/lasso.png</file>
+     <file>icons/onion.png</file>
  </qresource>
  </RCC>

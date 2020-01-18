@@ -18,6 +18,7 @@ void SelectTool::mousePress(QMouseEvent* event)
     QRect topLeft     = QRect(deltaRectZone.topLeft().x()     - 10, deltaRectZone.topLeft().y()     - 10, 20, 20);
     QRect bottomRight = QRect(deltaRectZone.bottomRight().x() - 10, deltaRectZone.bottomRight().y() - 10, 20, 20);
     QRect bottomLeft  = QRect(deltaRectZone.bottomLeft().x()  - 10, deltaRectZone.bottomLeft().y()  - 10, 20, 20);
+    if (pasted) pasted = false;
 
     switch (state) {
         case STATE_EMPTY:
@@ -26,7 +27,7 @@ void SelectTool::mousePress(QMouseEvent* event)
             if (subtool == LASSO) initialPolyZone << QPoint(event->pos());
             break;
         case STATE_SELECTED:
-            if      (topRight.contains(event->pos()))    state = STATE_SCALING_TR;
+            if      (topRight.contains(event->pos())) state = STATE_SCALING_TR;
             else if (topLeft.contains(event->pos()))     state = STATE_SCALING_TL;
             else if (bottomRight.contains(event->pos())) state = STATE_SCALING_BR;
             else if (bottomLeft.contains(event->pos()))  state = STATE_SCALING_BL;
@@ -40,7 +41,8 @@ void SelectTool::mousePress(QMouseEvent* event)
             {
                 draw();
                 reset();
-                deltaRectZone.setRect(event->x(), event->y(), 0, 0);
+                if (subtool == RECTANGLE) deltaRectZone.setRect(event->x(), event->y(), 0, 0);
+                if (subtool == LASSO) initialPolyZone << QPoint(event->pos());
                 state = STATE_SELECTING;
             }
             break;
@@ -130,14 +132,16 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter)
         if (subtool == LASSO) painter->drawPolygon(initialPolyZone);
         painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
-        painter->setPen(QPen(state == STATE_SELECTED ? Qt::blue : Qt::yellow, 1, Qt::DashLine));
-        painter->setBrush(QBrush(Qt::transparent));
+        painter->setPen(QPen(state == STATE_SELECTED ? Qt::blue : Qt::yellow, 1, Qt::DashLine)); painter->setBrush(QBrush(Qt::transparent));
         painter->drawRect(deltaRectZone);
-        painter->setPen(Qt::black); painter->setBrush(Qt::red);
-        painter->drawRect(deltaRectZone.topRight().x() - 5, deltaRectZone.topRight().y() - 5, 10, 10);
-        painter->drawRect(deltaRectZone.topLeft().x() - 5, deltaRectZone.topLeft().y() - 5, 10, 10);
-        painter->drawRect(deltaRectZone.bottomRight().x() - 5, deltaRectZone.bottomRight().y() - 5, 10, 10);
-        painter->drawRect(deltaRectZone.bottomLeft().x() - 5, deltaRectZone.bottomLeft().y() - 5, 10, 10);
+
+        if (state == STATE_SELECTED){
+            painter->setPen(Qt::black); painter->setBrush(pasted ? Qt::yellow :Qt::red);
+            painter->drawRect(deltaRectZone.topRight().x() - 5, deltaRectZone.topRight().y() - 5, 10, 10);
+            painter->drawRect(deltaRectZone.topLeft().x() - 5, deltaRectZone.topLeft().y() - 5, 10, 10);
+            painter->drawRect(deltaRectZone.bottomRight().x() - 5, deltaRectZone.bottomRight().y() - 5, 10, 10);
+            painter->drawRect(deltaRectZone.bottomLeft().x() - 5, deltaRectZone.bottomLeft().y() - 5, 10, 10);
+        }
     }
 }
 
@@ -172,6 +176,15 @@ void SelectTool::knockback()
 
 void SelectTool::clear()
 {
+    QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
+    QImage j = i.copy();
+    QPainter painter(&j);
+    painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    painter.setPen(Qt::transparent); painter.setBrush(Qt::black);
+    if (subtool == RECTANGLE) painter.drawRect(initialRectZone);
+    if (subtool == LASSO) painter.drawPolygon(initialPolyZone);
+    reset();
+    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
 
 void SelectTool::reset()
@@ -183,4 +196,5 @@ void SelectTool::reset()
     deltaRectZone = QRect(0,0,1,1);
     deltaImage = QImage(1, 1, QImage::Format_ARGB32);
     deltaPosition = QPoint(0, 0);
+    pasted = false;
 }

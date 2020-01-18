@@ -34,6 +34,7 @@ public:
     QRect deltaRectZone = QRect(0,0,1,1);
     QImage deltaImage = QImage(1, 1, QImage::Format_ARGB32);
     QPoint deltaPosition = QPoint(0, 0);
+    bool pasted = false;
 };
 
 #endif

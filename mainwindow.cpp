@@ -205,28 +205,34 @@ void MainWindow::paste()
 {
     if (editor->isScribbling() || (clipboard.width() <= 1 && clipboard.height() <= 1) ) return;
     if (clipboardState == STATE_FRAME){
-        if (animation->isKey(timeline->getLayer(), timeline->getPos()))
-        {
+        if (!animation->isKey(timeline->getLayer(), timeline->getPos())) {
+            undostack->push(new AddImageCommand(clipboard.copy(), timeline->getLayer(), timeline->getPos(), animation));
+        } else {
             QImage i = animation->copyImageAt(timeline->getLayer(), timeline->getPos());
             QImage j = i.copy();
             QPainter p(&j);
             p.drawImage(QPoint(0,0), clipboard.copy());
             undostack->push(new ModifyImageCommand(i, j, timeline->getLayer(), timeline->getPos(), animation));
         }
-        else undostack->push(new AddImageCommand(clipboard.copy(), timeline->getLayer(), timeline->getPos(), animation));
     } else if (clipboardState == STATE_QCLIPBOARD){
-        if (animation->isKey(timeline->getLayer(), timeline->getPos()))
+        if (!animation->isKey(timeline->getLayer(), timeline->getPos())) timeline->addKey();
+        int tempX = editor->width()/2 - clipboard.width()/2;
+        int tempY = editor->height()/2 - clipboard.height()/2;
+        if (editor->selectTool->state == STATE_SELECTED)
         {
-            if (editor->selectTool->state == STATE_SELECTED) editor->drawSelect();
-            editor->setToolAsSelect();
-            editor->selectTool->subtool = RECTANGLE;
-            toolbar->setCurrentTool(TOOL5);
-            editor->selectTool->state = STATE_SELECTED;
-            editor->selectTool->initialImage = clipboard.copy();
-            editor->selectTool->deltaImage = clipboard.copy();
-            editor->selectTool->deltaRectZone = QRect(editor->mousePosition.x() - clipboard.width()/2, editor->mousePosition.y() - clipboard.height()/2, clipboard.width(), clipboard.height());
-            editor->update();
+            tempX = editor->selectTool->deltaRectZone.x();
+            tempY = editor->selectTool->deltaRectZone.y();
+            editor->drawSelect();
         }
+
+        editor->setToolAsSelect();
+        editor->selectTool->subtool = RECTANGLE;
+        editor->selectTool->state = STATE_SELECTED;
+        editor->selectTool->pasted = true;
+        editor->selectTool->initialImage = clipboard.copy();
+        editor->selectTool->deltaImage = clipboard.copy();
+        editor->selectTool->deltaRectZone = QRect(tempX, tempY, clipboard.width(), clipboard.height());
+        editor->update();
     }
 }
 

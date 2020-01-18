@@ -167,7 +167,7 @@ void Toolbar::setCurrentTool(ToolbarTool t)
             tool6->setIsCurrent(true);
             sub1()->show(); sub1()->setImage(*colorIcon); sub1()->setStyle(SUB_ICON);
             sub2()->show(); sub2()->setText(backgroundOpacity); sub2()->setImage(*opacityIcon); sub2()->setStyle(SUB_TEXTICON);
-            sub3()->show(); sub3()->setText("onion"); sub3()->setImage(*widthIcon); sub3()->setStyle(SUB_TEXTICON);
+            sub3()->show(); sub3()->setImage(QImage(":/icons/onion.png")); sub3()->setStyle(SUB_ICON);
             sub4()->show(); sub4()->setText("ontop"); sub4()->setIsCurrent(mainwindow->isOnTop); sub4()->setStyle(SUB_TOGGLE);
             subtoolbar->setGeometry(40, 70, 40, 200);
             break;
@@ -203,8 +203,11 @@ Subtoolbar::Subtoolbar(MainWindow* mw, QWidget* p): QWidget(p)
 
 void Subtoolbar::initProperties()
 {
-    QString sliderStylesheet = "QSlider::groove:horizontal{border:0px;height:4px;background:white;margin:2px 0;}\
+    QString hSliderStylesheet = "QSlider::groove:horizontal{border:0px;height:4px;background:white;margin:2px 0;}\
                                 QSlider::handle:horizontal{background:rgb(50,50,50);border:1px solid #5c5c5c;width:9px;margin:-20px 0;}";
+
+    QString vSliderStylesheet = "QSlider::groove:vertical{border:0px;width:4px;background:white;margin:0 2px;}\
+                                QSlider::handle:vertical{background:rgb(50,50,50);border:1px solid #5c5c5c;height:9px;margin:0 -20px;}";
 
     penColorProperty = new ToolbarButton(mainwindow, mainwindow, 80, 70, 120, 120, SUB_EMPTY);
         ColorWheel* penColorwheel = new ColorWheel(penColorProperty);
@@ -225,7 +228,7 @@ void Subtoolbar::initProperties()
         penOpacitySlider->setGeometry(5, 0, 110, 40);
         penOpacitySlider->setRange(0, 255);
         penOpacitySlider->setValue(editor()->getPenTool()->color().alpha());
-        penOpacitySlider->setStyleSheet(sliderStylesheet);
+        penOpacitySlider->setStyleSheet(hSliderStylesheet);
         connect(penOpacitySlider, &QAbstractSlider::valueChanged, this, [penOpacitySlider, this]{
             QPen* p = editor()->getPenTool();
             p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), penOpacitySlider->value()));
@@ -237,7 +240,7 @@ void Subtoolbar::initProperties()
         penWidthSlider->setGeometry(5, 0, 110, 40);
         penWidthSlider->setRange(1, 30);
         penWidthSlider->setValue(editor()->getPenTool()->width());
-        penWidthSlider->setStyleSheet(sliderStylesheet);
+        penWidthSlider->setStyleSheet(hSliderStylesheet);
         connect(penWidthSlider, &QAbstractSlider::valueChanged, this, [penWidthSlider, this]{
             editor()->getPenTool()->setWidth(penWidthSlider->value());
             toolbar->setCurrentTool(TOOL1);
@@ -285,7 +288,7 @@ void Subtoolbar::initProperties()
         shapeOpacitySlider->setGeometry(5, 0, 110, 40);
         shapeOpacitySlider->setRange(0, 255);
         shapeOpacitySlider->setValue(editor()->getShapeTool()->color().alpha());
-        shapeOpacitySlider->setStyleSheet(sliderStylesheet);
+        shapeOpacitySlider->setStyleSheet(hSliderStylesheet);
         connect(shapeOpacitySlider, &QAbstractSlider::valueChanged, this, [shapeOpacitySlider, this]{
             QPen* p = editor()->getShapeTool();
             p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), shapeOpacitySlider->value()));
@@ -297,7 +300,7 @@ void Subtoolbar::initProperties()
         shapeWidthSlider->setGeometry(5, 0, 110, 40);
         shapeWidthSlider->setRange(1, 30);
         shapeWidthSlider->setValue(editor()->getShapeTool()->width());
-        shapeWidthSlider->setStyleSheet(sliderStylesheet);
+        shapeWidthSlider->setStyleSheet(hSliderStylesheet);
         connect(shapeWidthSlider, &QAbstractSlider::valueChanged, this, [shapeWidthSlider, this]{
             editor()->getShapeTool()->setWidth(shapeWidthSlider->value());
             toolbar->setCurrentTool(TOOL2);
@@ -343,7 +346,7 @@ void Subtoolbar::initProperties()
         lassoOpacitySlider->setGeometry(5, 0, 110, 40);
         lassoOpacitySlider->setRange(0, 255);
         lassoOpacitySlider->setValue(editor()->getFillTool()->color().alpha());
-        lassoOpacitySlider->setStyleSheet(sliderStylesheet);
+        lassoOpacitySlider->setStyleSheet(hSliderStylesheet);
         connect(lassoOpacitySlider, &QAbstractSlider::valueChanged, this, [lassoOpacitySlider, this]{
             QBrush* p = editor()->getFillTool();
             p->setColor(QColor(p->color().red(), p->color().green(), p->color().blue(), lassoOpacitySlider->value()));
@@ -390,7 +393,7 @@ void Subtoolbar::initProperties()
         eraserWidthSlider->setGeometry(5, 0, 110, 40);
         eraserWidthSlider->setRange(1, 50);
         eraserWidthSlider->setValue(editor()->getEraserTool()->width());
-        eraserWidthSlider->setStyleSheet(sliderStylesheet);
+        eraserWidthSlider->setStyleSheet(hSliderStylesheet);
         connect(eraserWidthSlider, &QAbstractSlider::valueChanged, this, [eraserWidthSlider, this]{
             editor()->getEraserTool()->setWidth(eraserWidthSlider->value());
             toolbar->setCurrentTool(TOOL4);
@@ -419,7 +422,7 @@ void Subtoolbar::initProperties()
         bgOpacitySlider->setGeometry(5, 0, 110, 40);
         bgOpacitySlider->setRange(0, 255);
         bgOpacitySlider->setValue(editor()->getBackgroundColor().alpha());
-        bgOpacitySlider->setStyleSheet(sliderStylesheet);
+        bgOpacitySlider->setStyleSheet(hSliderStylesheet);
         connect(bgOpacitySlider, &QAbstractSlider::valueChanged, this, [bgOpacitySlider, this]{
             QColor p = editor()->getBackgroundColor();
             p.setAlpha(bgOpacitySlider->value());
@@ -430,26 +433,32 @@ void Subtoolbar::initProperties()
 
     onionskinProperty = new ToolbarButton(mainwindow, mainwindow, 80, 150, 180, 80, SUB_EMPTY);
         QSlider* slider1 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider1->setStyleSheet(vSliderStylesheet);
             slider1->setGeometry(0, 5, 20, 70);
             slider1->setRange(0, 100);
             slider1->setValue(editor()->onionOpacityLoop * 100);
         QSlider* slider2 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider2->setStyleSheet(vSliderStylesheet);
             slider2->setGeometry(20, 5, 20, 70);
             slider2->setRange(0, 100);
             slider2->setValue(editor()->onionOpacitySecond * 100);
         QSlider* slider3 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider3->setStyleSheet(vSliderStylesheet);
             slider3->setGeometry(40, 5, 20, 70);
             slider3->setRange(0, 100);
             slider3->setValue(editor()->onionOpacityFirst * 100);
         QSlider* slider4 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider4->setStyleSheet(vSliderStylesheet);
             slider4->setGeometry(60, 5, 20, 70);
             slider4->setRange(0, 100);
             slider4->setValue(editor()->onionOpacityFirst * 100);
         QSlider* slider5 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider5->setStyleSheet(vSliderStylesheet);
             slider5->setGeometry(80, 5, 20, 70);
             slider5->setRange(0, 100);
             slider5->setValue(editor()->onionOpacitySecond * 100);
         QSlider* slider6 = new QSlider(Qt::Vertical, onionskinProperty);
+            slider6->setStyleSheet(vSliderStylesheet);
             slider6->setGeometry(100, 5, 20, 70);
             slider6->setRange(0, 100);
             slider6->setValue(editor()->onionOpacityLoop * 100);
