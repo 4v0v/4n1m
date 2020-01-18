@@ -28,11 +28,11 @@ public:
     MainWindow* mainwindow;
     Tool subtool = RECTANGLE;
     State state = STATE_EMPTY;
+    QPolygon initialPolyZone;
     QRect initialRectZone = QRect(0,0,1,1);
-    QRect deltaRectZone = QRect(0,0,1,1);
     QImage initialImage = QImage(1, 1, QImage::Format_ARGB32);
+    QRect deltaRectZone = QRect(0,0,1,1);
     QImage deltaImage = QImage(1, 1, QImage::Format_ARGB32);
-    QImage cutCopyImage = QImage(1, 1, QImage::Format_ARGB32);
     QPoint deltaPosition = QPoint(0, 0);
 };
 
