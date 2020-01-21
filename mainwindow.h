@@ -80,8 +80,7 @@ enum ToolbarTool {
 enum ToolbarButtonStyle {
     TOOL_CURRENT,
     TOOL_TEXT,
-    TOOL_WHITE,
-    TOOL_RED,
+    TOOL_CUSTOM,
     SUB_ICON,
     SUB_TEXTICON,
     SUB_TOGGLE,

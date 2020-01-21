@@ -21,8 +21,18 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
     tool4 = new ToolbarButton(mainwindow, this, 0, 120, 40, 40, TOOL_TEXT, "eraser");
     tool5 = new ToolbarButton(mainwindow, this, 0, 160, 40, 40, TOOL_TEXT, "select");
     tool6 = new ToolbarButton(mainwindow, this, 0, 200, 40, 40, TOOL_TEXT, "other");
-    tool7 = new ToolbarButton(mainwindow, this, 0, 240, 40, 40, TOOL_WHITE, "knockback");
-    tool8 = new ToolbarButton(mainwindow, this, 0, 280, 40, 40, TOOL_RED, "selection");
+    tool7 = new ToolbarButton(mainwindow, this, 0, 240, 40, 40, TOOL_CUSTOM, "knockback");
+    tool8 = new ToolbarButton(mainwindow, this, 0, 280, 40, 40, TOOL_CUSTOM, "selection");
+
+    tool7->setStyleSheet(
+        "QPushButton{background-color:rgb(255,0,0);border:0px;color:white;font-size:12px;}\
+        QPushButton:pressed{background-color:white;border:0px;color:rgb(50,50,50);}"
+    );
+
+    tool8->setStyleSheet(
+        "QPushButton{background-color:white;border:0px;color:black;font-size:12px;}\
+        QPushButton:pressed{background-color:rgb(50,50,50);border:0px;color:white;}"
+    );
 
     connect(tool1, &QAbstractButton::pressed, this, [this]{ editor()->setToolAsPen(); });
     connect(tool2, &QAbstractButton::pressed, this, [this]{ editor()->setToolAsShape(); });
@@ -651,18 +661,7 @@ void ToolbarButton::paintEvent(QPaintEvent* event)
             painter.setPen(letterColor);
             painter.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter, text);
             break;
-        case TOOL_RED:
-            setStyleSheet(
-                "QPushButton{background-color:rgb(255,0,0);border:0px;color:white;font-size:12px;}\
-                QPushButton:pressed{background-color:white;border:0px;color:rgb(50,50,50);}"
-            );
-            QPushButton::paintEvent(event);
-            break;
-        case TOOL_WHITE:
-            setStyleSheet(
-                "QPushButton{background-color:white;border:0px;color:black;font-size:12px;}\
-                QPushButton:pressed{background-color:rgb(50,50,50);border:0px;color:white;}"
-            );
+        case TOOL_CUSTOM:
             QPushButton::paintEvent(event);
             break;
         case SUB_ICON:

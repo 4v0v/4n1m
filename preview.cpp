@@ -53,7 +53,9 @@ void Preview::play()
     update();
 }
 
-void Preview::pause(){}
+void Preview::pause(){
+    timer->stop();
+}
 
 void Preview::mousePressEvent(QMouseEvent *event) { p = event->pos(); isDown = true; }
 void Preview::mouseReleaseEvent(QMouseEvent*) { isDown = false; }

@@ -56,6 +56,13 @@ public:
     QPolygon stroke;
     QPoint mousePosition = QPoint(0,0);
 
+
+    QPainter globalPainter;
+    QPainter layerPainter;
+    QImage backgroundImage;
+    QImage layerImage;
+
+
 public slots:
     void clearImage();
     void knockback();

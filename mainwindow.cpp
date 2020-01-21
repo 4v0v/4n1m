@@ -220,8 +220,9 @@ void MainWindow::paste()
         int tempY = editor->height()/2 - clipboard.height()/2;
         if (editor->selectTool->state == STATE_SELECTED)
         {
-            tempX = editor->selectTool->deltaRectZone.x();
-            tempY = editor->selectTool->deltaRectZone.y();
+            QRect* drz = &editor->selectTool->deltaRectZone;
+            tempX = drz->x() > drz->x() + drz->width() ? drz->x() + drz->width(): drz->x();
+            tempY = drz->y() > drz->y() + drz->height() ? drz->y() + drz->height(): drz->y();
             editor->drawSelect();
         }
 

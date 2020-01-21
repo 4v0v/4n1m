@@ -14,6 +14,8 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
     selectTool = new SelectTool(mainwindow);
     setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 530);
     setMouseTracking(true);
+    backgroundImage = QImage(width(), height(), QImage::Format_ARGB32);
+    layerImage = QImage(width(), height(), QImage::Format_ARGB32);
 }
 
 void Editor::mousePressEvent(QMouseEvent* event)
@@ -68,18 +70,17 @@ void Editor::mouseReleaseEvent(QMouseEvent* event)
 
 void Editor::paintEvent(QPaintEvent* event)
 {
-    QPainter globalPainter(this);
+    globalPainter.begin(this);
 
     // Background
-    QImage backgroundImage = QImage(width(), height(), QImage::Format_ARGB32);
     backgroundImage.fill(backgroundColor);
     globalPainter.drawImage(event->rect(), backgroundImage, event->rect());
 
     // Draw editor from layers
-    animation()->foreachLayerRevert([&globalPainter, &event, this](int i){
+    animation()->foreachLayerRevert([&event, this](int i){
         if (animation()->getKeyCount(i) == 0) return;
-        QImage img = QImage(width(), height(), QImage::Format_ARGB32);
-        QPainter layerPainter(&img);
+        layerImage.fill(Qt::transparent);
+        layerPainter.begin(&layerImage);
 
         // Draw current or previous keyframe
         if (animation()->isKey(i, getPos(i))) layerPainter.drawImage(QPoint(0,0), animation()->copyImageAt(i, getPos(i)));
@@ -112,7 +113,6 @@ void Editor::paintEvent(QPaintEvent* event)
                 globalPainter.setOpacity(1.0);
             }
 
-            // Tool preview
             switch (currentTool)
             {
                 case PEN: {
@@ -143,7 +143,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     break;
                 } case ERASER: {
                     if (stroke.count() < 1) break;
-                    QImage tempImg = img.copy();
+                    QImage tempImg = layerImage.copy();
                     tempImg.fill(Qt::transparent);
                     QPainter p(&tempImg);
                     p.setPen(eraserTool);
@@ -158,10 +158,12 @@ void Editor::paintEvent(QPaintEvent* event)
                     break;
                 } default : break;
             }
+
+            layerPainter.end();
         }
 
         globalPainter.setOpacity(timeline()->getLayerWidgetAt(i)->getLayerTitle()->getOpacity());
-        globalPainter.drawImage(event->rect(), img, event->rect());
+        globalPainter.drawImage(event->rect(), layerImage, event->rect());
         globalPainter.setOpacity(1.0);
 
         if (currentTool == ERASER && scribbling)
@@ -170,6 +172,9 @@ void Editor::paintEvent(QPaintEvent* event)
             globalPainter.drawEllipse(stroke.last().x() -eraserTool.width()/2 , stroke.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
         }
     });
+
+
+    globalPainter.end();
 }
 
 void Editor::drawPenStroke()
