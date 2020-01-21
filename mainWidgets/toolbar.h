@@ -21,9 +21,11 @@ public:
     void setLetterColor(int a) { letterColor.setRgb(a, a ,a); update();}
     void setIsCurrent(bool);
 
+    QPainter painter;
+
 protected:
     void paintEvent(QPaintEvent*) override;
-
+    void mouseMoveEvent(QMouseEvent*) override {};
 private:
     MainWindow* mainwindow;
     ToolbarButtonStyle style;

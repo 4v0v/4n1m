@@ -646,7 +646,7 @@ ToolbarButton::ToolbarButton(MainWindow* mw, QWidget* p, int x, int y, int w, in
 
 void ToolbarButton::paintEvent(QPaintEvent* event)
 {
-    QPainter painter(this);
+    painter.begin(this);
     QPainterPath path;
     QFont font = painter.font();
     font.setKerning(true);
@@ -693,6 +693,7 @@ void ToolbarButton::paintEvent(QPaintEvent* event)
         default:
             break;
     }
+    painter.end();
 }
 
 void ToolbarButton::setIsCurrent(bool b){

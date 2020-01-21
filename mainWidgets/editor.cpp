@@ -49,7 +49,9 @@ void Editor::mouseMoveEvent(QMouseEvent* event)
         default: break;
     }
     stroke << QPoint(event->pos().x(), event->pos().y());
-    update();
+
+    updateCount += 1;
+    if (updateCount == updateRate) {update(); updateCount = 0;}
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent* event)

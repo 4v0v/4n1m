@@ -55,13 +55,13 @@ public:
     double onionOpacityLoop = 0.2;
     QPolygon stroke;
     QPoint mousePosition = QPoint(0,0);
-
-
     QPainter globalPainter;
     QPainter layerPainter;
     QImage backgroundImage;
     QImage layerImage;
 
+    int updateCount = 0;
+    int updateRate = 5;
 
 public slots:
     void clearImage();
