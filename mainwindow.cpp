@@ -36,6 +36,7 @@ MainWindow::MainWindow()
     setCentralWidget(window);
     toolbar = new Toolbar(this, window);
     subtoolbar = new Subtoolbar(this, window);
+    timelinetoolbar = new Timelinetoolbar(this, window);
     toolbar->setSuboolbar(subtoolbar);
     subtoolbar->setToolbar(toolbar);
     toolbar->setCurrentTool(TOOL1);

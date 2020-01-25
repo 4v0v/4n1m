@@ -12,14 +12,33 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
     mainwindow = mw;
     setCursor(Qt::CrossCursor);
     selectTool = new SelectTool(mainwindow);
-    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 530);
+    setGeometry(0, 25, mainwindow->getWindowDimensions().width(), mainwindow->getWindowDimensions().width() - 300);
     setMouseTracking(true);
-    backgroundImage = QImage(width(), height(), QImage::Format_ARGB32);
     layerImage = QImage(width(), height(), QImage::Format_ARGB32);
+
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2 - 25;
+    int imgH =animation()->animSize.height();
+    int imgW = animation()->animSize.width();
+
+    backgroundImage = QImage(width(), height(), QImage::Format_ARGB32);
+    backgroundImage.fill(editorBackgroundColor);
+    QPainter p(&backgroundImage);
+    p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    p.setPen(Qt::transparent);
+    p.setBrush(Qt::black);
+    p.drawRect(imgX, imgY, imgW, imgH);
+    p.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    p.setPen(QColor(0, 0, 0, 1));
+    p.setBrush(QColor(0, 0, 0, 1));
+    p.drawRect(imgX -5, imgY - 5, imgW + 10, imgH + 10);
 }
 
 void Editor::mousePressEvent(QMouseEvent* event)
 {
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
+
     mainwindow->subtoolbar->hideProperties();
     if (
         !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
@@ -29,7 +48,7 @@ void Editor::mousePressEvent(QMouseEvent* event)
     ) timeline()->addKey();
 
     scribbling = true;
-    stroke << QPoint(event->pos().x(), event->pos().y());
+    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
 
     if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())){
         if (currentTool == SELECT) selectTool->mousePress(event);
@@ -40,15 +59,21 @@ void Editor::mousePressEvent(QMouseEvent* event)
 
 void Editor::mouseMoveEvent(QMouseEvent* event)
 {
-    mousePosition.setX(event->x());
-    mousePosition.setY(event->y());
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
+
+    mousePosition.setX(event->x() + imgX);
+    mousePosition.setY(event->y() + imgY);
     if (!scribbling) return;
+
+
+
     switch (currentTool)
     {
         case SELECT: selectTool->mouseMove(event); break;
         default: break;
     }
-    stroke << QPoint(event->pos().x(), event->pos().y());
+    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
 
     updateCount += 1;
     if (updateCount == updateRate) {update(); updateCount = 0;}
@@ -74,18 +99,28 @@ void Editor::paintEvent(QPaintEvent* event)
 {
     globalPainter.begin(this);
 
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
+    int imgH =animation()->animSize.height();
+    int imgW = animation()->animSize.width();
+    QPolygon s(stroke);
+    s.translate(imgX, imgY);
+
     // Background
-    backgroundImage.fill(backgroundColor);
-    globalPainter.drawImage(event->rect(), backgroundImage, event->rect());
+    globalPainter.drawImage(QPoint(0, 0), backgroundImage);
+
+    globalPainter.setPen(editorBackgroundColor);
+    globalPainter.setBrush(backgroundColor);
+    globalPainter.drawRect( imgX,imgY, imgW, imgH);
 
     // Draw editor from layers
-    animation()->foreachLayerRevert([&event, this](int i){
+    animation()->foreachLayerRevert([&event, this, imgX, imgY, &s](int i){
         if (animation()->getKeyCount(i) == 0) return;
         layerImage.fill(Qt::transparent);
         layerPainter.begin(&layerImage);
 
         // Draw current or previous keyframe
-        if (animation()->isKey(i, getPos(i))) layerPainter.drawImage(QPoint(0,0), animation()->copyImageAt(i, getPos(i)));
+        if (animation()->isKey(i, getPos(i))) layerPainter.drawImage(QPoint(imgX, imgY), animation()->copyImageAt(i, getPos(i)));
 
         // Draw only on current layer
         if (i == timeline()->getLayer()){
@@ -102,15 +137,15 @@ void Editor::paintEvent(QPaintEvent* event)
                 if (onionskinloopVisible)
                 {
                     if (getPos() == animation()->getFirstKey(i) && animation()->getKeyCount(i) > 3)
-                        drawOnionSkin(event, &globalPainter, &path, onionOpacityLoop, i, animation()->getLastKey(i), QColor(Qt::darkGreen));
+                        drawOnionSkin(&globalPainter, onionOpacityLoop, i, animation()->getLastKey(i), imgX, imgY, QColor(Qt::darkGreen));
                     if (getPos() == animation()->getLastKey(i) && animation()->getKeyCount(i) > 3)
-                        drawOnionSkin(event, &globalPainter, &path, onionOpacityLoop, i, animation()->getFirstKey(i), QColor(Qt::darkGreen));
+                        drawOnionSkin(&globalPainter, onionOpacityLoop, i, animation()->getFirstKey(i), imgX, imgY, QColor(Qt::darkGreen));
                 }
 
-                if (prev < getPos() && prev != -1) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, prev, QColor(Qt::red));
-                if (prevprev < getPos() && prevprev != -1 ) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, prevprev, QColor(Qt::red));
-                if (next > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacityFirst, i, next, QColor(Qt::blue));
-                if (nextnext > getPos()) drawOnionSkin(event, &globalPainter, &path, onionOpacitySecond, i, nextnext, QColor(Qt::blue));
+                if (prev < getPos() && prev != -1) drawOnionSkin(&globalPainter, onionOpacityFirst, i, prev, imgX, imgY, QColor(Qt::red));
+                if (prevprev < getPos() && prevprev != -1 ) drawOnionSkin(&globalPainter, onionOpacitySecond, i, prevprev, imgX, imgY, QColor(Qt::red));
+                if (next > getPos()) drawOnionSkin(&globalPainter, onionOpacityFirst, i, next, imgX, imgY, QColor(Qt::blue));
+                if (nextnext > getPos()) drawOnionSkin(&globalPainter, onionOpacitySecond, i, nextnext, imgX, imgY, QColor(Qt::blue));
 
                 globalPainter.setOpacity(1.0);
             }
@@ -119,38 +154,38 @@ void Editor::paintEvent(QPaintEvent* event)
             {
                 case PEN: {
                     layerPainter.setPen(penTool);
-                    if (stroke.count() == 1) layerPainter.drawPoint(stroke.first());
-                    else if (stroke.count() > 1) layerPainter.drawPolyline(stroke);
+                    if (s.count() == 1) layerPainter.drawPoint(s.first());
+                    else if (s.count() > 1) layerPainter.drawPolyline(s);
                     break;
                 } case SHAPE: {
-                    if (stroke.count() < 2) break;
+                    if (s.count() < 2) break;
                     layerPainter.setPen(shapeTool);
                     switch(shapeSubtool){
-                        case LINE: layerPainter.drawPolyline(QPolygon() << stroke.first() << stroke.last()); break;
-                        case RECTANGLE: layerPainter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-                        case ELLIPSE: layerPainter.drawEllipse(stroke.first().x(), stroke.first().y(), stroke.last().x() - stroke.first().x(), stroke.last().y() - stroke.first().y()); break;
+                        case LINE: layerPainter.drawPolyline(QPolygon() << s.first() << s.last()); break;
+                        case RECTANGLE: layerPainter.drawRect(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
+                        case ELLIPSE: layerPainter.drawEllipse(s.first().x(), s.first().y(), s.last().x() - s.first().x(), s.last().y() - s.first().y()); break;
                         default: break;
                     }
                     break;
                 } case FILL: {
-                    if (stroke.count() < 2) break;
+                    if (s.count() < 2) break;
                     layerPainter.setPen(Qt::transparent);
                     layerPainter.setBrush(filltool);
                     switch(fillSubtool){
-                        case LASSO: layerPainter.drawPolygon(stroke); break;
-                        case RECTANGLE: layerPainter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-                        case ELLIPSE: layerPainter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
+                        case LASSO: layerPainter.drawPolygon(s); break;
+                        case RECTANGLE: layerPainter.drawRect(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
+                        case ELLIPSE: layerPainter.drawEllipse(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
                         default: break;
                     }
                     break;
                 } case ERASER: {
-                    if (stroke.count() < 1) break;
+                    if (s.count() < 1) break;
                     QImage tempImg = layerImage.copy();
                     tempImg.fill(Qt::transparent);
                     QPainter p(&tempImg);
                     p.setPen(eraserTool);
-                    if (stroke.count() == 1) p.drawPoint(stroke.first());
-                    else if (stroke.count() > 1) p.drawPolyline(stroke);
+                    if (s.count() == 1) p.drawPoint(s.first());
+                    else if (s.count() > 1) p.drawPolyline(s);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
                     layerPainter.drawImage(QPoint(0,0), tempImg);
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
@@ -171,7 +206,8 @@ void Editor::paintEvent(QPaintEvent* event)
         if (currentTool == ERASER && scribbling)
         {
             globalPainter.setPen(QPen(Qt::red, 2));
-            globalPainter.drawEllipse(stroke.last().x() -eraserTool.width()/2 , stroke.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
+            globalPainter.setBrush(Qt::white);
+            globalPainter.drawEllipse(s.last().x() -eraserTool.width()/2 , s.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
         }
     });
 
@@ -284,12 +320,14 @@ int Editor::getPos(int layer)
     animation()->getPrevKey(layer, timeline()->getPos());
 }
 
-void Editor::drawOnionSkin(QPaintEvent* event, QPainter* painter, QPainterPath* path, double opacity, int layer, int pos, QColor color)
+void Editor::drawOnionSkin(QPainter* painter, double opacity, int layer, int pos, int imgX, int imgY, QColor color)
 {
     painter->setOpacity(opacity);
     QImage img = animation()->copyImageAt(layer, pos);
     QPainter p(&img);
     p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-    p.fillPath(*path, color);
-    painter->drawImage(event->rect(), img, event->rect());
+    p.setBrush(QBrush(color));
+    p.setPen(QPen((color)));
+    p.drawRect(0, 0, img.width(), img.height());
+    painter->drawImage(QPoint(imgX, imgY), img);
 }

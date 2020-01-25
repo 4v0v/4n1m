@@ -33,6 +33,7 @@ public:
     void foreachLayerRevert(std::function<void(int)>, int = 0, int = 0);
     int getAnimationLength();
 
+    QRect animSize = QRect(0, 0, 600, 500);
     MainWindow* mainwindow;
     QMap<int, QMap<int, QImage>> layers;
 

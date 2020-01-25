@@ -31,6 +31,7 @@ class Preview;
 class Titlebar;
 class Toolbar;
 class Subtoolbar;
+class Timelinetoolbar;
 class Layer;
 class Frame;
 
@@ -104,12 +105,13 @@ public:
     Titlebar* titlebar;
     Toolbar* toolbar;
     Subtoolbar* subtoolbar;
+    Timelinetoolbar* timelinetoolbar;
     bool isOnTop = false;
     int FPS = 24;
     int undostackSize = 30;
     QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
     State clipboardState = STATE_EMPTY;
-    QRect windowDimensions = QRect(100, 100, 850, 650);
+    QRect windowDimensions = QRect(100, 100, 1050, 850);
 
 public slots:
     void openUndoAmountWindow();

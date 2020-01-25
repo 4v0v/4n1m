@@ -33,7 +33,7 @@ public:
     void drawSelect();
     Tool getCurrentTool() {return currentTool; }
     void changeTool(Tool t= EMPTY) { currentTool = t; }
-    void drawOnionSkin(QPaintEvent*, QPainter*, QPainterPath*, double, int, int, QColor);
+    void drawOnionSkin(QPainter*, double, int, int, int, int, QColor);
 
     MainWindow* mainwindow;
     Tool currentTool = PEN;
@@ -47,6 +47,8 @@ public:
     QPen shapeTool = QPen(QColor(0,0,0,255), 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QPen eraserTool = QPen(Qt::blue, 30, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush filltool = QBrush(QColor(0,0,0,255), Qt::SolidPattern);
+
+    QColor editorBackgroundColor = QColor(85,85,85);
     QColor backgroundColor = QColor(243,200,149);
     int knockbackAmount = 50;
     double layerOpacity = 0.6;
@@ -61,7 +63,7 @@ public:
     QImage layerImage;
 
     int updateCount = 0;
-    int updateRate = 5;
+    int updateRate = 4;
 
 public slots:
     void clearImage();

@@ -631,6 +631,46 @@ void Subtoolbar::clickSubtool(ToolbarTool sub)
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
+Timelinetoolbar::Timelinetoolbar(MainWindow* mw, QWidget* p): QWidget(p)
+{
+    mainwindow = mw;
+    p = parent;
+    setFocusPolicy(Qt::NoFocus);
+    setGeometry(mainwindow->width()-90, mainwindow->height() - timeline()->height() - 30, 90, 30);
+
+    QString buttonStylesheet =
+        "QPushButton{background-color:rgb(175,175,175);border:0px;color:black;font-size:12px;}\
+        QPushButton:pressed{background-color:rgb(50,50,50);border:0px;color:rgb(175,175,175);font-size:14px;}";
+
+    QString rmvStylesheet =
+        "QPushButton{background-color:rgb(255,0,0);border:0px;color:white;font-size:14px;}\
+        QPushButton:pressed{background-color:white;border:0px;color:rgb(50,50,50);}";
+
+    QPushButton* p1 = new QPushButton(this);
+    p1->setGeometry(0, 0, 30, 30);
+    p1->setText("-");
+    p1->setFocusPolicy(Qt::NoFocus);
+    p1->setStyleSheet(buttonStylesheet);
+
+    QPushButton* p2 = new QPushButton(this);
+    p2->setGeometry(30, 0, 30, 30);
+    p2->setText("+");
+    p2->setFocusPolicy(Qt::NoFocus);
+    p2->setStyleSheet(buttonStylesheet);
+
+    QPushButton* p3 = new QPushButton(this);
+    p3->setGeometry(60, 0, 30, 30);
+    p3->setFocusPolicy(Qt::NoFocus);
+    p3->setStyleSheet(rmvStylesheet);
+
+    connect(p1, &QAbstractButton::pressed, this, [this]{ timeline()->removeFrame(); });
+    connect(p2, &QAbstractButton::pressed, this, [this]{ timeline()->insertFrame(); });
+    connect(p3, &QAbstractButton::pressed, this, [this]{ timeline()->removeKey(); });
+}
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 ToolbarButton::ToolbarButton(MainWindow* mw, QWidget* p, int x, int y, int w, int h, ToolbarButtonStyle style, QString t, bool toggled, QImage img): QPushButton(p)
 {
     mainwindow = mw;

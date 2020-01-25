@@ -85,7 +85,7 @@ void Animation::saveAnimation()
 {
     for (int i = 0; i < getAnimationLength(); ++i) {
         QString filename = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
-        QImage img = QImage(editor()->width(), editor()->height(), QImage::Format_ARGB32);
+        QImage img = QImage(animSize.width(), animSize.height(), QImage::Format_ARGB32);
         QPainter painter(&img);
 
         foreachLayerRevert([this, &i, &painter](int layer){

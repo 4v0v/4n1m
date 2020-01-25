@@ -41,6 +41,26 @@ private:
 //////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////
 
+class Timelinetoolbar : public QWidget
+{
+    Q_OBJECT
+public:
+    Timelinetoolbar(MainWindow*, QWidget*);
+    Editor* editor() {return mainwindow->editor; }
+    Timeline* timeline() {return mainwindow->timeline; }
+    ToolbarButton* subtool1;
+    ToolbarButton* subtool2;
+    ToolbarButton* subtool3;
+    ToolbarButton* subtool4;
+
+private:
+    MainWindow* mainwindow;
+    QWidget* parent;
+};
+
+//////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////
+
 class Subtoolbar : public QWidget
 {
     Q_OBJECT

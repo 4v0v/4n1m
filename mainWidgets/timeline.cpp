@@ -11,7 +11,9 @@
 Timeline::Timeline(MainWindow* mw): QWidget(mw)
 {
     mainwindow = mw;
-    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 75);
+    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 125);
+    setMaximumHeight(125);
+
     timelineScroll = new TimelineScrollArea(mainwindow, this);
 }
 
@@ -83,7 +85,7 @@ void Timeline::gotoFrame(int layer, int pos)
 void Timeline::addKey()
 {
     if (editor()->isScribbling() || animation()->isKey(getLayer(), getPos())) return;
-    undostack()->push(new AddImageCommand(QImage(editor()->width(), editor()->height(), QImage::Format_ARGB32), getLayer(), getPos(), animation()));
+    undostack()->push(new AddImageCommand(QImage(animation()->animSize.width(), animation()->animSize.height(), QImage::Format_ARGB32), getLayer(), getPos(), animation()));
 }
 
 void Timeline::removeKey()

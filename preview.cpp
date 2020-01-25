@@ -35,7 +35,7 @@ void Preview::paintEvent(QPaintEvent* event)
             painter.drawImage(event->rect(), img.scaled(img.width()*zoom/100, img.height()*zoom/100), event->rect());
         }
     });
-    path.addRect(0, 0, (editor()->width()-1)*zoom/100, (editor()->height()-1)*zoom/100);
+    path.addRect(0, 0, (animation()->animSize.width()-1)*zoom/100, (animation()->animSize.height()-1)*zoom/100);
     painter.fillPath(path,QColor(0, 0, 0, 1));
     painter.setPen(QPen(Qt::white));
     painter.drawPath(path);
@@ -68,7 +68,4 @@ void Preview::mouseMoveEvent(QMouseEvent *event)
 
 void Preview::wheelEvent(QWheelEvent*)
 {
-//    zoom += event->delta()/10;
-//    setMaximumSize(QSize(editor()->width()-1*zoom/100, editor()->height()-1*zoom/100));
-//    setMinimumSize(QSize(editor()->width()-1*zoom/100, editor()->height()-1*zoom/100));
 }
