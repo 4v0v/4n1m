@@ -32,24 +32,20 @@ public:
     int getAlphaKeyColor() { return keyColor.red(); }
     void setAlphaKeyColor(int a) { keyColor.setRgb(a, a ,a); update();}
 
+    MainWindow* mainwindow;
+    Layer* layer;
+    int framePos;
+    QColor currentColor = QColor(255, 0, 0, 0);
+    QPropertyAnimation* currentColorAnim = new QPropertyAnimation(this, "currentColorAlphaAnim");
+    QColor keyColor = QColor(255, 255, 255, 255);
+    QPropertyAnimation* keyColorAnim = new QPropertyAnimation(this, "keyColorAlphaAnim");
+    bool isKey = false;
+    bool isCurrent = false;
+
 protected:
     void paintEvent(QPaintEvent*) override;
     void mousePressEvent(QMouseEvent*) override;
     void mouseDoubleClickEvent(QMouseEvent*) override;
 
-private:
-    MainWindow* mainwindow;
-    Layer* layer;
-    int framePos;
-
-    QColor currentColor = QColor(255, 0, 0, 0);
-    QPropertyAnimation* currentColorAnim = new QPropertyAnimation(this, "currentColorAlphaAnim");
-
-    QColor keyColor = QColor(255, 255, 255, 255);
-    QPropertyAnimation* keyColorAnim = new QPropertyAnimation(this, "keyColorAlphaAnim");
-
-    bool isKey = false;
-    bool isCurrent = false;
 };
-
 #endif

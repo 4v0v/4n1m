@@ -13,9 +13,9 @@ Frame::Frame(MainWindow* mw, Layer* l, int p): QWidget(mw)
     mainwindow = mw;
     layer = l;
     framePos = p;
+
     setMinimumWidth(15);
     setMaximumWidth(15);
-    SetDoubleClickTime(200);
 }
 
 void Frame::paintEvent(QPaintEvent*) {
