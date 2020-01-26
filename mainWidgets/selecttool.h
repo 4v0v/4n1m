@@ -16,11 +16,11 @@ public:
     Editor* editor() { return mainwindow->editor; }
     QUndoStack* undostack() { return mainwindow->undostack; }
 
-    void mousePress(QMouseEvent*);
+    void mousePress(QMouseEvent*, int, int);
     void mouseMove(QMouseEvent*);
-    void mouseRelease(QMouseEvent*);
-    void paint(QPaintEvent*, QPainter*);
-    void draw();
+    void mouseRelease(QMouseEvent*, int, int);
+    void paint(QPaintEvent*, QPainter*, int, int);
+    void draw(int, int);
     void reset();
     void knockback();
     void clear();

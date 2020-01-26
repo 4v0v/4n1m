@@ -36,9 +36,6 @@ Editor::Editor(MainWindow* mw): QWidget(mw)
 
 void Editor::mousePressEvent(QMouseEvent* event)
 {
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
     mainwindow->subtoolbar->hideProperties();
     if (
         !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
@@ -48,47 +45,50 @@ void Editor::mousePressEvent(QMouseEvent* event)
     ) timeline()->addKey();
 
     scribbling = true;
-    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
+
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
 
     if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())){
-        if (currentTool == SELECT) selectTool->mousePress(event);
+        if (currentTool == SELECT) selectTool->mousePress(event, imgX, imgY);
     }
+    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
 
     update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* event)
 {
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
-    mousePosition.setX(event->x() + imgX);
-    mousePosition.setY(event->y() + imgY);
     if (!scribbling) return;
 
-
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
 
     switch (currentTool)
     {
         case SELECT: selectTool->mouseMove(event); break;
         default: break;
     }
-    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
 
+    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
     updateCount += 1;
-    if (updateCount == updateRate) {update(); updateCount = 0;}
+    if (updateCount == updateRate) { update(); updateCount = 0; }
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent* event)
 {
     scribbling = false;
+
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
+
     switch (currentTool)
     {
         case PEN: drawPenStroke(); break;
         case FILL: drawFill(); break;
         case SHAPE: drawShape(); break;
         case ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
-        case SELECT: selectTool->mouseRelease(event); break;
+        case SELECT: selectTool->mouseRelease(event, imgX, imgY); break;
         default: break;
     }
     stroke.clear();
@@ -111,7 +111,7 @@ void Editor::paintEvent(QPaintEvent* event)
 
     globalPainter.setPen(editorBackgroundColor);
     globalPainter.setBrush(backgroundColor);
-    globalPainter.drawRect( imgX,imgY, imgW, imgH);
+    globalPainter.drawRect(imgX, imgY, imgW, imgH);
 
     // Draw editor from layers
     animation()->foreachLayerRevert([&event, this, imgX, imgY, &s](int i){
@@ -149,7 +149,7 @@ void Editor::paintEvent(QPaintEvent* event)
 
                 globalPainter.setOpacity(1.0);
             }
-
+            // Tool prview
             switch (currentTool)
             {
                 case PEN: {
@@ -191,26 +191,24 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                     break;
                 } case SELECT: {
-                    selectTool->paint(event, &layerPainter);
+                    selectTool->paint(event, &layerPainter, imgX, imgY);
                     break;
                 } default : break;
             }
-
-            layerPainter.end();
         }
-
         globalPainter.setOpacity(timeline()->getLayerWidgetAt(i)->getLayerTitle()->getOpacity());
-        globalPainter.drawImage(event->rect(), layerImage, event->rect());
+        globalPainter.drawImage(QPoint(0, 0), layerImage);
         globalPainter.setOpacity(1.0);
 
-        if (currentTool == ERASER && scribbling)
-        {
-            globalPainter.setPen(QPen(Qt::red, 2));
-            globalPainter.setBrush(Qt::white);
-            globalPainter.drawEllipse(s.last().x() -eraserTool.width()/2 , s.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
-        }
+        layerPainter.end();
     });
 
+    if (currentTool == ERASER && scribbling)
+    {
+        globalPainter.setPen(QPen(Qt::red, 2));
+        globalPainter.setBrush(Qt::white);
+        globalPainter.drawEllipse(s.last().x() -eraserTool.width()/2 , s.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
+    }
 
     globalPainter.end();
 }
@@ -260,7 +258,11 @@ void Editor::drawFill()
 void Editor::drawSelect()
 {
     if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
-    selectTool->draw();
+
+    int imgX = width()/2 - animation()->animSize.width()/2;
+    int imgY = height()/2 - animation()->animSize.height()/2;
+
+    selectTool->draw(imgX, imgY);
     selectTool->reset();
 }
 

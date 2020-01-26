@@ -56,7 +56,6 @@ public:
     double onionOpacitySecond = 0.1;
     double onionOpacityLoop = 0.2;
     QPolygon stroke;
-    QPoint mousePosition = QPoint(0,0);
     QPainter globalPainter;
     QPainter layerPainter;
     QImage backgroundImage;

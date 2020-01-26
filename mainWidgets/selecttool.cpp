@@ -12,7 +12,7 @@ SelectTool::SelectTool(MainWindow* mw): QWidget(mw)
     mainwindow = mw;
 }
 
-void SelectTool::mousePress(QMouseEvent* event)
+void SelectTool::mousePress(QMouseEvent* event, int imgX, int imgY)
 {
     QRect topRight    = QRect(deltaRectZone.topRight().x()    - 10, deltaRectZone.topRight().y()    - 10, 20, 20);
     QRect topLeft     = QRect(deltaRectZone.topLeft().x()     - 10, deltaRectZone.topLeft().y()     - 10, 20, 20);
@@ -39,7 +39,7 @@ void SelectTool::mousePress(QMouseEvent* event)
             }
             else if (!deltaRectZone.contains(event->pos()))
             {
-                draw();
+                draw(imgX, imgY);
                 reset();
                 if (subtool == RECTANGLE) deltaRectZone.setRect(event->x(), event->y(), 0, 0);
                 if (subtool == LASSO) initialPolyZone << QPoint(event->pos());
@@ -66,7 +66,7 @@ void SelectTool::mouseMove(QMouseEvent* event)
     }
 }
 
-void SelectTool::mouseRelease(QMouseEvent*)
+void SelectTool::mouseRelease(QMouseEvent*, int imgX, int imgY)
 {
     if (state == STATE_SELECTING && subtool == LASSO) deltaRectZone = initialPolyZone.boundingRect();
     bool horMirror = deltaRectZone.x() > deltaRectZone.x() + deltaRectZone.width();
@@ -81,7 +81,7 @@ void SelectTool::mouseRelease(QMouseEvent*)
             if (tempW < 20 || tempH < 20) {reset(); break;}
             state = STATE_SELECTED;
             deltaRectZone.setRect(tempX, tempY, tempW, tempH);
-            initialRectZone.setRect(tempX, tempY, tempW, tempH);
+            initialRectZone.setRect(tempX - imgX, tempY - imgY, tempW, tempH);
 
             if (subtool == RECTANGLE) {
                 initialImage = animation()->getImageAt(timeline()->getLayer(), timeline()->getPos())->copy(initialRectZone);
@@ -111,7 +111,7 @@ void SelectTool::mouseRelease(QMouseEvent*)
     }
 }
 
-void SelectTool::paint(QPaintEvent*, QPainter* painter)
+void SelectTool::paint(QPaintEvent*, QPainter* painter, int imgX, int imgY)
 {
     if (state == STATE_EMPTY) return;
     bool horMirror = deltaRectZone.x() > deltaRectZone.x() + deltaRectZone.width();
@@ -128,8 +128,8 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter)
     } else {
         painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
         painter->setPen(Qt::transparent); painter->setBrush(Qt::black);
-        if (subtool == RECTANGLE) painter->drawRect(initialRectZone);
-        if (subtool == LASSO) painter->drawPolygon(initialPolyZone);
+        if (subtool == RECTANGLE) painter->drawRect(initialRectZone.translated(imgX, imgY));
+        if (subtool == LASSO) painter->drawPolygon(initialPolyZone.translated(imgX, imgY));
         painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
         painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
         painter->setPen(QPen(state == STATE_SELECTED && !pasted ? Qt::blue : Qt::yellow, 1, Qt::DashLine)); painter->setBrush(QBrush(Qt::transparent));
@@ -144,7 +144,7 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter)
     }
 }
 
-void SelectTool::draw()
+void SelectTool::draw(int imgX, int imgY)
 {
     if (
         deltaRectZone.width() == initialRectZone.width() &&
@@ -164,7 +164,7 @@ void SelectTool::draw()
     if (subtool == RECTANGLE) painter.drawRect(initialRectZone);
     if (subtool == LASSO) painter.drawPolygon(initialPolyZone);
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    painter.drawImage(QPoint(tempX, tempY), deltaImage);
+    painter.drawImage(QPoint(tempX - imgX, tempY - imgY), deltaImage);
 
     undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
 }
