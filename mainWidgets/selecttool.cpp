@@ -27,7 +27,7 @@ void SelectTool::mousePress(QMouseEvent* event, int imgX, int imgY)
             if (subtool == LASSO) initialPolyZone << QPoint(event->pos());
             break;
         case STATE_SELECTED:
-            if      (topRight.contains(event->pos())) state = STATE_SCALING_TR;
+            if      (topRight.contains(event->pos()))    state = STATE_SCALING_TR;
             else if (topLeft.contains(event->pos()))     state = STATE_SCALING_TL;
             else if (bottomRight.contains(event->pos())) state = STATE_SCALING_BR;
             else if (bottomLeft.contains(event->pos()))  state = STATE_SCALING_BL;
@@ -77,6 +77,11 @@ void SelectTool::mouseRelease(QMouseEvent*, int imgX, int imgY)
     int tempH = abs(deltaRectZone.height());
 
     switch (state) {
+        case STATE_MOVING: state = STATE_SELECTED; break;
+        case STATE_SCALING_TR: case STATE_SCALING_TL: case STATE_SCALING_BR: case STATE_SCALING_BL:
+            state = STATE_SELECTED;
+            deltaImage = initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror);
+            break;
         case STATE_SELECTING:
             if (tempW < 20 || tempH < 20) {reset(); break;}
             state = STATE_SELECTED;
@@ -102,18 +107,14 @@ void SelectTool::mouseRelease(QMouseEvent*, int imgX, int imgY)
 
             deltaImage = initialImage.copy();
             break;
-        case STATE_SCALING_TR: case STATE_SCALING_TL: case STATE_SCALING_BR: case STATE_SCALING_BL:
-            state = STATE_SELECTED;
-            deltaImage = initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror);
-            break;
-        case STATE_MOVING: state = STATE_SELECTED; break;
+
         default: break;
     }
 }
 
-void SelectTool::paint(QPaintEvent*, QPainter* painter, int imgX, int imgY)
+void SelectTool::paintLayer(QPainter* painter, int imgX, int imgY)
 {
-    if (state == STATE_EMPTY) return;
+    if (state == STATE_EMPTY || state == STATE_SELECTING) return;
     bool horMirror = deltaRectZone.x() > deltaRectZone.x() + deltaRectZone.width();
     bool verMirror = deltaRectZone.y() > deltaRectZone.y() + deltaRectZone.height();
     int tempX = horMirror ? deltaRectZone.x() + deltaRectZone.width(): deltaRectZone.x();
@@ -121,21 +122,30 @@ void SelectTool::paint(QPaintEvent*, QPainter* painter, int imgX, int imgY)
     int tempW = abs(deltaRectZone.width());
     int tempH = abs(deltaRectZone.height());
 
+    painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    painter->setPen(Qt::transparent); painter->setBrush(Qt::black);
+    if (subtool == RECTANGLE) painter->drawRect(initialRectZone.translated(imgX, imgY));
+    if (subtool == LASSO) painter->drawPolygon(initialPolyZone);
+    painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
+    painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
+}
+
+void SelectTool::paintGlobal(QPainter* painter)
+{
+    if (state == STATE_EMPTY) return;
+
     if (state == STATE_SELECTING) {
         painter->setPen(QPen(Qt::red, 1, Qt::DashLine));
+        painter->setBrush(Qt::transparent);
         if (subtool == RECTANGLE) painter->drawRect(deltaRectZone);
         if (subtool == LASSO) painter->drawPolygon(initialPolyZone);
     } else {
-        painter->setCompositionMode(QPainter::CompositionMode_DestinationOut);
-        painter->setPen(Qt::transparent); painter->setBrush(Qt::black);
-        if (subtool == RECTANGLE) painter->drawRect(initialRectZone.translated(imgX, imgY));
-        if (subtool == LASSO) painter->drawPolygon(initialPolyZone.translated(imgX, imgY));
-        painter->setCompositionMode(QPainter::CompositionMode_SourceOver);
-        painter->drawImage(QPoint(tempX, tempY), initialImage.scaled(tempW, tempH).mirrored(horMirror, verMirror));
-        painter->setPen(QPen(state == STATE_SELECTED && !pasted ? Qt::blue : Qt::yellow, 1, Qt::DashLine)); painter->setBrush(QBrush(Qt::transparent));
+        painter->setPen(QPen(state == STATE_SELECTED && !pasted ? Qt::blue : Qt::yellow, 1, Qt::DashLine));
+        painter->setBrush(Qt::transparent);
         painter->drawRect(deltaRectZone);
         if (state == STATE_SELECTED){
-            painter->setPen(Qt::black); painter->setBrush(pasted ? Qt::yellow :Qt::red);
+            painter->setPen(Qt::black);
+            painter->setBrush(pasted ? Qt::yellow :Qt::red);
             painter->drawRect(deltaRectZone.topRight().x() - 5, deltaRectZone.topRight().y() - 5, 10, 10);
             painter->drawRect(deltaRectZone.topLeft().x() - 5, deltaRectZone.topLeft().y() - 5, 10, 10);
             painter->drawRect(deltaRectZone.bottomRight().x() - 5, deltaRectZone.bottomRight().y() - 5, 10, 10);
@@ -162,7 +172,7 @@ void SelectTool::draw(int imgX, int imgY)
     painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
     painter.setPen(Qt::transparent); painter.setBrush(Qt::black);
     if (subtool == RECTANGLE) painter.drawRect(initialRectZone);
-    if (subtool == LASSO) painter.drawPolygon(initialPolyZone);
+    if (subtool == LASSO) painter.drawPolygon(initialPolyZone.translated(-imgX, -imgY));
     painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
     painter.drawImage(QPoint(tempX - imgX, tempY - imgY), deltaImage);
 

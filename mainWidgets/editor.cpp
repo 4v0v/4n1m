@@ -161,7 +161,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     if (s.count() < 2) break;
                     layerPainter.setPen(shapeTool);
                     switch(shapeSubtool){
-                        case LINE: layerPainter.drawPolyline(QPolygon() << s.first() << s.last()); break;
+                        case LINE: layerPainter.drawLine(s.first().x(), s.first().y(), s.last().x(), s.last().y()); break;
                         case RECTANGLE: layerPainter.drawRect(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
                         case ELLIPSE: layerPainter.drawEllipse(s.first().x(), s.first().y(), s.last().x() - s.first().x(), s.last().y() - s.first().y()); break;
                         default: break;
@@ -191,7 +191,7 @@ void Editor::paintEvent(QPaintEvent* event)
                     layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
                     break;
                 } case SELECT: {
-                    selectTool->paint(event, &layerPainter, imgX, imgY);
+                    selectTool->paintLayer(&layerPainter, imgX, imgY);
                     break;
                 } default : break;
             }
@@ -208,6 +208,11 @@ void Editor::paintEvent(QPaintEvent* event)
         globalPainter.setPen(QPen(Qt::red, 2));
         globalPainter.setBrush(Qt::white);
         globalPainter.drawEllipse(s.last().x() -eraserTool.width()/2 , s.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
+    }
+
+    if (currentTool == SELECT)
+    {
+        selectTool->paintGlobal(&globalPainter);
     }
 
     globalPainter.end();
@@ -231,7 +236,7 @@ void Editor::drawShape()
     QPainter painter(&j);
     painter.setPen(shapeTool);
     switch(shapeSubtool){
-        case LINE: painter.drawPolyline(QPolygon() << stroke.first() << stroke.last()); break;
+        case LINE: painter.drawLine(stroke.first().x(), stroke.first().y(), stroke.last().x(), stroke.last().y()); break;
         case RECTANGLE: painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
         case ELLIPSE: painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
         default: break;
@@ -257,7 +262,7 @@ void Editor::drawFill()
 
 void Editor::drawSelect()
 {
-    if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
+    if (scribbling || !animation()->isKey(timeline()->getLayer(), timeline()->getPos())) return;
 
     int imgX = width()/2 - animation()->animSize.width()/2;
     int imgY = height()/2 - animation()->animSize.height()/2;
@@ -268,7 +273,7 @@ void Editor::drawSelect()
 
 void Editor::drawEraserStroke()
 {
-    QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
+    QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
     QImage j = i.copy();
     QImage k = i.copy();
     k.fill(Qt::transparent);
@@ -284,11 +289,11 @@ void Editor::drawEraserStroke()
 
 void Editor::knockback()
 {
-    if (scribbling || !animation()->isKey(timeline()->getLayer(), getPos())) return;
+    if (scribbling || !animation()->isKey(timeline()->getLayer(), timeline()->getPos())) return;
     if (selectTool->state == STATE_SELECTED) {
         selectTool->knockback();
     } else {
-        QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
+        QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
         QImage j = i.copy();
 
         for (int y = 0; y < j.height(); y++) {

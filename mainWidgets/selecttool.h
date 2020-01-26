@@ -19,7 +19,8 @@ public:
     void mousePress(QMouseEvent*, int, int);
     void mouseMove(QMouseEvent*);
     void mouseRelease(QMouseEvent*, int, int);
-    void paint(QPaintEvent*, QPainter*, int, int);
+    void paintGlobal(QPainter*);
+    void paintLayer(QPainter*, int, int);
     void draw(int, int);
     void reset();
     void knockback();

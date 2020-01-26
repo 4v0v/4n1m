@@ -25,13 +25,13 @@ Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
     tool8 = new ToolbarButton(mainwindow, this, 0, 280, 40, 40, TOOL_CUSTOM, "selection");
 
     tool7->setStyleSheet(
-        "QPushButton{background-color:rgb(255,0,0);border:0px;color:white;font-size:12px;}\
-        QPushButton:pressed{background-color:white;border:0px;color:rgb(50,50,50);}"
+        "QPushButton{background-color:white;border:0px;color:black;font-size:12px;}\
+        QPushButton:pressed{background-color:rgb(50,50,50);border:0px;color:white;}"
     );
 
     tool8->setStyleSheet(
-        "QPushButton{background-color:white;border:0px;color:black;font-size:12px;}\
-        QPushButton:pressed{background-color:rgb(50,50,50);border:0px;color:white;}"
+        "QPushButton{background-color:rgb(255,0,0);border:0px;color:white;font-size:12px;}\
+        QPushButton:pressed{background-color:white;border:0px;color:rgb(50,50,50);}"
     );
 
     connect(tool1, &QAbstractButton::pressed, this, [this]{ editor()->setToolAsPen(); });
@@ -636,7 +636,7 @@ Timelinetoolbar::Timelinetoolbar(MainWindow* mw, QWidget* p): QWidget(p)
     mainwindow = mw;
     p = parent;
     setFocusPolicy(Qt::NoFocus);
-    setGeometry(mainwindow->width()-90, mainwindow->height() - timeline()->height() - 30, 90, 30);
+    setGeometry(mainwindow->width()-90 -15, mainwindow->height() - timeline()->height() - 30, 90, 30);
 
     QString buttonStylesheet =
         "QPushButton{background-color:rgb(175,175,175);border:0px;color:black;font-size:12px;}\
@@ -686,51 +686,61 @@ ToolbarButton::ToolbarButton(MainWindow* mw, QWidget* p, int x, int y, int w, in
 
 void ToolbarButton::paintEvent(QPaintEvent* event)
 {
+//    if (editor()->scribbling) return;
     painter.begin(this);
-    QPainterPath path;
-    QFont font = painter.font();
-    font.setKerning(true);
+
 
     switch(style)
     {
-        case TOOL_TEXT:
-            path.addRect(0, 0, width(), height());
-            painter.fillPath(path, bgColor);
+        case TOOL_TEXT: {
+            QFont font = painter.font();
+            font.setKerning(true);
+            painter.setPen(bgColor);
+            painter.setBrush(bgColor);
+            painter.drawRect(0, 0, width(), height());
             font.setPixelSize(12);
             painter.setFont(font);
             painter.setPen(letterColor);
             painter.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter, text);
             break;
-        case TOOL_CUSTOM:
+        } case TOOL_CUSTOM: {
             QPushButton::paintEvent(event);
             break;
-        case SUB_ICON:
-            path.addRect(0, 0, width(), height());
-            painter.fillPath(path, QColor(175, 175, 175));
+        } case SUB_ICON: {
+            painter.setPen(QColor(175, 175, 175));
+            painter.setBrush(QColor(175, 175, 175));
+            painter.drawRect(0, 0, width(), height());
             painter.drawImage(QPoint(7,7), image);
             break;
-        case SUB_TEXTICON:
-            path.addRect(0, 0, width(), height());
-            painter.fillPath(path, QColor(175, 175, 175));
+        } case SUB_TEXTICON: {
+            QFont font = painter.font();
+            font.setKerning(true);
+            painter.setPen(QColor(175, 175, 175));
+            painter.setBrush(QColor(175, 175, 175));
+            painter.drawRect(0, 0, width(), height());
             painter.drawImage(QPoint(10,4), image);
             font.setPixelSize(11);
             painter.setFont(font);
             painter.setPen(QColor(50, 50, 50));
             painter.drawText(QRect(0, 25, width(), 11), Qt::AlignCenter, text);
             break;
-        case SUB_EMPTY:
-            path.addRect(0, 0, width(), height());
-            painter.fillPath(path, QColor(175, 175, 175));
+        } case SUB_EMPTY: {
+            painter.setPen(QColor(175, 175, 175));
+            painter.setBrush(QColor(175, 175, 175));
+            painter.drawRect(0, 0, width(), height());
             break;
-        case SUB_TOGGLE:
-            path.addRect(0, 0, width(), height());
-            painter.fillPath(path, letterColor);
+        } case SUB_TOGGLE: {
+            QFont font = painter.font();
+            font.setKerning(true);
+            painter.setPen(letterColor);
+            painter.setBrush(letterColor);
+            painter.drawRect(0, 0, width(), height());
             font.setPixelSize(12);
             painter.setFont(font);
             painter.setPen(bgColor);
             painter.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter, text);
             break;
-        default:
+        } default:
             break;
     }
     painter.end();
