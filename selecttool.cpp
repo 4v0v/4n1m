@@ -1,11 +1,11 @@
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/toolbar.h"
-#include "mainWidgets/selecttool.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "toolbar.h"
+#include "selecttool.h"
 
 SelectTool::SelectTool(MainWindow* mw): QWidget(mw)
 {

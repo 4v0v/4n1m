@@ -1,12 +1,12 @@
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/layer.h"
-#include "mainWidgets/frame.h"
-#include "mainWidgets/toolbar.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "layer.h"
+#include "frame.h"
+#include "toolbar.h"
 
 Timeline::Timeline(MainWindow* mw): QWidget(mw)
 {

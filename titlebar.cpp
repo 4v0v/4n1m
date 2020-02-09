@@ -1,10 +1,10 @@
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/toolbar.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "toolbar.h"
 
 Titlebar::Titlebar(MainWindow* mw): QWidget(mw)
 {

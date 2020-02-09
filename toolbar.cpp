@@ -2,11 +2,11 @@
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/toolbar.h"
-#include "mainWidgets/colorwheel.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "toolbar.h"
+#include "colorwheel.h"
 
 Toolbar::Toolbar(MainWindow* mw, QWidget* p): QWidget(p)
 {

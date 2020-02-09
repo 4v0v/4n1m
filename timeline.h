@@ -2,7 +2,7 @@
 #define TIMELINE_H
 
 #include "mainwindow.h"
-#include "mainWidgets/layer.h"
+#include "layer.h"
 
 class TimelineScrollArea : public QScrollArea
 {

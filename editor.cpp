@@ -1,11 +1,11 @@
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/toolbar.h"
-#include "mainWidgets/selecttool.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "toolbar.h"
+#include "selecttool.h"
 
 Editor::Editor(MainWindow* mw): QWidget(mw)
 {
@@ -66,13 +66,15 @@ void Editor::mouseMoveEvent(QMouseEvent* event)
 
     switch (currentTool)
     {
+        case PEN: break;
         case SELECT: selectTool->mouseMove(event); break;
         default: break;
     }
 
     stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
-    updateCount += 1;
-    if (updateCount == updateRate) { update(); updateCount = 0; }
+//    updateCount += 1;
+//    if (updateCount == updateRate) { update(); updateCount = 0; }
+    update();
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent* event)
@@ -84,9 +86,9 @@ void Editor::mouseReleaseEvent(QMouseEvent* event)
 
     switch (currentTool)
     {
-        case PEN: drawPenStroke(); break;
-        case FILL: drawFill(); break;
+//        case PEN: drawPenStroke(); break;
         case SHAPE: drawShape(); break;
+        case FILL: drawFill(); break;
         case ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
         case SELECT: selectTool->mouseRelease(event, imgX, imgY); break;
         default: break;
@@ -95,7 +97,7 @@ void Editor::mouseReleaseEvent(QMouseEvent* event)
     update();
 }
 
-void Editor::paintEvent(QPaintEvent* event)
+void Editor::paintEvent(QPaintEvent*)
 {
     globalPainter.begin(this);
 
@@ -114,7 +116,7 @@ void Editor::paintEvent(QPaintEvent* event)
     globalPainter.drawRect(imgX, imgY, imgW, imgH);
 
     // Draw editor from layers
-    animation()->foreachLayerRevert([&event, this, imgX, imgY, &s](int i){
+    animation()->foreachLayerRevert([this, imgX, imgY, &s](int i){
         if (animation()->getKeyCount(i) == 0) return;
         layerImage.fill(Qt::transparent);
         layerPainter.begin(&layerImage);

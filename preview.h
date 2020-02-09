@@ -30,7 +30,7 @@ private:
 
     QTimer* timer;
     int currentPosition = 0;
-    int waitBeforeLoop = 0;
+    int waitBeforeLoop = 10;
     int zoom = 100;
     QPoint p;
     int isDown = false;

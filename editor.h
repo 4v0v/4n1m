@@ -2,8 +2,8 @@
 #define EDITOR_H
 
 #include "mainwindow.h"
-#include "mainWidgets/toolbar.h"
-#include "mainWidgets/selecttool.h"
+#include "toolbar.h"
+#include "selecttool.h"
 
 class Editor : public QWidget
 {
@@ -62,7 +62,7 @@ public:
     QImage layerImage;
 
     int updateCount = 0;
-    int updateRate = 4;
+    int updateRate = 2;
 
 public slots:
     void clearImage();

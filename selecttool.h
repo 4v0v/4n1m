@@ -2,7 +2,7 @@
 #define SELECTTOOL_H
 
 #include "mainwindow.h"
-#include "mainWidgets/toolbar.h"
+#include "toolbar.h"
 
 class SelectTool : public QWidget
 {

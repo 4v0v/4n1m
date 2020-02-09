@@ -2,7 +2,7 @@
 #define LAYER_H
 
 #include "mainwindow.h"
-#include "mainWidgets/frame.h"
+#include "frame.h"
 
 class LayerTitle : public QLabel
 {

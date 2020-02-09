@@ -17,11 +17,11 @@ GNU General Public License for more details.
 #include "animation.h"
 #include "preview.h"
 #include "commands.h"
-#include "mainWidgets/editor.h"
-#include "mainWidgets/timeline.h"
-#include "mainWidgets/titlebar.h"
-#include "mainWidgets/toolbar.h"
-#include "mainWidgets/colorwheel.h"
+#include "editor.h"
+#include "timeline.h"
+#include "titlebar.h"
+#include "toolbar.h"
+#include "colorwheel.h"
 
 ColorWheel::ColorWheel(QWidget* parent) : QWidget(parent)
 {

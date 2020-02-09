@@ -17,32 +17,32 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainWidgets/colorwheel.cpp \
-    mainWidgets/frame.cpp \
-    mainWidgets/layer.cpp \
-    mainWidgets/selecttool.cpp \
-    mainWidgets/toolbar.cpp \
+    colorwheel.cpp \
+    frame.cpp \
+    layer.cpp \
+    selecttool.cpp \
+    toolbar.cpp \
     mainwindow.cpp \
     animation.cpp \
     commands.cpp \
     preview.cpp \
-    mainWidgets/editor.cpp \
-    mainWidgets/timeline.cpp \
-    mainWidgets/titlebar.cpp
+    editor.cpp \
+    timeline.cpp \
+    titlebar.cpp
 
 HEADERS += \
-    mainWidgets/colorwheel.h \
-    mainWidgets/frame.h \
-    mainWidgets/layer.h \
-    mainWidgets/selecttool.h \
-    mainWidgets/toolbar.h \
+    colorwheel.h \
+    frame.h \
+    layer.h \
+    selecttool.h \
+    toolbar.h \
     mainwindow.h \
     animation.h \
     commands.h \
     preview.h \
-    mainWidgets/editor.h \
-    mainWidgets/timeline.h \
-    mainWidgets/titlebar.h
+    editor.h \
+    timeline.h \
+    titlebar.h
 
 FORMS +=
 
