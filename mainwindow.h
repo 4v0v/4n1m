@@ -1,133 +1,64 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
-#include <QtWidgets>
-#include <QApplication>
-#include <QWindow>
-#include <QWindow>
-#include <QDesktopWidget>
-#include <QStyle>
 #include <QMainWindow>
-#include <QVector>
-#include <QUndoView>
-#include <QMap>
-#include <QList>
-#include <QString>
-#include <QImage>
-#include <QPoint>
-#include <QDebug>
-#include <QUndoStack>
-#include <QUndoCommand>
-#include <QPainter>
-#include <QObject>
+#include <QtWidgets>
+#include <QAbstractButton>
+#include <QColorDialog>
+#include <QFileDialog>
 #include <QWidget>
-#include <QMenuBar>
-#include <QColor>
+#include <QPainter>
+#include <QMouseEvent>
+#include <QDebug>
+#include <QVBoxLayout>
+#include <QUndoCommand>
 
 class Editor;
-class Timeline;
 class Animation;
-class Preview;
-class Titlebar;
+class Timeline;
 class Toolbar;
-class Subtoolbar;
-class Timelinetoolbar;
-class Layer;
-class Frame;
+class TimelineFrame;
+class TimelineLayer;
 
 enum State {
-    STATE_EMPTY,
-    STATE_SELECTING,
-    STATE_SELECTED,
-    STATE_SCALING_TR,
-    STATE_SCALING_TL,
-    STATE_SCALING_BR,
-    STATE_SCALING_BL,
-    STATE_MOVING,
-    STATE_CUT,
-    STATE_COPY,
-    STATE_IECHAN,
-    STATE_FRAME,
-    STATE_QCLIPBOARD
+    IDLE,
+    SCRIBBLING,
+    MOVING,
+    PLAYING
+};
+
+enum Direction {
+    LEFT,
+    RIGHT,
+    TOP,
+    BOTTOM
 };
 
 enum Tool {
-    EMPTY,
     PEN,
-    LASSO,
-    FILL,
-    ERASER,
-    SELECT,
-    SHAPE,
-    LINE,
-    RECTANGLE,
-    ELLIPSE
+    LASSOFILL
 };
 
-enum ToolbarTool {
-    TOOL1,
-    TOOL2,
-    TOOL3,
-    TOOL4,
-    TOOL5,
-    TOOL6,
-    SUB1,
-    SUB2,
-    SUB3,
-    SUB4,
-    SUB5
-};
-
-enum ToolbarButtonStyle {
-    TOOL_CURRENT,
-    TOOL_TEXT,
-    TOOL_CUSTOM,
-    SUB_ICON,
-    SUB_TEXTICON,
-    SUB_TOGGLE,
-    SUB_EMPTY
-};
-
-class MainWindow : public QMainWindow
+class Mw : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow();
-    int getFPS() { return FPS; }
-    QRect getWindowDimensions() { return windowDimensions; }
-    void externalCopy();
+    Mw();
+    virtual void dragEnterEvent(QDragEnterEvent*);
+    virtual void dropEvent(QDropEvent*);
+    virtual void closeEvent(QCloseEvent*);
 
-    Animation* animation;
-    QUndoStack* undostack;
-    Editor* editor;
-    Timeline* timeline;
-    Titlebar* titlebar;
-    Toolbar* toolbar;
-    Subtoolbar* subtoolbar;
-    Timelinetoolbar* timelinetoolbar;
-    bool isOnTop = false;
-    int FPS = 24;
-    int undostackSize = 30;
-    QImage clipboard = QImage(1, 1, QImage::Format_ARGB32);
-    State clipboardState = STATE_EMPTY;
-    QRect windowDimensions = QRect(100, 100, 1050, 850);
+    static void update_editor_and_timeline();
+    static void set_painter_colors(QPainter* painter, QColor pen , QColor brush = nullptr);
 
-public slots:
-    void openUndoAmountWindow();
-    void openKnockbackAmountWindow();
-    void openChangeFPSWindow();
-    void openPreviewWindow();
-    void openUndoStackWindow();
-    void toggleStayOnTop();
+    void create_shortcut(QKeySequence ks, std::function<void()> action);
     void undo();
     void redo();
-    void copy();
-    void cut();
-    void paste();
+    void play(bool loop);
 
-protected:
-    void keyPressEvent(QKeyEvent*) override;
+    static Animation* animation;
+    static Timeline* timeline;
+    static Editor* editor;
+    static Toolbar* toolbar;
+    static QUndoStack* undostack;
 };
-
-#endif

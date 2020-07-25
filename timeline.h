@@ -1,61 +1,45 @@
-#ifndef TIMELINE_H
-#define TIMELINE_H
+#pragma once
 
 #include "mainwindow.h"
-#include "layer.h"
-
-class TimelineScrollArea : public QScrollArea
-{
-     Q_OBJECT
-public:
-    TimelineScrollArea(MainWindow*, Timeline*);
-    QList<Layer*>* getLayerWidgets() { return &layers; }
-
-    MainWindow* mainwindow;
-    QList<Layer*> layers;
-
-protected:
-    void wheelEvent(QWheelEvent*) override{};
-    void keyPressEvent(QKeyEvent*) override{};
-    void resizeEvent(QResizeEvent*) override;
-    bool eventFilter(QObject*, QEvent*) override;
-};
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+#include "animation.h"
+#include "editor.h"
 
 class Timeline : public QWidget
 {
     Q_OBJECT
-
 public:
-    Timeline(MainWindow*);
-    Editor* editor() { return mainwindow->editor; }
-    Animation* animation() { return mainwindow->animation; }
-    QUndoStack* undostack() { return mainwindow->undostack; }
-    int getPos() { return timelinePos; }
-    void setPos(int i) { timelinePos = i; }
-    int getLayer() { return timelineLayer; }
-    void setLayer(int i) { timelineLayer = i; }
-    Frame* getFrameWidgetAt(int l, int f) { return timelineScroll->getLayerWidgets()->at(l)->getFrameWidgetAt(f); }
-    Layer* getLayerWidgetAt(int l) { return timelineScroll->getLayerWidgets()->at(l); }
-
-    MainWindow* mainwindow;
-    TimelineScrollArea* timelineScroll;
-    int timelinePos = 0;
-    int timelineLayer = 0;
-
-public slots:
-    void gotoNextFrame();
-    void gotoPrevFrame();
-    void gotoNextLayer();
-    void gotoPrevLayer();
-    void gotoFrame(int layer, int pos);
-    void addKey();
-    void removeKey();
-    void insertFrame();
-    void removeFrame();
-
+    Timeline(Mw*);
+    virtual void wheelEvent(QWheelEvent* e);
+    virtual void resizeEvent(QResizeEvent* e);
+    void update_all_frames();
+    QList<TimelineLayer*> layers;
+    QScrollArea* timelineScroll;
 };
 
-#endif
+class TimelineLayer : public QWidget
+{
+    Q_OBJECT
+public:
+    TimelineLayer(int p);
+    virtual void paintEvent(QPaintEvent *e);
+    QPainter widget_painter;
+    QList<TimelineFrame*> frames;
+    int position;
+};
+
+class TimelineFrame : public QWidget
+{
+    Q_OBJECT
+public:
+    TimelineFrame(int l, int p);
+    virtual void paintEvent(QPaintEvent *e);
+    virtual void mousePressEvent(QMouseEvent *event);
+    QPainter widget_painter;
+    int position;
+    int layer_position;
+    bool is_key = false;
+    bool is_current = false;
+};
+
+
+

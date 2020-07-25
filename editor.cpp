@@ -1,342 +1,368 @@
-#include "animation.h"
-#include "preview.h"
-#include "commands.h"
 #include "editor.h"
-#include "timeline.h"
-#include "titlebar.h"
-#include "toolbar.h"
-#include "selecttool.h"
 
-Editor::Editor(MainWindow* mw): QWidget(mw)
+Editor::Editor(Mw* mw): QWidget(mw)
 {
-    mainwindow = mw;
     setCursor(Qt::CrossCursor);
-    selectTool = new SelectTool(mainwindow);
-    setGeometry(0, 25, mainwindow->getWindowDimensions().width(), mainwindow->getWindowDimensions().width() - 300);
-    setMouseTracking(true);
-    layerImage = QImage(width(), height(), QImage::Format_ARGB32);
-
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2 - 25;
-    int imgH =animation()->animSize.height();
-    int imgW = animation()->animSize.width();
-
-    backgroundImage = QImage(width(), height(), QImage::Format_ARGB32);
-    backgroundImage.fill(editorBackgroundColor);
-    QPainter p(&backgroundImage);
-    p.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-    p.setPen(Qt::transparent);
-    p.setBrush(Qt::black);
-    p.drawRect(imgX, imgY, imgW, imgH);
-    p.setCompositionMode(QPainter::CompositionMode_SourceOver);
-    p.setPen(QColor(0, 0, 0, 1));
-    p.setBrush(QColor(0, 0, 0, 1));
-    p.drawRect(imgX -5, imgY - 5, imgW + 10, imgH + 10);
+    onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
+    playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
 }
 
-void Editor::mousePressEvent(QMouseEvent* event)
+void Editor::mousePressEvent(QMouseEvent* e)
 {
-    mainwindow->subtoolbar->hideProperties();
-    if (
-        !animation()->isKey(timeline()->getLayer(), timeline()->getPos()) &&
-        currentTool != EMPTY &&
-        currentTool != ERASER &&
-        currentTool != SELECT
-    ) timeline()->addKey();
-
-    scribbling = true;
-
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
-    if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())){
-        if (currentTool == SELECT) selectTool->mousePress(event, imgX, imgY);
-    }
-    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
-
-    update();
-}
-
-void Editor::mouseMoveEvent(QMouseEvent* event)
-{
-    if (!scribbling) return;
-
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
-    switch (currentTool)
+    if (state != IDLE) return;
+    if (e->button() == Qt::LeftButton)
     {
-        case PEN: break;
-        case SELECT: selectTool->mouseMove(event); break;
-        default: break;
+        if (!QRect(offset, Mw::animation->dimensions*scale).contains(e->pos())) return;
+        state = SCRIBBLING;
+        stroke << e->pos();
+        if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
+             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
+        }
+    } else if (e->button() == Qt::RightButton || e->button() == Qt::MiddleButton ) {
+        state = MOVING;
+        moving_offset = e->pos();
+        moving_offset_delta = e->pos();
     }
 
-    stroke << QPoint(event->pos().x() - imgX, event->pos().y() - imgY);
-//    updateCount += 1;
-//    if (updateCount == updateRate) { update(); updateCount = 0; }
     update();
+    Mw::timeline->update();
 }
 
-void Editor::mouseReleaseEvent(QMouseEvent* event)
+void Editor::mouseMoveEvent(QMouseEvent* e)
 {
-    scribbling = false;
-
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
-    switch (currentTool)
+    switch (state)
     {
-//        case PEN: drawPenStroke(); break;
-        case SHAPE: drawShape(); break;
-        case FILL: drawFill(); break;
-        case ERASER: if (animation()->isKey(timeline()->getLayer(), timeline()->getPos())) drawEraserStroke(); break;
-        case SELECT: selectTool->mouseRelease(event, imgX, imgY); break;
-        default: break;
+        case SCRIBBLING:
+            stroke << e->pos();
+            update(
+                stroke.boundingRect().x() - 50,
+                stroke.boundingRect().y() - 50,
+                stroke.boundingRect().width() + 100,
+                stroke.boundingRect().height() + 100
+            );
+            break;
+        case MOVING :
+            moving_offset_delta = e->pos();
+            update(rect());
+            break;
+        case PLAYING:
+        case IDLE:
+            break;
     }
-    stroke.clear();
-    update();
+}
+
+void Editor::mouseReleaseEvent(QMouseEvent*)
+{
+    switch (state)
+    {
+        case SCRIBBLING:
+            draw_on_key();
+            state = IDLE;
+            break;
+        case MOVING:
+            offset += moving_offset_delta - moving_offset;
+            moving_offset = moving_offset_delta;
+            state = IDLE;
+            break;
+        case PLAYING:
+        case IDLE:
+            break;
+    }
+}
+
+void Editor::resizeEvent(QResizeEvent *e)
+{
+    int w = Mw::animation->dimensions.width() * scale;
+    int h = Mw::animation->dimensions.height() * scale;
+
+    offset.setX(width()/2 - w/2);
+    offset.setY(height()/2 - h/2);
+
+    QWidget::resizeEvent(e);
+}
+
+void Editor::wheelEvent(QWheelEvent* e){
+    if (state != IDLE) return;
+
+    if (QApplication::keyboardModifiers() == Qt::CTRL) {
+        if (e->angleDelta().y() < 0 && scale > .7) {
+            scale -= .1;
+            offset += QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
+        } else if (e->angleDelta().y() > 0 && scale < 3.) {
+            scale += .1;
+            offset -= QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
+        }
+        update();
+    } else {
+        Mw::timeline->wheelEvent(e);
+    }
 }
 
 void Editor::paintEvent(QPaintEvent*)
 {
-    globalPainter.begin(this);
+    widget_painter.begin(this);
 
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-    int imgH =animation()->animSize.height();
-    int imgW = animation()->animSize.width();
-    QPolygon s(stroke);
-    s.translate(imgX, imgY);
+    //background
+    Mw::set_painter_colors(&widget_painter, bg_color);
+    widget_painter.drawRect(rect());
+    //transform editor
+    widget_painter.translate(offset + moving_offset_delta - moving_offset);
+    widget_painter.scale(scale, scale);
+    //editor frame
+    Mw::set_painter_colors(&widget_painter, bg_color, img_bg_color);
+    widget_painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
+    //onionskins
+    if (is_os_enabled) widget_painter.drawImage(0,0, onion_skins);
+    //visible frame
 
-    // Background
-    globalPainter.drawImage(QPoint(0, 0), backgroundImage);
-
-    globalPainter.setPen(editorBackgroundColor);
-    globalPainter.setBrush(backgroundColor);
-    globalPainter.drawRect(imgX, imgY, imgW, imgH);
-
-    // Draw editor from layers
-    animation()->foreachLayerRevert([this, imgX, imgY, &s](int i){
-        if (animation()->getKeyCount(i) == 0) return;
-        layerImage.fill(Qt::transparent);
-        layerPainter.begin(&layerImage);
-
-        // Draw current or previous keyframe
-        if (animation()->isKey(i, getPos(i))) layerPainter.drawImage(QPoint(imgX, imgY), animation()->copyImageAt(i, getPos(i)));
-
-        // Draw only on current layer
-        if (i == timeline()->getLayer()){
-            // Onionskin
-            if (onionskinVisible)
-            {
-                QPainterPath path;
-                path.addRect(0, 0, width(), height());
-                int prev = animation()->getPrevKey(i, getPos());
-                int prevprev = animation()->getPrevKey(i, prev);
-                int next = animation()->getNextKey(i, getPos());
-                int nextnext = animation()->getNextKey(i, next);
-
-                if (onionskinloopVisible)
-                {
-                    if (getPos() == animation()->getFirstKey(i) && animation()->getKeyCount(i) > 3)
-                        drawOnionSkin(&globalPainter, onionOpacityLoop, i, animation()->getLastKey(i), imgX, imgY, QColor(Qt::darkGreen));
-                    if (getPos() == animation()->getLastKey(i) && animation()->getKeyCount(i) > 3)
-                        drawOnionSkin(&globalPainter, onionOpacityLoop, i, animation()->getFirstKey(i), imgX, imgY, QColor(Qt::darkGreen));
-                }
-
-                if (prev < getPos() && prev != -1) drawOnionSkin(&globalPainter, onionOpacityFirst, i, prev, imgX, imgY, QColor(Qt::red));
-                if (prevprev < getPos() && prevprev != -1 ) drawOnionSkin(&globalPainter, onionOpacitySecond, i, prevprev, imgX, imgY, QColor(Qt::red));
-                if (next > getPos()) drawOnionSkin(&globalPainter, onionOpacityFirst, i, next, imgX, imgY, QColor(Qt::blue));
-                if (nextnext > getPos()) drawOnionSkin(&globalPainter, onionOpacitySecond, i, nextnext, imgX, imgY, QColor(Qt::blue));
-
-                globalPainter.setOpacity(1.0);
-            }
-            // Tool prview
-            switch (currentTool)
-            {
-                case PEN: {
-                    layerPainter.setPen(penTool);
-                    if (s.count() == 1) layerPainter.drawPoint(s.first());
-                    else if (s.count() > 1) layerPainter.drawPolyline(s);
-                    break;
-                } case SHAPE: {
-                    if (s.count() < 2) break;
-                    layerPainter.setPen(shapeTool);
-                    switch(shapeSubtool){
-                        case LINE: layerPainter.drawLine(s.first().x(), s.first().y(), s.last().x(), s.last().y()); break;
-                        case RECTANGLE: layerPainter.drawRect(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
-                        case ELLIPSE: layerPainter.drawEllipse(s.first().x(), s.first().y(), s.last().x() - s.first().x(), s.last().y() - s.first().y()); break;
-                        default: break;
-                    }
-                    break;
-                } case FILL: {
-                    if (s.count() < 2) break;
-                    layerPainter.setPen(Qt::transparent);
-                    layerPainter.setBrush(filltool);
-                    switch(fillSubtool){
-                        case LASSO: layerPainter.drawPolygon(s); break;
-                        case RECTANGLE: layerPainter.drawRect(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
-                        case ELLIPSE: layerPainter.drawEllipse(s.first().x(),s.first().y(),s.last().x() - s.first().x(),s.last().y() - s.first().y()); break;
-                        default: break;
-                    }
-                    break;
-                } case ERASER: {
-                    if (s.count() < 1) break;
-                    QImage tempImg = layerImage.copy();
-                    tempImg.fill(Qt::transparent);
-                    QPainter p(&tempImg);
-                    p.setPen(eraserTool);
-                    if (s.count() == 1) p.drawPoint(s.first());
-                    else if (s.count() > 1) p.drawPolyline(s);
-                    layerPainter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-                    layerPainter.drawImage(QPoint(0,0), tempImg);
-                    layerPainter.setCompositionMode(QPainter::CompositionMode_SourceOver);
-                    break;
-                } case SELECT: {
-                    selectTool->paintLayer(&layerPainter, imgX, imgY);
-                    break;
-                } default : break;
-            }
-        }
-        globalPainter.setOpacity(timeline()->getLayerWidgetAt(i)->getLayerTitle()->getOpacity());
-        globalPainter.drawImage(QPoint(0, 0), layerImage);
-        globalPainter.setOpacity(1.0);
-
-        layerPainter.end();
-    });
-
-    if (currentTool == ERASER && scribbling)
-    {
-        globalPainter.setPen(QPen(Qt::red, 2));
-        globalPainter.setBrush(Qt::white);
-        globalPainter.drawEllipse(s.last().x() -eraserTool.width()/2 , s.last().y() - eraserTool.width()/2, eraserTool.width(), eraserTool.width());
+    // TODO: find better way to reverse iterate qlist
+    QList<int> revert_list = Mw::animation->layers.keys();
+    for(int k=0, s=Mw::animation->layers.keys().size(), max=(s/2); k<max; k++) revert_list.swap(k,s-(1+k));
+    foreach(int i, revert_list) {
+        if (Mw::animation->is_frame_at(i, frame_pos))
+            widget_painter.drawImage(
+                Mw::animation->get_frame_at(i, frame_pos).dimensions.topLeft(),
+                Mw::animation->get_frame_at(i, frame_pos).image
+            );
+        else if (Mw::animation->is_frame_at(i, Mw::animation->get_prev_pos(i, frame_pos)))
+            widget_painter.drawImage(
+                Mw::animation->get_prev_frame_at(i, frame_pos).dimensions.topLeft(),
+                Mw::animation->get_prev_frame_at(i, frame_pos).image
+            );
     }
 
-    if (currentTool == SELECT)
-    {
-        selectTool->paintGlobal(&globalPainter);
+    //reset transform
+    widget_painter.resetTransform();
+    
+    //tool preview
+    switch (tool) {
+        case PEN :
+            widget_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
+            if (stroke.count() == 1) widget_painter.drawPoint(stroke.first());
+            else if (stroke.count() > 1) widget_painter.drawPolyline(stroke);
+            break;
+        case LASSOFILL:
+            widget_painter.setPen(Qt::transparent);
+            widget_painter.setBrush(lassofill_tool);
+            widget_painter.drawPolygon(stroke);
+            break;
     }
 
-    globalPainter.end();
+    widget_painter.end();
 }
 
-void Editor::drawPenStroke()
+void Editor::clear_current_layer()
 {
-    QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
-    QImage j = i.copy();
-    QPainter painter(&j);
-    painter.setPen(penTool);
-    if (stroke.count() == 1) painter.drawPoint(stroke.first());
-    else if (stroke.count() > 1) painter.drawPolyline(stroke);
-    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
+    if (state != IDLE || Mw::animation->is_layer_empty(layer_pos)) return;
+    Mw::animation->clear_layer_at(layer_pos);
+    Mw::undostack->clear();
+    Mw::update_editor_and_timeline();
 }
 
-void Editor::drawShape()
+void Editor::clear_frame_at_current_pos()
 {
-    QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
-    QImage j = i.copy();
-    QPainter painter(&j);
-    painter.setPen(shapeTool);
-    switch(shapeSubtool){
-        case LINE: painter.drawLine(stroke.first().x(), stroke.first().y(), stroke.last().x(), stroke.last().y()); break;
-        case RECTANGLE: painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-        case ELLIPSE: painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-        default: break;
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+
+    Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    Mw::undostack->push(new ModifyFrameCommand(i, Animation::frame{}, layer_pos, frame_pos));
+}
+
+void Editor::remove_frame_at_current_pos()
+{
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+    Mw::undostack->push(new RemoveFrameCommand(layer_pos, frame_pos));
+}
+
+void Editor::insert_frame_at_current_pos()
+{
+    if (
+        state != IDLE ||
+        Mw::animation->is_anim_empty() ||
+        frame_pos >= Mw::animation->get_last_pos(layer_pos)
+    ) return;
+
+    if (Mw::animation->is_frame_at(layer_pos, frame_pos))
+        Mw::undostack->push(new InsertFrameCommand(layer_pos, frame_pos + 1));
+    else if (!Mw::animation->is_frame_at(layer_pos, frame_pos))
+        Mw::undostack->push(new InsertFrameCommand(layer_pos, frame_pos));
+}
+
+void Editor::uninsert_frame_at_current_pos()
+{
+    if (
+        state != IDLE ||
+        Mw::animation->is_anim_empty() ||
+        Mw::animation->is_layer_empty(layer_pos) ||
+        frame_pos >= Mw::animation->get_last_pos(layer_pos)
+    ) return;
+
+    if (Mw::animation->is_frame_at(layer_pos, frame_pos) && !Mw::animation->is_frame_at(layer_pos, frame_pos + 1))
+        Mw::undostack->push(new UninsertFrameCommand(layer_pos, frame_pos + 1));
+    else if (!Mw::animation->is_frame_at(layer_pos, frame_pos))
+        Mw::undostack->push(new UninsertFrameCommand(layer_pos, frame_pos));
+}
+
+void Editor::goto_pos(int l, int p)
+{
+    if (state != IDLE || l < 0 || !Mw::animation->layers.contains(l)) return;
+    layer_pos = l;
+
+    if (state != IDLE || p < 0) return;
+    frame_pos = p;
+    Mw::update_editor_and_timeline();
+}
+
+
+void Editor::create_onions_at_current_pos()
+{
+    int fp;
+    if (Mw::animation->is_frame_at(layer_pos, frame_pos))
+        fp = frame_pos;
+    else if (!Mw::animation->is_frame_at(layer_pos, frame_pos) && Mw::animation->get_prev_pos(layer_pos, frame_pos) != -1)
+        fp = Mw::animation->get_prev_pos(layer_pos, frame_pos);
+    else
+        fp = 0;
+
+    onion_skins = Mw::animation->create_onions_at(
+        layer_pos,
+        fp,
+        is_os_loop_enabled,
+        is_os_prev_enabled,
+        is_os_next_enabled
+    );
+}
+
+void Editor::draw_on_key()
+{
+    Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    Animation::frame j = Mw::animation->get_frame_at(layer_pos, frame_pos);
+
+    // Init
+    if (j.is_empty) Mw::animation->init_frame(&j, (stroke.first() - offset) / scale);
+
+    // Resize frame
+    QRect bb(
+        (stroke.boundingRect().topLeft() - offset) / scale,
+        stroke.boundingRect().size() / scale
+    );
+    if (bb.right() > j.dimensions.right()) Mw::animation->resize_frame(&j, RIGHT, bb.right());
+    if (bb.bottom() > j.dimensions.bottom()) Mw::animation->resize_frame(&j, BOTTOM, bb.bottom());
+    if (bb.left() < j.dimensions.left()) Mw::animation->resize_frame(&j, LEFT, bb.left());
+    if (bb.top() < j.dimensions.top()) Mw::animation->resize_frame(&j, TOP, bb.top());
+
+    // Draw on key
+    frame_painter.begin(&j.image);
+    frame_painter.translate(-offset/scale - j.dimensions.topLeft());
+    frame_painter.scale(1/scale, 1/scale);
+
+    switch (tool) {
+        case PEN :
+            frame_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
+            if (stroke.count() == 1)
+                frame_painter.drawPoint(stroke.first());
+            else if (stroke.count() > 1)
+                frame_painter.drawPolyline(stroke);
+            break;
+        case LASSOFILL:
+            frame_painter.setPen(Qt::transparent);
+            frame_painter.setBrush(lassofill_tool);
+            frame_painter.drawPolygon(stroke);
+            break;
     }
-    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
-}
 
-void Editor::drawFill()
-{
-    QImage i = animation()->copyImageAt(timeline()->getLayer(), getPos());
-    QImage j = i.copy();
-    QPainter painter(&j);
-    painter.setPen(Qt::transparent);
-    painter.setBrush(filltool);
-    switch(fillSubtool){
-        case LASSO: painter.drawPolygon(stroke); break;
-        case RECTANGLE: painter.drawRect(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-        case ELLIPSE: painter.drawEllipse(stroke.first().x(),stroke.first().y(),stroke.last().x() - stroke.first().x(),stroke.last().y() - stroke.first().y()); break;
-        default: break;
-    }
-    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
-}
+    frame_painter.end();
+    stroke.clear();
 
-void Editor::drawSelect()
-{
-    if (scribbling || !animation()->isKey(timeline()->getLayer(), timeline()->getPos())) return;
-
-    int imgX = width()/2 - animation()->animSize.width()/2;
-    int imgY = height()/2 - animation()->animSize.height()/2;
-
-    selectTool->draw(imgX, imgY);
-    selectTool->reset();
-}
-
-void Editor::drawEraserStroke()
-{
-    QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
-    QImage j = i.copy();
-    QImage k = i.copy();
-    k.fill(Qt::transparent);
-    QPainter painter(&k);
-    painter.setPen(eraserTool);
-    if (stroke.count() == 1) painter.drawPoint(stroke.first());
-    else if (stroke.count() > 1) painter.drawPolyline(stroke);
-    QPainter painter2(&j);
-    painter2.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-    painter2.drawImage(QPoint(0,0), k);
-    undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
+    Mw::undostack->push(new ModifyFrameCommand(i, j, layer_pos, frame_pos));
 }
 
 void Editor::knockback()
 {
-    if (scribbling || !animation()->isKey(timeline()->getLayer(), timeline()->getPos())) return;
-    if (selectTool->state == STATE_SELECTED) {
-        selectTool->knockback();
-    } else {
-        QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
-        QImage j = i.copy();
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+    Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    Animation::frame j = Mw::animation->get_frame_at(layer_pos, frame_pos);
 
-        for (int y = 0; y < j.height(); y++) {
-            QRgb* rgb = (QRgb*)j.scanLine(y);
-            for (int x = 0; x < j.width(); x++) {
-                rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), qAlpha(rgb[x]) > knockbackAmount ? qAlpha(rgb[x]) - knockbackAmount : 0 );
-            }
+    for (int y = 0; y < j.image.height(); y++) {
+        QRgb* rgb = (QRgb*)j.image.scanLine(y);
+        for (int x = 0; x < j.image.width(); x++) {
+            rgb[x] = qRgba(
+                qRed(rgb[x]),
+                qGreen(rgb[x]),
+                qBlue(rgb[x]),
+                qAlpha(rgb[x]) > knockback_amount ? qAlpha(rgb[x]) - knockback_amount : 0
+            );
         }
-        undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
     }
+
+    Mw::undostack->push(new ModifyFrameCommand(i, j, layer_pos, frame_pos));
 }
 
-void Editor::clearImage()
+void Editor::play_step()
 {
-    if (scribbling || !animation()->isKey(timeline()->getLayer(), timeline()->getPos())) return;
-    if (selectTool->state == STATE_SELECTED) {
-        selectTool->clear();
+    if (frame_pos + 1 <= Mw::animation->get_last_anim_pos())
+    {
+        frame_pos += 1;
+        Mw::editor->update();
+        Mw::timeline->update_all_frames();
+        Mw::timeline->update();
     } else {
-        QImage i = animation()->copyImageAt(timeline()->getLayer(), timeline()->getPos());
-        QImage j = i.copy();
-        j.fill(Qt::transparent);
-        undostack()->push(new ModifyImageCommand(i, j, timeline()->getLayer(), timeline()->getPos(), animation()));
+        if (is_play_loop_enabled)
+        {
+            frame_pos = 0;
+            Mw::editor->update();
+            Mw::timeline->update_all_frames();
+            Mw::timeline->update();
+        }
+        else stop();
     }
 }
 
-int Editor::getPos(int layer)
+void Editor::play_from(int begin, bool loop)
 {
-    if (layer == -1) layer = timeline()->getLayer();
-    return animation()->isKey(layer, timeline()->getPos()) ?
-    timeline()->getPos() :
-    animation()->getPrevKey(layer, timeline()->getPos());
+    if (Mw::animation->is_anim_empty() || state != IDLE) return;
+
+    if (loop) is_play_loop_enabled = true;
+    temp_is_os_enabled = is_os_enabled;
+    frame_pos = begin;
+    is_os_enabled = false;
+    state = PLAYING;
+    playing_timer->start(1000/Mw::animation->FPS);
+    Mw::editor->update();
+    Mw::timeline->update();
 }
 
-void Editor::drawOnionSkin(QPainter* painter, double opacity, int layer, int pos, int imgX, int imgY, QColor color)
+void Editor::stop()
 {
-    painter->setOpacity(opacity);
-    QImage img = animation()->copyImageAt(layer, pos);
-    QPainter p(&img);
-    p.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-    p.setBrush(QBrush(color));
-    p.setPen(QPen((color)));
-    p.drawRect(0, 0, img.width(), img.height());
-    painter->drawImage(QPoint(imgX, imgY), img);
+    if (state != PLAYING) return;
+    is_os_enabled = temp_is_os_enabled;
+    state = IDLE;
+    is_play_loop_enabled = false;
+    playing_timer->stop();
+    Mw::update_editor_and_timeline();
+}
+
+void Editor::copy()
+{
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+    clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    is_internal_clipboard_empty = false;
+}
+
+void Editor::cut()
+{
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+    clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    is_internal_clipboard_empty = false;
+    Mw::undostack->push(new RemoveFrameCommand(layer_pos, frame_pos));
+}
+
+void Editor::paste()
+{
+    if (state != IDLE || is_internal_clipboard_empty) return;
+    if (!Mw::animation->is_frame_at(layer_pos, frame_pos))
+        Mw::undostack->push(new AddFrameCommand(clipboard, layer_pos, frame_pos));
+    else {
+        Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
+        Mw::undostack->push(new ModifyFrameCommand(i, clipboard, layer_pos, frame_pos));
+    }
 }

@@ -1,195 +1,122 @@
-#include "animation.h"
-#include "preview.h"
 #include "commands.h"
-#include "editor.h"
-#include "timeline.h"
-#include "titlebar.h"
-#include "toolbar.h"
 
-ModifyImageCommand::ModifyImageCommand(QImage i, QImage j, int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
+ModifyFrameCommand::ModifyFrameCommand(Animation::frame i, Animation::frame j, int l, int p): QUndoCommand()
 {
-    oldImg = i;
-    newImg = j;
+    old_frame.image = i.image.copy();
+    old_frame.dimensions = i.dimensions;
+    old_frame.is_empty = i.is_empty;
+    new_frame.image = j.image.copy();
+    new_frame.dimensions = j.dimensions;
+    new_frame.is_empty = j.is_empty;
     layer = l;
     pos = p;
-    animation = o;
 }
 
-void ModifyImageCommand::undo()
+void ModifyFrameCommand::undo()
 {
-    animation->addKeyAt(layer, pos, oldImg);
-    animation->editor()->update();
-    animation->timeline()->update();
+    Mw::animation->remove_frame_at(layer, pos);
+    Mw::animation->add_frame_at(layer, pos, old_frame);
+    Mw::update_editor_and_timeline();
 }
 
-void ModifyImageCommand::redo()
+void ModifyFrameCommand::redo()
 {
-    animation->addKeyAt(layer, pos, newImg);
-    animation->editor()->update();
-    animation->timeline()->update();
-    setText("modify image");
+    Mw::animation->remove_frame_at(layer, pos);
+    Mw::animation->add_frame_at(layer, pos, new_frame);
+    Mw::update_editor_and_timeline();
 }
 
-AddImageCommand::AddImageCommand(QImage i, int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
+AddFrameCommand::AddFrameCommand(Animation::frame i, int l, int p): QUndoCommand()
 {
-    newImg = i;
+    new_frame.image = i.image.copy();
+    new_frame.dimensions = i.dimensions;
+    new_frame.is_empty = i.is_empty;
     layer = l;
     pos = p;
-    animation = o;
 }
 
-void AddImageCommand::undo()
+void AddFrameCommand::undo()
 {
-    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
-    animation->removeKeyAt(layer, pos);
-    animation->editor()->update();
-    animation->timeline()->update();
+    Mw::animation->remove_frame_at(layer, pos);
+    Mw::update_editor_and_timeline();
 }
 
-void AddImageCommand::redo()
+void AddFrameCommand::redo()
 {
-    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
-    animation->addKeyAt(layer, pos, newImg);
-    animation->editor()->update();
-    animation->timeline()->update();
-    setText("add image");
+    Mw::animation->add_frame_at(layer, pos, new_frame);
+    Mw::update_editor_and_timeline();
 }
 
-RemoveImageCommand::RemoveImageCommand(QImage i, int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
+RemoveFrameCommand::RemoveFrameCommand(int l, int p): QUndoCommand()
 {
-    oldImg = i;
+    Animation::frame i = Mw::animation->get_frame_at(l, p);
+    old_frame.image = i.image.copy();
+    old_frame.dimensions = i.dimensions;
+    old_frame.is_empty = i.is_empty;
     layer = l;
     pos = p;
-    animation = o;
-}
-
-void RemoveImageCommand::undo()
-{
-    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
-    animation->addKeyAt(layer, pos, oldImg);
-    animation->editor()->update();
-    animation->timeline()->update();
-}
-
-void RemoveImageCommand::redo()
-{
-    animation->timeline()->getFrameWidgetAt(layer, pos)->toggleIsKey();
-    animation->removeKeyAt(layer, pos);
-    animation->editor()->update();
-    animation->timeline()->update();
-    setText("remove image");
-}
-
-InsertFrameCommand::InsertFrameCommand(int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
-{
-    layer = l;
-    pos = p;
-    animation = o;
-}
-
-void InsertFrameCommand::undo()
-{
-    animation->foreachKey(layer, [this](int i){
-        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
-        {
-            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
-            {
-                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
-                Layer* l = j.i->t();
-                l->frames.insert(i+1, f);
-                l->hlayout->addWidget(l->frames[i + 1]);
-                l->update();
-            }
-        };
-        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
-        animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKeyNoAnim();
-        QImage img = animation->copyImageAt(layer, i);
-        animation->removeKeyAt(layer, i);
-        animation->addKeyAt(layer, i - 1, img);
-    }, animation->isKey(layer, pos) ? pos + 1 : pos);
-    animation->editor()->update();
-    animation->timeline()->update();
-}
-
-void InsertFrameCommand::redo()
-{
-    animation->foreachKeyRevert(layer, [this](int i){
-        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
-        {
-            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
-            {
-                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
-                Layer* l = j.i->t();
-                l->frames.insert(i+1, f);
-                l->hlayout->addWidget(l->frames[i + 1]);
-                l->update();
-            }
-        };
-        animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKeyNoAnim();
-        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
-        QImage img = animation->copyImageAt(layer, i);
-        animation->addKeyAt(layer, i + 1, img);
-        animation->removeKeyAt(layer, i);
-    }, animation->isKey(layer, pos) ? pos + 1 : pos);
-
-    animation->editor()->update();
-    animation->timeline()->update();
-    setText("insert frame");
-}
-
-RemoveFrameCommand::RemoveFrameCommand(int l, int p, Animation* o, QUndoCommand* parent): QUndoCommand(parent)
-{
-    layer = l;
-    pos = p;
-    animation = o;
 }
 
 void RemoveFrameCommand::undo()
 {
-    animation->foreachKeyRevert(layer, [this](int i){
-        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
-        {
-            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
-            {
-                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
-                Layer* l = j.i->t();
-                l->frames.insert(i+1, f);
-                l->hlayout->addWidget(l->frames[i + 1]);
-                l->update();
-            }
-        };
-        animation->timeline()->getFrameWidgetAt(layer, i + 1)->toggleIsKeyNoAnim();
-        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
-        QImage img = animation->copyImageAt(layer, i);
-        animation->addKeyAt(layer, i + 1, img);
-        animation->removeKeyAt(layer, i);
-    }, animation->isKey(layer, pos) ? pos + 1 : pos);
-    animation->editor()->update();
-    animation->timeline()->update();
+    Mw::animation->add_frame_at(layer, pos, old_frame);
+    Mw::update_editor_and_timeline();
 }
 
 void RemoveFrameCommand::redo()
 {
-    animation->foreachKey(layer, [this](int i){
-        if (i + 2 > animation->timeline()->getLayerWidgetAt(0)->frames.count())
-        {
-            for( auto j = animation->timeline()->timelineScroll->layers.begin(); j != animation->timeline()->timelineScroll->layers.end(); ++j )
-            {
-                Frame* f = new Frame(animation->mainwindow, j.i->t(), i + 1);
-                Layer* l = j.i->t();
-                l->frames.insert(i+1, f);
-                l->hlayout->addWidget(l->frames[i + 1]);
-                l->update();
-            }
-        };
-        animation->timeline()->getFrameWidgetAt(layer, i)->toggleIsKeyNoAnim();
-        animation->timeline()->getFrameWidgetAt(layer, i - 1)->toggleIsKeyNoAnim();
-        QImage img = animation->copyImageAt(layer, i);
-        animation->removeKeyAt(layer, i);
-        animation->addKeyAt(layer, i - 1, img);
-    }, animation->isKey(layer, pos) ? pos + 1 : pos);
-    animation->editor()->update();
-    animation->timeline()->update();
-    setText("remove frame");
+    Mw::animation->remove_frame_at(layer, pos);
+    Mw::update_editor_and_timeline();
 }
 
+InsertFrameCommand::InsertFrameCommand(int l, int p): QUndoCommand()
+{
+    layer = l;
+    pos = p;
+}
+
+void InsertFrameCommand::undo()
+{
+    Mw::animation->foreach_frame_pos(layer, [this](int i){
+        Animation::frame f = Mw::animation->get_frame_at(layer, i);
+        Mw::animation->add_frame_at(layer, i - 1, f);
+        Mw::animation->remove_frame_at(layer, i);
+    }, pos);
+    Mw::update_editor_and_timeline();
+}
+
+void InsertFrameCommand::redo()
+{
+    Mw::animation->foreach_frame_pos_revert(layer, [this](int i){
+        Animation::frame f = Mw::animation->get_frame_at(layer, i);
+        Mw::animation->add_frame_at(layer, i + 1, f);
+        Mw::animation->remove_frame_at(layer, i);
+    }, pos);
+    Mw::update_editor_and_timeline();
+}
+
+UninsertFrameCommand::UninsertFrameCommand(int l, int p): QUndoCommand()
+{
+    layer = l;
+    pos = p;
+}
+
+void UninsertFrameCommand::undo()
+{
+    Mw::animation->foreach_frame_pos_revert(layer, [this](int i){
+        Animation::frame f = Mw::animation->get_frame_at(layer, i);
+        Mw::animation->add_frame_at(layer, i + 1, f);
+        Mw::animation->remove_frame_at(layer, i);
+    }, pos);
+    Mw::update_editor_and_timeline();
+}
+
+void UninsertFrameCommand::redo()
+{
+    Mw::animation->foreach_frame_pos(layer, [this](int i){
+        Animation::frame f = Mw::animation->get_frame_at(layer, i);
+        Mw::animation->add_frame_at(layer, i - 1, f);
+        Mw::animation->remove_frame_at(layer, i);
+    }, pos);
+    Mw::update_editor_and_timeline();
+}

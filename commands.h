@@ -1,63 +1,29 @@
-#ifndef COMMANDS_H
-#define COMMANDS_H
+#pragma once
 
 #include "mainwindow.h"
+#include "animation.h"
+#include "editor.h"
+#include "timeline.h"
 
-class Animation;
-class Timeline;
-class Editor;
-class ModifyImageCommand : public QUndoCommand
+class ModifyFrameCommand : public QUndoCommand
 {
 public:
-    ModifyImageCommand(QImage, QImage, int, int, Animation*, QUndoCommand* = nullptr);
+    ModifyFrameCommand(Animation::frame i, Animation::frame j, int l, int p);
     void undo() override;
     void redo() override;
-
-private:
-    Animation *animation;
-    QImage oldImg;
-    QImage newImg;
+    Animation::frame old_frame;
+    Animation::frame new_frame;
     int layer;
     int pos;
 };
 
-class AddImageCommand : public QUndoCommand
+class AddFrameCommand : public QUndoCommand
 {
 public:
-    AddImageCommand(QImage, int, int, Animation*, QUndoCommand* = nullptr);
+    AddFrameCommand(Animation::frame, int l, int p);
     void undo() override;
     void redo() override;
-
-private:
-    Animation *animation;
-    QImage newImg;
-    int layer;
-    int pos;
-};
-
-class RemoveImageCommand : public QUndoCommand
-{
-public:
-    RemoveImageCommand(QImage, int, int, Animation*, QUndoCommand* = nullptr);
-    void undo() override;
-    void redo() override;
-
-private:
-    Animation *animation;
-    QImage oldImg;
-    int layer;
-    int pos;
-};
-
-class InsertFrameCommand : public QUndoCommand
-{
-public:
-    InsertFrameCommand(int, int, Animation*, QUndoCommand* = nullptr);
-    void undo() override;
-    void redo() override;
-
-private:
-    Animation *animation;
+    Animation::frame new_frame;
     int layer;
     int pos;
 };
@@ -65,14 +31,33 @@ private:
 class RemoveFrameCommand : public QUndoCommand
 {
 public:
-    RemoveFrameCommand(int, int, Animation*, QUndoCommand* = nullptr);
+    RemoveFrameCommand(int l, int p);
     void undo() override;
     void redo() override;
-
-private:
-    Animation *animation;
+    Animation::frame old_frame;
     int layer;
     int pos;
 };
 
-#endif
+class InsertFrameCommand : public QUndoCommand
+{
+public:
+    InsertFrameCommand(int l, int p);
+    void undo() override;
+    void redo() override;
+    int layer;
+    int pos;
+};
+
+class UninsertFrameCommand : public QUndoCommand
+{
+public:
+    UninsertFrameCommand(int l, int p);
+    void undo() override;
+    void redo() override;
+    int layer;
+    int pos;
+};
+
+
+

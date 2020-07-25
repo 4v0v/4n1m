@@ -1,172 +1,111 @@
-#include "animation.h"
-#include "preview.h"
-#include "commands.h"
-#include "editor.h"
 #include "timeline.h"
-#include "titlebar.h"
-#include "layer.h"
-#include "frame.h"
-#include "toolbar.h"
 
-Timeline::Timeline(MainWindow* mw): QWidget(mw)
+Timeline::Timeline(Mw* mw): QWidget(mw)
 {
-    mainwindow = mw;
-    setGeometry(0, 0, mainwindow->getWindowDimensions().width(), 125);
-    setMaximumHeight(125);
+    QVBoxLayout* vlayout = new QVBoxLayout();
+    for (int i = 0; i < 3; i++) {
+       TimelineLayer* t = new TimelineLayer(i);
+       vlayout->addWidget(t);
+       layers.insert(i, t);
+    };
+    vlayout->addStretch(1);
 
-    timelineScroll = new TimelineScrollArea(mainwindow, this);
+    QWidget* main_widget = new QWidget();
+    main_widget->setLayout( vlayout );
+
+    timelineScroll = new QScrollArea(this);
+    timelineScroll->setWidget(main_widget);
+    timelineScroll->setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn);
+    timelineScroll->setStyleSheet("background-color: black; border:0px");
 }
 
-void Timeline::gotoNextFrame()
+void Timeline::update_all_frames()
 {
-    if (editor()->isScribbling()) return;
-    editor()->drawSelect();
-    if (getPos() + 2 > getLayerWidgetAt(0)->frames.count())
+    foreach(TimelineLayer* layer, layers)
     {
-        for( auto j = timelineScroll->layers.begin(); j != timelineScroll->layers.end(); ++j )
+        foreach(TimelineFrame* frame, layer->frames)
         {
-            Frame* f = new Frame(mainwindow, j.i->t(), getPos() + 1);
-            Layer* l = j.i->t();
-            l->frames.insert(getPos() + 1, f);
-            l->hlayout->addWidget(l->frames[getPos() + 1]);
-            l->update();
+            frame->is_key = Mw::animation->is_frame_at(layer->position, frame->position);
+            frame->is_current = Mw::editor->frame_pos == frame->position && Mw::editor->layer_pos == layer->position;
+            frame->update();
         }
     };
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    setPos(getPos()+1);
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    update();
-    editor()->update();
-}
+};
 
-void Timeline::gotoPrevFrame()
+void Timeline::wheelEvent(QWheelEvent* e)
 {
-    if (editor()->isScribbling() || getPos() == 0) return;
-    editor()->drawSelect();
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    setPos(getPos()-1);
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    update();
-    editor()->update();
-}
+    static bool doubleWheelEventBug = false;
+    doubleWheelEventBug = !doubleWheelEventBug;
 
-void Timeline::gotoNextLayer()
+    if (!doubleWheelEventBug) return;
+    if (e->angleDelta().y() < 0) Mw::editor->goto_next_pos();
+    else if (e->angleDelta().y() > 0) Mw::editor->goto_prev_pos();
+};
+
+void Timeline::resizeEvent(QResizeEvent* e)
 {
-    if (editor()->isScribbling() || getLayer() == animation()->getLastLayerPos()) return;
-    editor()->drawSelect();
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    setLayer(getLayer()+1);
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    update();
-    editor()->update();
-}
+    timelineScroll->setGeometry(0, 0, e->size().width(), e->size().height());
+};
 
-void Timeline::gotoPrevLayer()
+//////////
+
+TimelineLayer::TimelineLayer(int p): QWidget()
 {
-    if (editor()->isScribbling() || getLayer() == 0) return;
-    editor()->drawSelect();
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    setLayer(getLayer()-1);
-    getFrameWidgetAt(getLayer(), getPos())->toggleIsCurrent();
-    update();
-    editor()->update();
-}
+    position = p;
+    setMinimumHeight(20);
+    setMaximumHeight(20);
 
-void Timeline::gotoFrame(int layer, int pos)
+    QHBoxLayout* hlayout = new QHBoxLayout();
+
+    for (int i = 0; i < 500; i++) {
+        TimelineFrame* t = new TimelineFrame(position, i);
+        hlayout->addWidget(t);
+        frames.insert(i, t);
+    };
+
+    hlayout->addStretch(1);
+    hlayout->setMargin(0);
+    setLayout( hlayout );
+};
+
+void TimelineLayer::paintEvent(QPaintEvent*)
 {
-    if (editor()->isScribbling()) return;
-    editor()->drawSelect();
-    setLayer(layer);
-    setPos(pos);
-    update();
-    editor()->update();
-}
+    widget_painter.begin(this);
+    Mw::set_painter_colors(&widget_painter, Qt::black);
+    widget_painter.drawRect(rect());
+    widget_painter.end();
+};
 
-void Timeline::addKey()
+//////////
+
+TimelineFrame::TimelineFrame(int l, int p): QWidget()
 {
-    if (editor()->isScribbling() || animation()->isKey(getLayer(), getPos())) return;
-    undostack()->push(new AddImageCommand(QImage(animation()->animSize.width(), animation()->animSize.height(), QImage::Format_ARGB32), getLayer(), getPos(), animation()));
-}
+    layer_position = l;
+    position = p;
 
-void Timeline::removeKey()
+    setMinimumWidth(20);
+    setMaximumWidth(20);
+};
+
+void TimelineFrame::paintEvent(QPaintEvent*)
 {
-    if (editor()->isScribbling() || !animation()->isKey(getLayer(), getPos())) return;
-    QImage i = animation()->copyImageAt(getLayer(), getPos());
-    undostack()->push(new RemoveImageCommand(i, getLayer(), getPos(), animation()));
-}
+    widget_painter.begin(this);
+    if (is_key) Mw::set_painter_colors(&widget_painter, Qt::darkGray);
+    else Mw::set_painter_colors(&widget_painter, Qt::white);
+    widget_painter.drawRect(rect());
 
-void Timeline::insertFrame()
-{
-    if (editor()->isScribbling() || animation()->getKeyCount(getLayer()) == 0 || getPos() >= animation()->getLastKey(getLayer())) return;
-    undostack()->push(new InsertFrameCommand(getLayer(), getPos(), animation()));
-}
-
-void Timeline::removeFrame()
-{
-    if (editor()->isScribbling() || animation()->getKeyCount(getLayer()) == 0 || getPos() >= animation()->getLastKey(getLayer()) || animation()->isKey(getLayer(), getPos() + 1)) return;
-    undostack()->push(new RemoveFrameCommand(getLayer(), getPos(), animation()));
-}
-
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-
-TimelineScrollArea::TimelineScrollArea(MainWindow* mw, Timeline* t) : QScrollArea(t)
-{
-    mainwindow = mw;
-    setLayoutDirection(Qt::RightToLeft);
-    setFocusPolicy(Qt::NoFocus);
-    setWidgetResizable( true );
-    setGeometry(-1, 0, t->width(), 106 );
-    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOn);
-    horizontalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
-    verticalScrollBar()->setContextMenuPolicy(Qt::NoContextMenu);
-    horizontalScrollBar()->setFocusPolicy(Qt::NoFocus);
-    verticalScrollBar()->setFocusPolicy(Qt::NoFocus);
-    setStyleSheet(
-        "QScrollBar:vertical {background: rgb(50,50,50);width: 21px;margin: 0;}\
-        QScrollBar:horizontal {background: rgb(50,50,50);height: 22px;margin: 0;}\
-        QScrollBar::handle {background: rgb(50,50,50);}\
-        QScrollBar::add-line, QScrollBar::sub-line {width: 0px;height: 0px;}"
-    );
-
-    QWidget* w = new QWidget();
-    setWidget(w);
-
-    QVBoxLayout *vlayout = new QVBoxLayout();
-    vlayout->setSpacing(0);
-    vlayout->setMargin(0);
-    w->setLayout( vlayout );
-
-    for (int i = 0; i <= mainwindow->animation->getLastLayerPos(); i++)
+    if (is_current)
     {
-        layers.insert(i, new Layer(mainwindow, i));
-        vlayout->addWidget(layers[i]);
+        Mw::set_painter_colors(&widget_painter, Qt::green, Qt::transparent);
+        widget_painter.setPen(QPen(Qt::red, 10));
     }
-    vlayout->addStretch(1);
-    getLayerWidgets()->at(t->getLayer())->getFrameWidgetAt(t->getPos())->toggleIsCurrent();
-}
+    widget_painter.drawRect(rect());
+    widget_painter.end();
+};
 
-void TimelineScrollArea::resizeEvent(QResizeEvent* event)
+void TimelineFrame::mousePressEvent(QMouseEvent*)
 {
-    QScrollArea::resizeEvent(event);
-    horizontalScrollBar()->setValue(horizontalScrollBar()->maximum());
-}
-
-bool TimelineScrollArea::eventFilter(QObject* object, QEvent* event)
-{
-    if (event->type() == QEvent::Wheel && object == verticalScrollBar())
-    {
-        QWheelEvent* wevent = static_cast<QWheelEvent*>(event);
-        verticalScrollBar()->setValue(verticalScrollBar()->value() - wevent->delta()/8);
-        return true;
-    }
-    else if (event->type() == QEvent::Wheel && object != verticalScrollBar())
-    {
-        QWheelEvent* wevent = static_cast<QWheelEvent*>(event);
-        horizontalScrollBar()->setValue(horizontalScrollBar()->value() + wevent->delta()/5);
-        return true;
-    }
-    return false;
-}
-
+    Mw::editor->goto_pos(layer_position, position);
+    update();
+};
 
