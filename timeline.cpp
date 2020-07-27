@@ -2,6 +2,8 @@
 
 Timeline::Timeline(Mw* mw): QWidget(mw)
 {
+    setMinimumHeight(110);
+    setMaximumHeight(110);
     QVBoxLayout* vlayout = new QVBoxLayout();
     for (int i = 0; i < 3; i++) {
        TimelineLayer* t = new TimelineLayer(i);
@@ -56,6 +58,15 @@ TimelineLayer::TimelineLayer(int p): QWidget()
     setMaximumHeight(20);
 
     QHBoxLayout* hlayout = new QHBoxLayout();
+
+    QSlider* s = new QSlider();
+    s->setRange(0, 100);
+    s->setValue(100);
+    connect(s, &QAbstractSlider::valueChanged, this, [this, s]{
+        Mw::animation->set_layer_opacity(this->position, s->value());
+        Mw::update_editor_and_timeline();
+    });
+    hlayout->addWidget(s);
 
     for (int i = 0; i < 500; i++) {
         TimelineFrame* t = new TimelineFrame(position, i);

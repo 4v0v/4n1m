@@ -94,6 +94,8 @@ void Editor::wheelEvent(QWheelEvent* e){
         }
         update();
     } else {
+        // @TODO investigate this bug
+        Mw::timeline->wheelEvent(e);
         Mw::timeline->wheelEvent(e);
     }
 }
@@ -119,6 +121,7 @@ void Editor::paintEvent(QPaintEvent*)
     QList<int> revert_list = Mw::animation->layers.keys();
     for(int k=0, s=Mw::animation->layers.keys().size(), max=(s/2); k<max; k++) revert_list.swap(k,s-(1+k));
     foreach(int i, revert_list) {
+        widget_painter.setOpacity(Mw::animation->get_layer_at(i).opacity/100.0);
         if (Mw::animation->is_frame_at(i, frame_pos))
             widget_painter.drawImage(
                 Mw::animation->get_frame_at(i, frame_pos).dimensions.topLeft(),
@@ -130,6 +133,7 @@ void Editor::paintEvent(QPaintEvent*)
                 Mw::animation->get_prev_frame_at(i, frame_pos).image
             );
     }
+    widget_painter.setOpacity(1);
 
     //reset transform
     widget_painter.resetTransform();

@@ -20,7 +20,7 @@ public:
     };
 
     struct layer {
-        int opacity = 255;
+        int opacity = 100;
         QString name;
         QMap<int, frame> frames;
     };
@@ -44,8 +44,9 @@ public:
     void clear_frame(frame* f);
     void foreach_frame_pos(int l, std::function<void(int)> action, int begin = 0, int end = -1);
     void foreach_frame_pos_revert(int l, std::function<void(int)> action, int begin = 0, int end = -1);
-    QPainter frame_painter;
     frame get_frame_at(int l, int p) { return layers.find(l)->frames.value(p); }
+    layer get_layer_at(int l) { return layers.value(l); }
+    void set_layer_opacity(int l, int opacity) { layers.find(l)->opacity = opacity; }
     frame get_prev_frame_at(int l, int p) { return get_frame_at(l, get_prev_pos(l, p)); }
     frame get_next_frame_at(int l, int p) { return get_frame_at(l, get_next_pos(l, p)); }
     QImage create_onions_at(int l, int p, bool loop, bool prev, bool next);
@@ -57,7 +58,7 @@ public:
     int FPS = 24;
     QSize dimensions = QSize(1200, 1000);
     QMap<int, layer> layers;
+    QPainter frame_painter;
     QPainter onion_painter;
     QPainter onions_painter;
-
 };
