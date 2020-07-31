@@ -52,7 +52,7 @@ public:
     QImage create_onions_at(int l, int p, bool loop, bool prev, bool next);
     void add_onion_layer(QImage* img, int l, int p, double opacity, QColor color);
     void export_animation();
-    void save_animation(QString path);
+    void save_animation(QString path, QString animation_filename);
     void load_animation(QString path);
 
     int FPS = 24;

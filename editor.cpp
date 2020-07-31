@@ -94,9 +94,8 @@ void Editor::wheelEvent(QWheelEvent* e){
         }
         update();
     } else {
-        // @TODO investigate this bug
-        Mw::timeline->wheelEvent(e);
-        Mw::timeline->wheelEvent(e);
+        if (e->angleDelta().y() < 0) goto_next_pos();
+        else if (e->angleDelta().y() > 0) goto_prev_pos();
     }
 }
 

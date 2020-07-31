@@ -1,4 +1,5 @@
 #include "animation.h"
+#include "qminiz.h"
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomImplementation>
 
@@ -87,39 +88,31 @@ void Animation::clear_frame(frame* f)
 void Animation::resize_frame(frame* f, Direction direction, int size)
 {
     QImage resized_image;
+    QPoint point = QPoint(0, 0);
     switch (direction) {
         case RIGHT: {
             f->dimensions.setRight(size + 50 < dimensions.width() ? size + 50 : dimensions.width());
-            resized_image = QImage(QSize(dimensions.width(), f->image.height()), QImage::Format_ARGB32);
-            resized_image.fill(Qt::transparent);
-            frame_painter.begin(&resized_image);
-            frame_painter.drawImage(QPoint(0, 0), f->image);
             break;
         } case BOTTOM: {
             f->dimensions.setBottom(size + 50 < dimensions.height() ? size + 50 : dimensions.height());
-            resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
-            resized_image.fill(Qt::transparent);
-            frame_painter.begin(&resized_image);
-            frame_painter.drawImage(QPoint(0, 0), f->image);
             break;
          } case LEFT: {
             int tempLeft = f->dimensions.left();
             f->dimensions.setLeft(size - 50 > 0 ? size - 50 : 0);
-            resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
-            resized_image.fill(Qt::transparent);
-            frame_painter.begin(&resized_image);
-            frame_painter.drawImage(QPoint(std::abs(f->dimensions.left() - tempLeft), 0), f->image);
+            point = QPoint(std::abs(f->dimensions.left() - tempLeft), 0);
             break;
         } case TOP: {
             int tempTop = f->dimensions.top();
             f->dimensions.setTop(size - 50 > 0 ? size - 50 : 0);
-            resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
-            resized_image.fill(Qt::transparent);
-            frame_painter.begin(&resized_image);
-            frame_painter.drawImage(QPoint(0, std::abs(f->dimensions.top() - tempTop)), f->image);
+            point = QPoint(0, std::abs(f->dimensions.top() - tempTop));
             break;
         }
     }
+
+    resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
+    resized_image.fill(Qt::transparent);
+    frame_painter.begin(&resized_image);
+    frame_painter.drawImage(point, f->image);
 
     frame_painter.end();
     f->image = resized_image;
@@ -223,26 +216,26 @@ void Animation::export_animation()
     emit end_saving();
 }
 
-void Animation::save_animation(QString path)
+void Animation::save_animation(QString path, QString animation_filename)
 {
+    QString temp_folder = "temp_4n1m_" + animation_filename;
+    QList<QString> file_names;
+
     if (is_anim_empty()) return;
+    if (QDir(temp_folder).exists()) return; // if folder exists don't delete it
+    QDir().mkdir(temp_folder); // create temp folder
 
-    if (QDir( path ).exists() ) {
-        QDir dir( path );
-        dir.removeRecursively();
-    }
-
-    QDir().mkdir(path);
-    QDir().mkdir( path + "\\data");
-
+    // create images
     foreach(int l, layers.keys()) {
-        foreach_frame_pos(l, [this, l, path](int i){
+        foreach_frame_pos(l, [this, l, path, temp_folder, &file_names](int i){
             QString filename = QString::fromUtf8((std::to_string(l) + "_" + std::to_string(i) + ".png").c_str());
             frame f = get_frame_at(l, i);
-            f.image.save( path +"\\data\\" + filename);
+            f.image.save( temp_folder + "\\" + filename);
+            file_names.append(filename);
         });
     }
 
+    // Create qXML object
     QDomDocument doc("AnimDocument");
 
     QDomElement anim_node = doc.createElement("animation");
@@ -263,26 +256,44 @@ void Animation::save_animation(QString path)
             frame_node.setAttribute("x", f.dimensions.x());
             frame_node.setAttribute("y", f.dimensions.y());
         });
-
     }
 
-    QFile file( path + "\\anim.xml" );
-    file.open(QIODevice::WriteOnly | QIODevice::Text);
-
-    QTextStream stream( &file );
+    // Write qXML inside  file
+    QFile xml_file( temp_folder + "\\anim.xml" );
+    xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
+    QTextStream stream( &xml_file );
     stream << doc.toString();
-    file.close();
-}
+    xml_file.close();
+    file_names.append("anim.xml");
 
+
+    // Remove saved zip if already exist
+    QFile::remove(path + animation_filename + ".4n1m");
+
+    MiniZ::compressFolder(
+        path + animation_filename + ".4n1m",
+        temp_folder,
+        QStringList(file_names)
+    );
+
+    QDir dir( temp_folder );
+    dir.removeRecursively();
+}
 
 void Animation::load_animation(QString path)
 {
     // TODO: supprimer aussi layers
     clear_animation();
 
+    QString temp_folder = "temp_4n1m_" + path;
+    temp_folder.chop(5);
+
+    MiniZ::uncompressFolder(path, temp_folder);
+
     QDomDocument doc;
     // Load xml file as raw data
-    QFile f(path + "\\anim.xml");
+
+    QFile f(temp_folder + "\\anim.xml");
 
     // Set data into the QDomDocument before processing
     doc.setContent(&f);
@@ -295,15 +306,12 @@ void Animation::load_animation(QString path)
         for(int j = 0; j < layer_node.childNodes().count(); j++)
         {
             QDomNode frame_node = layer_node.childNodes().at(j);
-
-            QString layer_pos = layer_node.attributes().namedItem("id").nodeValue();
-            QString filename =  frame_node.attributes().namedItem("name").nodeValue();
-            QString frame_pos =  frame_node.attributes().namedItem("pos").nodeValue();
-            QString x = frame_node.attributes().namedItem("x").nodeValue();
-            QString y = frame_node.attributes().namedItem("y").nodeValue();
-
-            // créer qimage a partir du png
-            QImage img = QImage(path + "\\data\\" + filename + ".png");
+            QString layer_pos   = layer_node.attributes().namedItem("id").nodeValue();
+            QString filename    = frame_node.attributes().namedItem("name").nodeValue();
+            QString frame_pos   = frame_node.attributes().namedItem("pos").nodeValue();
+            QString x           = frame_node.attributes().namedItem("x").nodeValue();
+            QString y           = frame_node.attributes().namedItem("y").nodeValue();
+            QImage img          = QImage(temp_folder + "\\" + filename + ".png"); // créer qimage a partir du png
 
             // créer frame
             frame f;
@@ -316,4 +324,7 @@ void Animation::load_animation(QString path)
     }
 
     f.close();
+
+    QDir dir( temp_folder );
+    dir.removeRecursively();
 };

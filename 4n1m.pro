@@ -13,6 +13,8 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
+    miniz.cpp \
+    qminiz.cpp \
     animation.cpp \
     colorwheel.cpp \
     commands.cpp \
@@ -23,6 +25,8 @@ SOURCES += \
     toolbar.cpp
 
 HEADERS += \
+    miniz.h \
+    qminiz.h \
     animation.h \
     colorwheel.h \
     commands.h \

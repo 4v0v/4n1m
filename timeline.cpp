@@ -36,10 +36,9 @@ void Timeline::update_all_frames()
 
 void Timeline::wheelEvent(QWheelEvent* e)
 {
-    static bool doubleWheelEventBug = false;
-    doubleWheelEventBug = !doubleWheelEventBug;
-
-    if (!doubleWheelEventBug) return;
+    static bool preventScrollAreaEvent = false;
+    preventScrollAreaEvent = !preventScrollAreaEvent;
+    if (!preventScrollAreaEvent) return;
     if (e->angleDelta().y() < 0) Mw::editor->goto_next_pos();
     else if (e->angleDelta().y() > 0) Mw::editor->goto_prev_pos();
 };

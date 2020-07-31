@@ -51,6 +51,7 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_T,[]{ editor->clear_current_layer(); });
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
     create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ editor->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
+    create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S,[]{ animation->export_animation(); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
     create_shortcut(Qt::SHIFT + Qt::Key_Space, [this]{play(false); });
@@ -70,7 +71,7 @@ Mw::Mw()
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
 
     // restore_previous_session
-    animation->load_animation("temp");
+    animation->load_animation("temp.4n1m");
     update_editor_and_timeline();
     timeline->update_all_frames();
 }
@@ -81,7 +82,7 @@ void Mw::dragEnterEvent(QDragEnterEvent* event)
     if (mimeData->hasUrls()) {
         QFileInfo fileInfo = mimeData->urls().at(0).toLocalFile();
         QString filename = fileInfo.fileName();
-        if (fileInfo.suffix() == "anim") {
+        if (fileInfo.suffix() == "4n1m") {
             event->acceptProposedAction();
         }
     }
@@ -89,7 +90,7 @@ void Mw::dragEnterEvent(QDragEnterEvent* event)
 
 void Mw::closeEvent(QCloseEvent* e)
 {
-    animation->save_animation("temp");
+    animation->save_animation( "", "temp");
     e->accept();
 }
 
