@@ -177,22 +177,14 @@ void Animation::add_onion_layer(QImage* img, int l, int p, double opacity, QColo
     onions_painter.end();
 }
 
-void Animation::export_animation()
+void Animation::export_animation(QString folder_name)
 {
     if (is_anim_empty()) return;
-
-    emit begin_saving();
-
-    if (QDir("anim").exists() ) {
-        QDir dir("anim");
-        dir.removeRecursively();
-    }
-
-    QDir().mkdir("anim");
+    if (!QDir("anim").exists()) return;
 
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
         QString filename = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
-        QImage img = QImage(dimensions, QImage::Format_ARGB32);
+        QImage img       = QImage(dimensions, QImage::Format_ARGB32);
         QPainter painter(&img);
 
         // TODO: find better way to reverse iterate qlist
@@ -210,10 +202,8 @@ void Animation::export_animation()
             }
         }
 
-        img.save("anim\\" + filename);
+        img.save( folder_name + "\\" + filename);
     }
-
-    emit end_saving();
 }
 
 void Animation::save_animation(QString path, QString animation_filename)

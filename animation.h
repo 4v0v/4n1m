@@ -6,10 +6,6 @@ class Animation: public QWidget
 {
     Q_OBJECT
 
-signals:
-    void begin_saving();
-    void end_saving();
-
 public:
     Animation();
 
@@ -51,7 +47,7 @@ public:
     frame get_next_frame_at(int l, int p) { return get_frame_at(l, get_next_pos(l, p)); }
     QImage create_onions_at(int l, int p, bool loop, bool prev, bool next);
     void add_onion_layer(QImage* img, int l, int p, double opacity, QColor color);
-    void export_animation();
+    void export_animation(QString folder);
     void save_animation(QString path, QString animation_filename);
     void load_animation(QString path);
 

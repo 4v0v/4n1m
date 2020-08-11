@@ -52,7 +52,7 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
     create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ editor->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
     create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
-    create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S,[]{ animation->export_animation(); });
+
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
     create_shortcut(Qt::SHIFT + Qt::Key_Space, [this]{play(false); });
     create_shortcut(Qt::Key_Space, [this]{ play(true); });
@@ -69,6 +69,18 @@ Mw::Mw()
     create_shortcut(Qt::Key_9,[]{ editor->insert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
+    create_shortcut(Qt::Key_M,[]{
+        auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+        qDebug() << _OutputFolder;
+        auto _OutputFile = QFileDialog::getOpenFileName(0, ("Select Output File"), QDir::currentPath(), "*.4n1m");
+        qDebug() << _OutputFile;
+    });
+    create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S,[]{
+        auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+        animation->export_animation(_OutputFolder);
+    });
+
+
 
     // restore_previous_session
     animation->load_animation("temp.4n1m");
