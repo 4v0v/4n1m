@@ -16,14 +16,14 @@ void ModifyFrameCommand::undo()
 {
     Mw::animation->remove_frame_at(layer, pos);
     Mw::animation->add_frame_at(layer, pos, old_frame);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void ModifyFrameCommand::redo()
 {
     Mw::animation->remove_frame_at(layer, pos);
     Mw::animation->add_frame_at(layer, pos, new_frame);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 AddFrameCommand::AddFrameCommand(Animation::frame i, int l, int p): QUndoCommand()
@@ -38,13 +38,13 @@ AddFrameCommand::AddFrameCommand(Animation::frame i, int l, int p): QUndoCommand
 void AddFrameCommand::undo()
 {
     Mw::animation->remove_frame_at(layer, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void AddFrameCommand::redo()
 {
     Mw::animation->add_frame_at(layer, pos, new_frame);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 RemoveFrameCommand::RemoveFrameCommand(int l, int p): QUndoCommand()
@@ -60,13 +60,13 @@ RemoveFrameCommand::RemoveFrameCommand(int l, int p): QUndoCommand()
 void RemoveFrameCommand::undo()
 {
     Mw::animation->add_frame_at(layer, pos, old_frame);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void RemoveFrameCommand::redo()
 {
     Mw::animation->remove_frame_at(layer, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 InsertFrameCommand::InsertFrameCommand(int l, int p): QUndoCommand()
@@ -82,7 +82,7 @@ void InsertFrameCommand::undo()
         Mw::animation->add_frame_at(layer, i - 1, f);
         Mw::animation->remove_frame_at(layer, i);
     }, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void InsertFrameCommand::redo()
@@ -92,7 +92,7 @@ void InsertFrameCommand::redo()
         Mw::animation->add_frame_at(layer, i + 1, f);
         Mw::animation->remove_frame_at(layer, i);
     }, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 UninsertFrameCommand::UninsertFrameCommand(int l, int p): QUndoCommand()
@@ -108,7 +108,7 @@ void UninsertFrameCommand::undo()
         Mw::animation->add_frame_at(layer, i + 1, f);
         Mw::animation->remove_frame_at(layer, i);
     }, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void UninsertFrameCommand::redo()
@@ -118,5 +118,5 @@ void UninsertFrameCommand::redo()
         Mw::animation->add_frame_at(layer, i - 1, f);
         Mw::animation->remove_frame_at(layer, i);
     }, pos);
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }

@@ -21,11 +21,12 @@ public:
     void set_brush_color(QColor c) { if (state != IDLE) return; lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
-    void set_add_frame_mode(AddFrameMode m) { if (state != IDLE) return; add_frame_mode = m; }
-    void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; update(); }
-    void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_editor_and_timeline(); }
-    void toggle_onion_skin_prev() { if (state != IDLE) return;is_os_prev_enabled = !is_os_prev_enabled; Mw::update_editor_and_timeline(); }
-    void toggle_onion_skin_next() { if (state != IDLE) return;is_os_next_enabled = !is_os_next_enabled; Mw::update_editor_and_timeline(); }
+    void set_add_frame_mode(Mode m) { if (state != IDLE) return; add_frame_mode = m; Mw::update_all();}
+    void set_visualization_mode(Mode m) { if (state != IDLE) return;  visualization_mode = m; Mw::update_all();}
+    void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; Mw::update_all(); }
+    void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_all(); }
+    void toggle_onion_skin_prev() { if (state != IDLE) return;is_os_prev_enabled = !is_os_prev_enabled; Mw::update_all(); }
+    void toggle_onion_skin_next() { if (state != IDLE) return;is_os_next_enabled = !is_os_next_enabled; Mw::update_all(); }
     void goto_pos(int l, int p);
     void goto_next_pos() { goto_pos(layer_pos, frame_pos+1); }
     void goto_prev_pos() { goto_pos(layer_pos, frame_pos-1); }
@@ -58,7 +59,8 @@ public:
     int layer_pos = 0;
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
-    AddFrameMode add_frame_mode = EMPTY;
+    Mode add_frame_mode = EMPTY;
+    Mode visualization_mode = PREVIOUS;
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;

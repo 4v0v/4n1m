@@ -58,14 +58,14 @@ TimelineLayer::TimelineLayer(int p): QWidget()
 
     QHBoxLayout* hlayout = new QHBoxLayout();
 
-    QSlider* s = new QSlider();
-    s->setRange(0, 100);
-    s->setValue(100);
-    connect(s, &QAbstractSlider::valueChanged, this, [this, s]{
-        Mw::animation->set_layer_opacity(this->position, s->value());
-        Mw::update_editor_and_timeline();
+    QSlider* opacity_slider = new QSlider();
+    opacity_slider->setRange(0, 100);
+    opacity_slider->setValue(100);
+    connect(opacity_slider, &QAbstractSlider::valueChanged, this, [this, opacity_slider]{
+        Mw::animation->set_layer_opacity(this->position, opacity_slider->value());
+        Mw::update_all();
     });
-    hlayout->addWidget(s);
+    hlayout->addWidget(opacity_slider);
 
     for (int i = 0; i < 500; i++) {
         TimelineFrame* t = new TimelineFrame(position, i);

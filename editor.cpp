@@ -130,10 +130,12 @@ void Editor::paintEvent(QPaintEvent*)
                 Mw::animation->get_frame_at(i, frame_pos).image
             );
         else if (Mw::animation->is_frame_at(i, Mw::animation->get_prev_pos(i, frame_pos)))
-            widget_painter.drawImage(
-                Mw::animation->get_prev_frame_at(i, frame_pos).dimensions.topLeft(),
-                Mw::animation->get_prev_frame_at(i, frame_pos).image
-            );
+            if (state == PLAYING || visualization_mode == PREVIOUS) {
+                widget_painter.drawImage(
+                    Mw::animation->get_prev_frame_at(i, frame_pos).dimensions.topLeft(),
+                    Mw::animation->get_prev_frame_at(i, frame_pos).image
+                );
+            }
     }
     widget_painter.setOpacity(1);
 
@@ -162,7 +164,7 @@ void Editor::clear_current_layer()
     if (state != IDLE || Mw::animation->is_layer_empty(layer_pos)) return;
     Mw::animation->clear_layer_at(layer_pos);
     Mw::undostack->clear();
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void Editor::clear_frame_at_current_pos()
@@ -215,14 +217,14 @@ void Editor::goto_pos(int l, int p)
 
     if (p < 0) return;
     frame_pos = p;
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 
 void Editor::create_onions_at_current_pos()
 {
     int fp;
-    if (Mw::animation->is_frame_at(layer_pos, frame_pos))
+    if (Mw::animation->is_frame_at(layer_pos, frame_pos) || visualization_mode == EMPTY)
         fp = frame_pos;
     else if (!Mw::animation->is_frame_at(layer_pos, frame_pos) && Mw::animation->get_prev_pos(layer_pos, frame_pos) != -1)
         fp = Mw::animation->get_prev_pos(layer_pos, frame_pos);
@@ -345,7 +347,7 @@ void Editor::stop()
     state = IDLE;
     is_play_loop_enabled = false;
     playing_timer->stop();
-    Mw::update_editor_and_timeline();
+    Mw::update_all();
 }
 
 void Editor::copy()

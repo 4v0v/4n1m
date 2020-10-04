@@ -26,7 +26,7 @@ enum State {
     PLAYING,
 };
 
-enum AddFrameMode {
+enum Mode {
     EMPTY,
     PREVIOUS,
 };
@@ -53,7 +53,7 @@ public:
     virtual void dropEvent(QDropEvent*);
     virtual void closeEvent(QCloseEvent*);
 
-    static void update_editor_and_timeline();
+    static void update_all();
     static void set_painter_colors(QPainter* painter, QColor pen , QColor brush = nullptr);
 
     void create_shortcut(QKeySequence ks, std::function<void()> action);

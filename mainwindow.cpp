@@ -52,7 +52,6 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
     create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ editor->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
     create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
-
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
     create_shortcut(Qt::SHIFT + Qt::Key_Space, [this]{play(false); });
     create_shortcut(Qt::Key_Space, [this]{ play(true); });
@@ -70,6 +69,8 @@ Mw::Mw()
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_G,[]{ editor->set_add_frame_mode(EMPTY); });
     create_shortcut(Qt::Key_H,[]{ editor->set_add_frame_mode(PREVIOUS); });
+    create_shortcut(Qt::Key_D,[]{ editor->set_visualization_mode(EMPTY); });
+    create_shortcut(Qt::Key_F,[]{ editor->set_visualization_mode(PREVIOUS); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
     create_shortcut(Qt::Key_M,[]{
         auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
@@ -82,11 +83,9 @@ Mw::Mw()
         animation->export_animation(_OutputFolder);
     });
 
-
-
     // restore_previous_session
     animation->load_animation("temp.4n1m");
-    update_editor_and_timeline();
+    update_all();
     timeline->update_all_frames();
 }
 
@@ -112,14 +111,14 @@ void Mw::dropEvent(QDropEvent *event)
 {
     const QMimeData* mimeData = event->mimeData();
     animation->load_animation(mimeData->urls().at(0).toLocalFile());
-    update_editor_and_timeline();
+    update_all();
 }
 
 void Mw::create_shortcut(QKeySequence ks, std::function<void()> action){
     connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
 }
 
-void Mw::update_editor_and_timeline()
+void Mw::update_all()
 {
     editor->create_onions_at_current_pos();
     editor->update();
