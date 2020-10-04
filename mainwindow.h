@@ -23,19 +23,24 @@ enum State {
     IDLE,
     SCRIBBLING,
     MOVING,
-    PLAYING
+    PLAYING,
+};
+
+enum AddFrameMode {
+    EMPTY,
+    PREVIOUS,
 };
 
 enum Direction {
     LEFT,
     RIGHT,
     TOP,
-    BOTTOM
+    BOTTOM,
 };
 
 enum Tool {
     PEN,
-    LASSOFILL
+    LASSOFILL,
 };
 
 class Mw : public QMainWindow

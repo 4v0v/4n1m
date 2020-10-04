@@ -21,6 +21,7 @@ public:
     void set_brush_color(QColor c) { if (state != IDLE) return; lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
+    void set_add_frame_mode(AddFrameMode m) { if (state != IDLE) return; add_frame_mode = m; }
     void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; update(); }
     void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_editor_and_timeline(); }
     void toggle_onion_skin_prev() { if (state != IDLE) return;is_os_prev_enabled = !is_os_prev_enabled; Mw::update_editor_and_timeline(); }
@@ -57,6 +58,7 @@ public:
     int layer_pos = 0;
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
+    AddFrameMode add_frame_mode = EMPTY;
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;

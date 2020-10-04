@@ -21,7 +21,7 @@ public:
         QMap<int, frame> frames;
     };
 
-    bool is_anim_empty();
+    bool is_animation_empty();
     bool is_layer_empty(int l){ return layers.find(l)->frames.count() == 0; }
     bool is_frame_at(int l, int p);
     void add_layer_at(int l, layer la) { layers.insert(l, la); }

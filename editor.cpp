@@ -16,7 +16,10 @@ void Editor::mousePressEvent(QMouseEvent* e)
         state = SCRIBBLING;
         stroke << e->pos();
         if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
-             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
+            if (add_frame_mode == EMPTY)
+                Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
+            else if (add_frame_mode == PREVIOUS)
+                Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(layer_pos, frame_pos), layer_pos, frame_pos));
         }
     } else if (e->button() == Qt::RightButton || e->button() == Qt::MiddleButton ) {
         state = MOVING;
@@ -180,7 +183,7 @@ void Editor::insert_frame_at_current_pos()
 {
     if (
         state != IDLE ||
-        Mw::animation->is_anim_empty() ||
+        Mw::animation->is_animation_empty() ||
         frame_pos >= Mw::animation->get_last_pos(layer_pos)
     ) return;
 
@@ -194,7 +197,7 @@ void Editor::uninsert_frame_at_current_pos()
 {
     if (
         state != IDLE ||
-        Mw::animation->is_anim_empty() ||
+        Mw::animation->is_animation_empty() ||
         Mw::animation->is_layer_empty(layer_pos) ||
         frame_pos >= Mw::animation->get_last_pos(layer_pos)
     ) return;
@@ -210,7 +213,7 @@ void Editor::goto_pos(int l, int p)
     if (state != IDLE || l < 0 || !Mw::animation->layers.contains(l)) return;
     layer_pos = l;
 
-    if (state != IDLE || p < 0) return;
+    if (p < 0) return;
     frame_pos = p;
     Mw::update_editor_and_timeline();
 }
@@ -322,7 +325,7 @@ void Editor::play_step()
 
 void Editor::play_from(int begin, bool loop)
 {
-    if (Mw::animation->is_anim_empty() || state != IDLE) return;
+    if (Mw::animation->is_animation_empty() || state != IDLE) return;
 
     if (loop) is_play_loop_enabled = true;
     temp_is_os_enabled = is_os_enabled;
@@ -337,6 +340,7 @@ void Editor::play_from(int begin, bool loop)
 void Editor::stop()
 {
     if (state != PLAYING) return;
+
     is_os_enabled = temp_is_os_enabled;
     state = IDLE;
     is_play_loop_enabled = false;
@@ -347,6 +351,7 @@ void Editor::stop()
 void Editor::copy()
 {
     if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+
     clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
     is_internal_clipboard_empty = false;
 }
@@ -354,6 +359,7 @@ void Editor::copy()
 void Editor::cut()
 {
     if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+
     clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
     is_internal_clipboard_empty = false;
     Mw::undostack->push(new RemoveFrameCommand(layer_pos, frame_pos));
@@ -362,6 +368,7 @@ void Editor::cut()
 void Editor::paste()
 {
     if (state != IDLE || is_internal_clipboard_empty) return;
+
     if (!Mw::animation->is_frame_at(layer_pos, frame_pos))
         Mw::undostack->push(new AddFrameCommand(clipboard, layer_pos, frame_pos));
     else {

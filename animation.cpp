@@ -10,7 +10,7 @@ Animation::Animation(): QWidget(nullptr)
     add_layer_at(2, layer{});
 }
 
-bool Animation::is_anim_empty()
+bool Animation::is_animation_empty()
 {
     if (layers.count() == 0) return true;
     foreach(layer l, layers) {
@@ -36,7 +36,7 @@ bool Animation::is_frame_at(int l, int p)
 
 int Animation::get_prev_pos(int l, int p)
 {
-    if (is_anim_empty() || is_layer_empty(l) || p == -1) return -1;
+    if (is_animation_empty() || is_layer_empty(l) || p == -1) return -1;
     int temp = -1;
     for (auto i = layers.find(l)->frames.begin(); i != layers.find(l)->frames.end(); ++i) {
         if (i.key() >= p) break;
@@ -60,7 +60,7 @@ void Animation::clear_animation()
 
 int Animation::get_next_pos(int l, int p)
 {
-    if (is_anim_empty() || is_layer_empty(l) || p >= get_last_pos(l) || p == -1) return -1;
+    if (is_animation_empty() || is_layer_empty(l) || p >= get_last_pos(l) || p == -1) return -1;
     return layers.find(l)->frames.upperBound(p).key();
 }
 
@@ -120,7 +120,7 @@ void Animation::resize_frame(frame* f, Direction direction, int size)
 
 void Animation::foreach_frame_pos(int l, std::function<void(int)> action, int begin, int end)
 {
-    if (is_anim_empty() || is_layer_empty(l)) return;
+    if (is_animation_empty() || is_layer_empty(l)) return;
     if (end == -1) end = get_last_pos(l);
     if (begin > end) return;
     for (int i = begin; i <= end; ++i) if(is_frame_at(l, i)) action(i);
@@ -128,7 +128,7 @@ void Animation::foreach_frame_pos(int l, std::function<void(int)> action, int be
 
 void Animation::foreach_frame_pos_revert(int l, std::function<void(int)> action, int begin, int end)
 {
-    if (is_anim_empty() || is_layer_empty(l)) return;
+    if (is_animation_empty() || is_layer_empty(l)) return;
     if (end == -1) end = get_last_pos(l);
     if (begin > end) return;
     for (int i = end; i >= begin; --i) if(is_frame_at(l, i)) action(i);
@@ -162,7 +162,7 @@ QImage Animation::create_onions_at(int l, int pos, bool loop, bool prev, bool ne
 
 void Animation::add_onion_layer(QImage* img, int l, int p, double opacity, QColor color)
 {
-    if (is_anim_empty() || is_layer_empty(l) || !is_frame_at(l, p)) return;
+    if (is_animation_empty() || is_layer_empty(l) || !is_frame_at(l, p)) return;
     QImage copy = get_frame_at(l, p).image.copy();
 
     onion_painter.begin(&copy);
@@ -179,7 +179,7 @@ void Animation::add_onion_layer(QImage* img, int l, int p, double opacity, QColo
 
 void Animation::export_animation(QString folder_name)
 {
-    if (is_anim_empty()) return;
+    if (is_animation_empty()) return;
     if (!QDir("anim").exists()) return;
 
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
@@ -211,7 +211,7 @@ void Animation::save_animation(QString path, QString animation_filename)
     QString temp_folder = "temp_4n1m_" + animation_filename;
     QList<QString> file_names;
 
-    if (is_anim_empty()) return;
+    if (is_animation_empty()) return;
     if (QDir(temp_folder).exists()) return; // if folder exists don't delete it
     QDir().mkdir(temp_folder); // create temp folder
 

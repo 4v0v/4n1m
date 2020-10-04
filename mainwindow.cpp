@@ -68,6 +68,8 @@ Mw::Mw()
     create_shortcut(Qt::Key_O,[]{ editor->toggle_onion_skin_next(); });
     create_shortcut(Qt::Key_9,[]{ editor->insert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
+    create_shortcut(Qt::Key_G,[]{ editor->set_add_frame_mode(EMPTY); });
+    create_shortcut(Qt::Key_H,[]{ editor->set_add_frame_mode(PREVIOUS); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
     create_shortcut(Qt::Key_M,[]{
         auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
