@@ -45,6 +45,26 @@ int Animation::get_prev_pos(int l, int p)
     return temp;
 }
 
+int Animation::get_next_pos(int l, int p)
+{
+    if (is_animation_empty() || is_layer_empty(l) || p >= get_last_pos(l) || p == -1) return -1;
+    return layers.find(l)->frames.upperBound(p).key();
+}
+
+int Animation::get_recursive_prev_pos(int l, int p, int nb)
+{
+    int temp = p;
+    for (int i = 0; i < nb; ++i) temp = get_prev_pos(l, temp);
+    return temp;
+}
+
+int Animation::get_recursive_next_pos(int l, int p, int nb)
+{
+    int temp = p;
+    for (int i = 0; i < nb; i++) temp = get_next_pos(l, temp);
+    return temp;
+}
+
 void Animation::clear_layer_at(int l)
 {
     foreach_frame_pos_revert(l, [this, l](int i){
@@ -58,11 +78,7 @@ void Animation::clear_animation()
         clear_layer_at(l);
 }
 
-int Animation::get_next_pos(int l, int p)
-{
-    if (is_animation_empty() || is_layer_empty(l) || p >= get_last_pos(l) || p == -1) return -1;
-    return layers.find(l)->frames.upperBound(p).key();
-}
+
 
 void Animation::init_frame(frame* f, QPoint pos)
 {
@@ -134,33 +150,30 @@ void Animation::foreach_frame_pos_revert(int l, std::function<void(int)> action,
     for (int i = end; i >= begin; --i) if(is_frame_at(l, i)) action(i);
 }
 
-QImage Animation::create_onions_at(int l, int pos, bool loop, bool prev, bool next)
+QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int next)
 {
     QImage onion_skins = QImage(dimensions, QImage::Format_ARGB32);
 
-    if (prev)
-    {
-        add_onion_layer(&onion_skins, l, get_prev_pos(l, get_prev_pos(l, pos)), 0.2, Qt::blue);
-        add_onion_layer(&onion_skins, l, get_prev_pos(l, pos), 0.3, Qt::blue);
+    if (is_layer_empty(l)) return onion_skins;
+
+    for (int i = prev; i > 0; i--) {
+        create_onionskin_at(&onion_skins, l, get_recursive_prev_pos(l, p, i), 0.5- 0.1 * i, Qt::blue);
     }
-    if (next)
-    {
-        add_onion_layer(&onion_skins, l, get_next_pos(l, pos), 0.3, Qt::red);
-        add_onion_layer(&onion_skins, l, get_next_pos(l, get_next_pos(l, pos)), 0.2, Qt::red);
+
+    for (int i = 0; i < next; i++) {
+        create_onionskin_at(&onion_skins, l, get_recursive_next_pos(l, p, i), 0.5- 0.1 * i, Qt::red);
     }
+
     if (loop)
     {
-        if (!is_layer_empty(l))
-        {
-            add_onion_layer(&onion_skins, l, get_last_pos(l), 0.3, Qt::darkYellow);
-            add_onion_layer(&onion_skins, l, get_first_pos(l), 0.3, Qt::darkGreen);
-        }
+        create_onionskin_at(&onion_skins, l, get_last_pos(l), 0.3, Qt::darkYellow);
+        create_onionskin_at(&onion_skins, l, get_first_pos(l), 0.3, Qt::darkGreen);
     }
 
     return onion_skins;
 }
 
-void Animation::add_onion_layer(QImage* img, int l, int p, double opacity, QColor color)
+void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color)
 {
     if (is_animation_empty() || is_layer_empty(l) || !is_frame_at(l, p)) return;
     QImage copy = get_frame_at(l, p).image.copy();

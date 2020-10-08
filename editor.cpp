@@ -10,21 +10,28 @@ Editor::Editor(Mw* mw): QWidget(mw)
 void Editor::mousePressEvent(QMouseEvent* e)
 {
     if (state != IDLE) return;
-    if (e->button() == Qt::LeftButton)
+
+    switch (e->button())
     {
-        if (!QRect(offset, Mw::animation->dimensions*scale).contains(e->pos())) return;
-        state = SCRIBBLING;
-        stroke << e->pos();
-        if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
-            if (add_frame_mode == EMPTY)
-                Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
-            else if (add_frame_mode == PREVIOUS)
-                Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(layer_pos, frame_pos), layer_pos, frame_pos));
-        }
-    } else if (e->button() == Qt::RightButton || e->button() == Qt::MiddleButton ) {
-        state = MOVING;
-        moving_offset = e->pos();
-        moving_offset_delta = e->pos();
+        case Qt::LeftButton:
+            if (!QRect(offset, Mw::animation->dimensions*scale).contains(e->pos())) return;
+            state = SCRIBBLING;
+            stroke << e->pos();
+            if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
+                if (add_frame_mode == EMPTY)
+                    Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
+                else if (add_frame_mode == PREVIOUS)
+                    Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(layer_pos, frame_pos), layer_pos, frame_pos));
+            }
+            break;
+        case Qt::RightButton:
+        case Qt::MiddleButton:
+            state = MOVING;
+            moving_offset = e->pos();
+            moving_offset_delta = e->pos();
+            break;
+        default:
+            break;
     }
 
     update();
@@ -109,33 +116,28 @@ void Editor::paintEvent(QPaintEvent*)
     //background
     Mw::set_painter_colors(&widget_painter, bg_color);
     widget_painter.drawRect(rect());
+
     //transform editor
     widget_painter.translate(offset + moving_offset_delta - moving_offset);
     widget_painter.scale(scale, scale);
+
     //editor frame
     Mw::set_painter_colors(&widget_painter, bg_color, img_bg_color);
     widget_painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
+
     //onionskins
     if (is_os_enabled) widget_painter.drawImage(0,0, onion_skins);
-    //visible frame
 
-    // TODO: find better way to reverse iterate qlist
-    QList<int> revert_list = Mw::animation->layers.keys();
-    for(int k=0, s=Mw::animation->layers.keys().size(), max=(s/2); k<max; k++) revert_list.swap(k,s-(1+k));
-    foreach(int i, revert_list) {
-        widget_painter.setOpacity(Mw::animation->get_layer_at(i).opacity/100.0);
-        if (Mw::animation->is_frame_at(i, frame_pos))
-            widget_painter.drawImage(
-                Mw::animation->get_frame_at(i, frame_pos).dimensions.topLeft(),
-                Mw::animation->get_frame_at(i, frame_pos).image
-            );
-        else if (Mw::animation->is_frame_at(i, Mw::animation->get_prev_pos(i, frame_pos)))
-            if (state == PLAYING || visualization_mode == PREVIOUS) {
-                widget_painter.drawImage(
-                    Mw::animation->get_prev_frame_at(i, frame_pos).dimensions.topLeft(),
-                    Mw::animation->get_prev_frame_at(i, frame_pos).image
-                );
-            }
+    //visible frame
+    QList<int> layer_keys = Mw::animation->layers.keys();
+    QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+    while(ri != layer_keys.crend()) {
+        widget_painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
+        Animation::frame frame = Mw::animation->is_frame_at(*ri, frame_pos)?
+            Mw::animation->get_frame_at(*ri, frame_pos):
+            Mw::animation->get_prev_frame_at(*ri, frame_pos);
+        widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
+        ++ri;
     }
     widget_painter.setOpacity(1);
 
@@ -170,9 +172,7 @@ void Editor::clear_current_layer()
 void Editor::clear_frame_at_current_pos()
 {
     if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
-
-    Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
-    Mw::undostack->push(new ModifyFrameCommand(i, Animation::frame{}, layer_pos, frame_pos));
+    Mw::undostack->push(new ModifyFrameCommand(Mw::animation->get_frame_at(layer_pos, frame_pos), Animation::frame{}, layer_pos, frame_pos));
 }
 
 void Editor::remove_frame_at_current_pos()
@@ -183,16 +183,8 @@ void Editor::remove_frame_at_current_pos()
 
 void Editor::insert_frame_at_current_pos()
 {
-    if (
-        state != IDLE ||
-        Mw::animation->is_animation_empty() ||
-        frame_pos >= Mw::animation->get_last_pos(layer_pos)
-    ) return;
-
-    if (Mw::animation->is_frame_at(layer_pos, frame_pos))
-        Mw::undostack->push(new InsertFrameCommand(layer_pos, frame_pos + 1));
-    else if (!Mw::animation->is_frame_at(layer_pos, frame_pos))
-        Mw::undostack->push(new InsertFrameCommand(layer_pos, frame_pos));
+    if (state != IDLE || Mw::animation->is_animation_empty() || frame_pos >= Mw::animation->get_last_pos(layer_pos)) return;
+    Mw::undostack->push(new InsertFrameCommand(layer_pos, Mw::animation->is_frame_at(layer_pos, frame_pos) ? frame_pos + 1 : frame_pos));
 }
 
 void Editor::uninsert_frame_at_current_pos()
@@ -214,7 +206,6 @@ void Editor::goto_pos(int l, int p)
 {
     if (state != IDLE || l < 0 || !Mw::animation->layers.contains(l)) return;
     layer_pos = l;
-
     if (p < 0) return;
     frame_pos = p;
     Mw::update_all();
@@ -223,20 +214,13 @@ void Editor::goto_pos(int l, int p)
 
 void Editor::create_onions_at_current_pos()
 {
-    int fp;
-    if (Mw::animation->is_frame_at(layer_pos, frame_pos) || visualization_mode == EMPTY)
-        fp = frame_pos;
-    else if (!Mw::animation->is_frame_at(layer_pos, frame_pos) && Mw::animation->get_prev_pos(layer_pos, frame_pos) != -1)
-        fp = Mw::animation->get_prev_pos(layer_pos, frame_pos);
-    else
-        fp = 0;
-
-    onion_skins = Mw::animation->create_onions_at(
+    int f_pos = Mw::animation->is_frame_at(layer_pos, frame_pos) ? frame_pos : Mw::animation->get_prev_pos(layer_pos, frame_pos);
+    onion_skins = Mw::animation->create_onionskins_at(
         layer_pos,
-        fp,
+        f_pos != -1 ? f_pos : 0,
         is_os_loop_enabled,
-        is_os_prev_enabled,
-        is_os_next_enabled
+        is_os_prev_enabled ? nb_prev_os: 0,
+        is_os_next_enabled ? nb_next_os: 0
     );
 }
 

@@ -34,6 +34,8 @@ public:
     int get_last_pos(int l) { return layers.find(l)->frames.lastKey(); }
     int get_last_anim_pos();
     int get_prev_pos(int l, int p);
+    int get_recursive_prev_pos(int l, int p, int nb);
+    int get_recursive_next_pos(int l, int p, int nb);
     int get_next_pos(int l, int p);
     void resize_frame(frame* f, Direction direction, int size);
     void init_frame(frame* f, QPoint pos);
@@ -45,8 +47,9 @@ public:
     void set_layer_opacity(int l, int opacity) { layers.find(l)->opacity = opacity; }
     frame get_prev_frame_at(int l, int p) { return get_frame_at(l, get_prev_pos(l, p)); }
     frame get_next_frame_at(int l, int p) { return get_frame_at(l, get_next_pos(l, p)); }
-    QImage create_onions_at(int l, int p, bool loop, bool prev, bool next);
-    void add_onion_layer(QImage* img, int l, int p, double opacity, QColor color);
+
+    QImage create_onionskins_at(int l, int p, bool loop, int prev, int next);
+    void create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color);
     void export_animation(QString folder);
     void save_animation(QString path, QString animation_filename);
     void load_animation(QString path);

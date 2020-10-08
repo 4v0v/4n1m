@@ -22,7 +22,6 @@ public:
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
     void set_add_frame_mode(Mode m) { if (state != IDLE) return; add_frame_mode = m; Mw::update_all();}
-    void set_visualization_mode(Mode m) { if (state != IDLE) return;  visualization_mode = m; Mw::update_all();}
     void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; Mw::update_all(); }
     void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_all(); }
     void toggle_onion_skin_prev() { if (state != IDLE) return;is_os_prev_enabled = !is_os_prev_enabled; Mw::update_all(); }
@@ -52,6 +51,8 @@ public:
     bool is_os_loop_enabled   = false;
     bool is_os_prev_enabled   = false;
     bool is_os_next_enabled   = false;
+    int nb_prev_os = 2;
+    int nb_next_os = 2;
     bool is_play_loop_enabled = false;
     bool is_internal_clipboard_empty = true;
     int knockback_amount = 255/3;
@@ -60,7 +61,6 @@ public:
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
     Mode add_frame_mode = EMPTY;
-    Mode visualization_mode = PREVIOUS;
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;
