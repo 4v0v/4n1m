@@ -4,12 +4,14 @@
 #include "timeline.h"
 #include "colorwheel.h"
 #include "toolbar.h"
+#include "preview.h"
 
 Animation* Mw::animation;
 Timeline* Mw::timeline;
 Editor* Mw::editor;
 Toolbar* Mw::toolbar;
 QUndoStack* Mw::undostack;
+Preview* Mw::preview;
 
 Mw::Mw()
 {
@@ -19,6 +21,7 @@ Mw::Mw()
     timeline  = new Timeline(this);
     toolbar   = new Toolbar(this);
     undostack = new QUndoStack(this);
+    preview   = new Preview();
     undostack->setUndoLimit(20);
 
     QHBoxLayout* toolbar_and_editor_layout = new QHBoxLayout();
@@ -36,12 +39,14 @@ Mw::Mw()
     layout->addWidget(timeline, 1);
     QWidget* main_widget = new QWidget();
     main_widget->setLayout(layout);
+    preview->setParent(main_widget);
 
     setCentralWidget(main_widget);
     setWindowTitle(tr("4n1m"));
     setGeometry(QRect(0, 0, 1350, 850));
     setWindowState(Qt::WindowMaximized);
     setAcceptDrops(true);
+    setMouseTracking(true);
 
     //shortcuts initialization
     create_shortcut(Qt::CTRL + Qt::Key_Z, [this](){ undo(); });
@@ -50,7 +55,7 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_V,[]{ editor->paste(); });
     create_shortcut(Qt::CTRL + Qt::Key_T,[]{ editor->clear_current_layer(); });
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
-    create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ editor->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
+    create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ preview->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
     create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
     create_shortcut(Qt::SHIFT + Qt::Key_Space, [this]{play(false); });
@@ -116,6 +121,7 @@ void Mw::create_shortcut(QKeySequence ks, std::function<void()> action){
     connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
 }
 
+
 void Mw::update_all()
 {
     editor->create_onions_at_current_pos();
@@ -144,6 +150,6 @@ void Mw::redo()
 
 void Mw::play(bool loop)
 {
-    if (editor->state == IDLE) editor->play_from(editor->frame_pos, loop);
-    else if (editor->state == PLAYING) editor->stop();
+    if (preview->state == IDLE) preview->play_from(editor->frame_pos, loop);
+    else if (preview->state == PLAYING) preview->stop();
 }

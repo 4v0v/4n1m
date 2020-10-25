@@ -23,9 +23,9 @@ Timeline::Timeline(Mw* mw): QWidget(mw)
 
 void Timeline::update_all_frames()
 {
-    foreach(TimelineLayer* layer, layers)
+    foreach(auto layer, layers)
     {
-        foreach(TimelineFrame* frame, layer->frames)
+        foreach(auto frame, layer->frames)
         {
             frame->is_key = Mw::animation->is_frame_at(layer->position, frame->position);
             frame->is_current = Mw::editor->frame_pos == frame->position && Mw::editor->layer_pos == layer->position;

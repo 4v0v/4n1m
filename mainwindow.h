@@ -18,6 +18,7 @@ class Timeline;
 class Toolbar;
 class TimelineFrame;
 class TimelineLayer;
+class Preview;
 
 enum State {
     IDLE,
@@ -65,5 +66,6 @@ public:
     static Timeline* timeline;
     static Editor* editor;
     static Toolbar* toolbar;
+    static Preview* preview;
     static QUndoStack* undostack;
 };

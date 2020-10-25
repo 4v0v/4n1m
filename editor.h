@@ -58,13 +58,11 @@ public:
     int knockback_amount = 255/3;
     int frame_pos = 0;
     int layer_pos = 0;
-    QTimer* playing_timer = new QTimer();
     State state = IDLE;
     Mode add_frame_mode = EMPTY;
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;
-    QSize resize_offset;
     double scale = 1.0;
     QPoint offset = QPoint(300, 50);
     QPen pen_tool = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);

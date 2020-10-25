@@ -4,7 +4,6 @@ Editor::Editor(Mw* mw): QWidget(mw)
 {
     setCursor(Qt::CrossCursor);
     onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
-    playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
 }
 
 void Editor::mousePressEvent(QMouseEvent* e)
@@ -139,9 +138,9 @@ void Editor::paintEvent(QPaintEvent*)
         widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
         ++ri;
     }
-    widget_painter.setOpacity(1);
 
-    //reset transform
+    //reset painter
+    widget_painter.setOpacity(1);
     widget_painter.resetTransform();
     
     //tool preview
@@ -287,51 +286,6 @@ void Editor::knockback()
     }
 
     Mw::undostack->push(new ModifyFrameCommand(i, j, layer_pos, frame_pos));
-}
-
-void Editor::play_step()
-{
-    if (frame_pos + 1 <= Mw::animation->get_last_anim_pos())
-    {
-        frame_pos += 1;
-        Mw::editor->update();
-        Mw::timeline->update_all_frames();
-        Mw::timeline->update();
-    } else {
-        if (is_play_loop_enabled)
-        {
-            frame_pos = 0;
-            Mw::editor->update();
-            Mw::timeline->update_all_frames();
-            Mw::timeline->update();
-        }
-        else stop();
-    }
-}
-
-void Editor::play_from(int begin, bool loop)
-{
-    if (Mw::animation->is_animation_empty() || state != IDLE) return;
-
-    if (loop) is_play_loop_enabled = true;
-    temp_is_os_enabled = is_os_enabled;
-    frame_pos = begin;
-    is_os_enabled = false;
-    state = PLAYING;
-    playing_timer->start(1000/Mw::animation->FPS);
-    Mw::editor->update();
-    Mw::timeline->update();
-}
-
-void Editor::stop()
-{
-    if (state != PLAYING) return;
-
-    is_os_enabled = temp_is_os_enabled;
-    state = IDLE;
-    is_play_loop_enabled = false;
-    playing_timer->stop();
-    Mw::update_all();
 }
 
 void Editor::copy()

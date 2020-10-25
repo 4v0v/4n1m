@@ -1,9 +1,3 @@
-#-------------------------------------------------
-#
-# Project created by QtCreator 2017-09-03T14:18:55
-#
-#-------------------------------------------------
-
 QT += core gui
 QT += widgets
 QT += xml
@@ -14,6 +8,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     miniz.cpp \
+    preview.cpp \
     qminiz.cpp \
     animation.cpp \
     colorwheel.cpp \
@@ -26,6 +21,7 @@ SOURCES += \
 
 HEADERS += \
     miniz.h \
+    preview.h \
     qminiz.h \
     animation.h \
     colorwheel.h \
