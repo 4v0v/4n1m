@@ -6,6 +6,6 @@ class Toolbar : public QWidget
 {
     Q_OBJECT
 public:
-    Toolbar(Mw*);
+    Toolbar();
 };
 

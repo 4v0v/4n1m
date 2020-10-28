@@ -19,8 +19,8 @@ Mw::Mw()
     animation = new Animation();
     editor    = new Editor(this);
     timeline  = new Timeline(this);
-    toolbar   = new Toolbar(this);
     undostack = new QUndoStack(this);
+    toolbar   = new Toolbar();
     preview   = new Preview();
     undostack->setUndoLimit(20);
 
@@ -35,11 +35,12 @@ Mw::Mw()
     QVBoxLayout* layout = new QVBoxLayout();
     layout->setSpacing(0);
     layout->setMargin(0);
-    layout->addWidget(toolbar_and_editor, 8);
+    layout->addWidget(editor, 8);
     layout->addWidget(timeline, 1);
     QWidget* main_widget = new QWidget();
     main_widget->setLayout(layout);
     preview->setParent(main_widget);
+    toolbar->setParent(main_widget);
 
     setCentralWidget(main_widget);
     setWindowTitle(tr("4n1m"));
@@ -55,11 +56,11 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_V,[]{ editor->paste(); });
     create_shortcut(Qt::CTRL + Qt::Key_T,[]{ editor->clear_current_layer(); });
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
-    create_shortcut(Qt::CTRL + Qt::Key_Space,[]{ preview->play_from(editor->frame_pos > 5 ? editor->frame_pos - 5 : 0, false); });
+
     create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
-    create_shortcut(Qt::SHIFT + Qt::Key_Space, [this]{play(false); });
-    create_shortcut(Qt::Key_Space, [this]{ play(true); });
+
+    create_shortcut(Qt::Key_Space, []{ preview->toggle_play(); });
     create_shortcut(Qt::Key_Right,[]{ editor->goto_next_pos(); });
     create_shortcut(Qt::Key_Left,[]{ editor->goto_prev_pos(); });
     create_shortcut(Qt::Key_Down,[]{ editor->goto_next_layer(); });
@@ -75,6 +76,7 @@ Mw::Mw()
     create_shortcut(Qt::Key_G,[]{ editor->set_add_frame_mode(EMPTY); });
     create_shortcut(Qt::Key_H,[]{ editor->set_add_frame_mode(PREVIOUS); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
+    create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
     create_shortcut(Qt::Key_M,[]{
         auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
         qDebug() << _OutputFolder;
@@ -146,10 +148,4 @@ void Mw::redo()
 {
     if (Mw::editor->state != IDLE) return;
     Mw::undostack->redo();
-}
-
-void Mw::play(bool loop)
-{
-    if (preview->state == IDLE) preview->play_from(editor->frame_pos, loop);
-    else if (preview->state == PLAYING) preview->stop();
 }

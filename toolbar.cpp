@@ -2,10 +2,11 @@
 #include "colorwheel.h"
 #include "editor.h"
 
-Toolbar::Toolbar(Mw* mw): QWidget(mw)
+Toolbar::Toolbar(): QWidget(nullptr)
 {
+    setGeometry(0, 0, 200, 200);
+
     QVBoxLayout* vlayout      = new QVBoxLayout;
-    QWidget* widget           = new QWidget(this);
     ColorWheel* color_wheel   = new ColorWheel(this);
     QPushButton* pen_button   = new QPushButton("Pen");
     QPushButton* lasso_button = new QPushButton("Lasso fill");
@@ -15,14 +16,12 @@ Toolbar::Toolbar(Mw* mw): QWidget(mw)
     pen_width_slider->setValue(3);
     pen_width_slider->setOrientation(Qt::Horizontal);
 
-    widget->setStyleSheet("background-color: black;");
     vlayout->setSpacing(0);
     vlayout->setMargin(0);
     vlayout->addWidget(color_wheel, 1);
     vlayout->addWidget(pen_width_slider);
     vlayout->addWidget(pen_button);
     vlayout->addWidget(lasso_button);
-    vlayout->addWidget(widget, 5);
     setLayout(vlayout);
 
     connect(pen_button, &QPushButton::pressed, this, [] {

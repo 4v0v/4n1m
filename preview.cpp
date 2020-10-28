@@ -4,21 +4,20 @@ Preview::Preview(): QWidget(nullptr)
 {
     setGeometry(200, 300, 500, 500);
     setStyleSheet("background-color: red; border:0px");
-
     playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
-//    playing_timer->start(1000/Mw::animation->FPS);
 }
 
-void Preview::mousePressEvent(QMouseEvent*)
+void Preview::mousePressEvent(QMouseEvent* e)
 {
     if (state != IDLE) return;
     state = MOVING;
+    delta_pos = e->pos();
 }
 
 void Preview::mouseMoveEvent(QMouseEvent* e)
 {
     if (state != MOVING) return;
-    move(QWidget::mapToParent(e->pos()));
+    move(QWidget::mapToParent(e->pos() - delta_pos));
 }
 
 void Preview::mouseReleaseEvent(QMouseEvent*)
@@ -26,25 +25,27 @@ void Preview::mouseReleaseEvent(QMouseEvent*)
     state = IDLE;
 }
 
-void Preview::paintEvent(QPaintEvent*) {
+void Preview::paintEvent(QPaintEvent*)
+{
+    if (!is_visible) return;
     widget_painter.begin(this);
 
     //background
-    Mw::set_painter_colors(&widget_painter, Qt::gray);
+    Mw::set_painter_colors(&widget_painter, bg_color);
     widget_painter.drawRect(rect());
 
     //transform editor
     widget_painter.scale(
-                1/((float)Mw::animation->dimensions.width()/ width()),
-                1/((float)Mw::animation->dimensions.height()/ height()));
-
+        1/((float)Mw::animation->dimensions.width()/ width()),
+        1/((float)Mw::animation->dimensions.height()/ height())
+    );
 
     //visible frame
-    QList<int> layer_keys = Mw::animation->layers.keys();
-    QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+    auto layer_keys = Mw::animation->layers.keys();
+    auto ri = layer_keys.crbegin();
     while(ri != layer_keys.crend()) {
         widget_painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
-        Animation::frame frame = Mw::animation->is_frame_at(*ri, frame_pos)?
+        auto frame = Mw::animation->is_frame_at(*ri, frame_pos)?
             Mw::animation->get_frame_at(*ri, frame_pos):
             Mw::animation->get_prev_frame_at(*ri, frame_pos);
         widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
@@ -55,6 +56,15 @@ void Preview::paintEvent(QPaintEvent*) {
     widget_painter.setOpacity(1);
     widget_painter.resetTransform();
 
+    //border
+    Mw::set_painter_colors(&widget_painter, Qt::black, Qt::transparent);
+    widget_painter.drawRect(
+        rect().topLeft().x(),
+        rect().topLeft().y(),
+        rect().width()-1,
+        rect().height()-1
+    );
+
     widget_painter.end();
 };
 
@@ -62,28 +72,21 @@ void Preview::paintEvent(QPaintEvent*) {
 void Preview::play_step()
 {
     if (frame_pos + 1 <= Mw::animation->get_last_anim_pos())
-    {
         frame_pos += 1;
-    } else {
+     else
         frame_pos = 0;
-    }
 
     update();
 }
 
-void Preview::play_from(int begin, bool loop)
+void Preview::toggle_play()
 {
-    if (Mw::animation->is_animation_empty() || state != IDLE) return;
+    if (!is_visible) return;
 
-    frame_pos = begin;
-
-    playing_timer->start(1000/Mw::animation->FPS);
-    update();
-}
-
-void Preview::stop()
-{
-    if (state != PLAYING) return;
-    state = IDLE;
+    if (!playing_timer->isActive() && is_visible) {
+        frame_pos = 0;
+        playing_timer->start(1000/Mw::animation->FPS);
+     } else
+        playing_timer->stop();
 }
 

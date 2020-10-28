@@ -60,7 +60,6 @@ public:
     void create_shortcut(QKeySequence ks, std::function<void()> action);
     void undo();
     void redo();
-    void play(bool loop);
 
     static Animation* animation;
     static Timeline* timeline;

@@ -13,16 +13,17 @@ public:
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mouseReleaseEvent(QMouseEvent* e);
 
-    QPainter widget_painter;
-
+    void toggle_visibility() { is_visible = !is_visible; playing_timer->stop(); update(); }
+    void toggle_play();
     void play_step();
-    void play_from(int begin, bool loop);
-    void stop();
 
     int frame_pos = 0;
-
+    bool is_visible = false;
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
+    QPainter widget_painter;
+    QPoint delta_pos;
+    QColor bg_color = Qt::gray;
 };
 
 
