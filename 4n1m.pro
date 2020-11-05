@@ -8,25 +8,25 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     miniz.cpp \
+    mw.cpp \
     preview.cpp \
     qminiz.cpp \
     animation.cpp \
     colorwheel.cpp \
     commands.cpp \
     main.cpp \
-    mainwindow.cpp \
     editor.cpp \
     timeline.cpp \
     toolbar.cpp
 
 HEADERS += \
     miniz.h \
+    mw.h \
     preview.h \
     qminiz.h \
     animation.h \
     colorwheel.h \
     commands.h \
-    mainwindow.h \
     editor.h \
     timeline.h \
     toolbar.h

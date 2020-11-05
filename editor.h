@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mainwindow.h"
+#include "mw.h"
 #include "animation.h"
 #include "timeline.h"
 #include "commands.h"
@@ -9,7 +9,7 @@ class Editor : public QWidget
 {
     Q_OBJECT
 public:
-    Editor(Mw*);
+    Editor();
     virtual void mousePressEvent(QMouseEvent* e);
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mouseReleaseEvent(QMouseEvent* e);
@@ -21,7 +21,7 @@ public:
     void set_brush_color(QColor c) { if (state != IDLE) return; lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
-    void set_add_frame_mode(Mode m) { if (state != IDLE) return; add_frame_mode = m; Mw::update_all();}
+    void toggle_copy_prev_frame() { if (state != IDLE) return;  is_copy_prev_frame = !is_copy_prev_frame; Mw::update_all(); }
     void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; Mw::update_all(); }
     void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_all(); }
     void toggle_onion_skin_prev() { if (state != IDLE) return;is_os_prev_enabled = !is_os_prev_enabled; Mw::update_all(); }
@@ -49,8 +49,9 @@ public:
     bool temp_is_os_enabled;
     bool is_os_enabled        = true;
     bool is_os_loop_enabled   = false;
-    bool is_os_prev_enabled   = false;
-    bool is_os_next_enabled   = false;
+    bool is_os_prev_enabled   = true;
+    bool is_os_next_enabled   = true;
+    bool is_copy_prev_frame       = false;
     int nb_prev_os = 2;
     int nb_next_os = 2;
     bool is_play_loop_enabled = false;
@@ -59,7 +60,6 @@ public:
     int frame_pos = 0;
     int layer_pos = 0;
     State state = IDLE;
-    Mode add_frame_mode = EMPTY;
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mainwindow.h"
+#include "mw.h"
 #include "animation.h"
 #include "editor.h"
 
@@ -8,7 +8,7 @@ class Timeline : public QWidget
 {
     Q_OBJECT
 public:
-    Timeline(Mw*);
+    Timeline();
     virtual void wheelEvent(QWheelEvent* e);
     virtual void resizeEvent(QResizeEvent* e);
     void update_all_frames();

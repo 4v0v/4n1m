@@ -2,7 +2,7 @@
 
 Preview::Preview(): QWidget(nullptr)
 {
-    setGeometry(200, 300, 500, 500);
+    setGeometry(0, 0, 500, 500);
     setStyleSheet("background-color: red; border:0px");
     playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
 }

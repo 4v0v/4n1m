@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mainwindow.h"
+#include "mw.h"
 #include "animation.h"
 
 class Preview : public QWidget

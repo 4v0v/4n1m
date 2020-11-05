@@ -1,6 +1,6 @@
 #include "timeline.h"
 
-Timeline::Timeline(Mw* mw): QWidget(mw)
+Timeline::Timeline(): QWidget(nullptr)
 {
     setMinimumHeight(110);
     setMaximumHeight(110);

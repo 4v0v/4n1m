@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+#include "mw.h"
 #include "editor.h"
 #include "animation.h"
 #include "timeline.h"
@@ -17,30 +17,24 @@ Mw::Mw()
 {
     //widgets & layout initialization
     animation = new Animation();
-    editor    = new Editor(this);
-    timeline  = new Timeline(this);
-    undostack = new QUndoStack(this);
-    toolbar   = new Toolbar();
+    editor    = new Editor();
+    timeline  = new Timeline();
+    undostack = new QUndoStack();
     preview   = new Preview();
-    undostack->setUndoLimit(20);
-
-    QHBoxLayout* toolbar_and_editor_layout = new QHBoxLayout();
-    QWidget* toolbar_and_editor = new QWidget();
-    toolbar_and_editor_layout->setSpacing(0);
-    toolbar_and_editor_layout->setMargin(0);
-    toolbar_and_editor_layout->addWidget(toolbar, 1);
-    toolbar_and_editor_layout->addWidget(editor, 9);
-    toolbar_and_editor->setLayout(toolbar_and_editor_layout);
+    toolbar   = new Toolbar();
 
     QVBoxLayout* layout = new QVBoxLayout();
     layout->setSpacing(0);
     layout->setMargin(0);
     layout->addWidget(editor, 8);
     layout->addWidget(timeline, 1);
+
     QWidget* main_widget = new QWidget();
     main_widget->setLayout(layout);
     preview->setParent(main_widget);
     toolbar->setParent(main_widget);
+
+    undostack->setUndoLimit(20);
 
     setCentralWidget(main_widget);
     setWindowTitle(tr("4n1m"));
@@ -49,6 +43,9 @@ Mw::Mw()
     setAcceptDrops(true);
     setMouseTracking(true);
 
+    preview->move(editor->width() - preview->width(), editor->height() - preview->height());
+
+    // TODO: put all this on toolbar
     //shortcuts initialization
     create_shortcut(Qt::CTRL + Qt::Key_Z, [this](){ undo(); });
     create_shortcut(Qt::CTRL + Qt::Key_C,[]{ editor->copy(); });
@@ -56,10 +53,8 @@ Mw::Mw()
     create_shortcut(Qt::CTRL + Qt::Key_V,[]{ editor->paste(); });
     create_shortcut(Qt::CTRL + Qt::Key_T,[]{ editor->clear_current_layer(); });
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
-
     create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
-
     create_shortcut(Qt::Key_Space, []{ preview->toggle_play(); });
     create_shortcut(Qt::Key_Right,[]{ editor->goto_next_pos(); });
     create_shortcut(Qt::Key_Left,[]{ editor->goto_prev_pos(); });
@@ -73,8 +68,7 @@ Mw::Mw()
     create_shortcut(Qt::Key_O,[]{ editor->toggle_onion_skin_next(); });
     create_shortcut(Qt::Key_9,[]{ editor->insert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
-    create_shortcut(Qt::Key_G,[]{ editor->set_add_frame_mode(EMPTY); });
-    create_shortcut(Qt::Key_H,[]{ editor->set_add_frame_mode(PREVIOUS); });
+    create_shortcut(Qt::Key_G,[]{ editor->toggle_copy_prev_frame(); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
     create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
     create_shortcut(Qt::Key_M,[]{
@@ -119,10 +113,17 @@ void Mw::dropEvent(QDropEvent *event)
     update_all();
 }
 
-void Mw::create_shortcut(QKeySequence ks, std::function<void()> action){
-    connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
+void Mw::resizeEvent(QResizeEvent *e)
+{
+    preview->move(editor->width() - preview->width(), editor->height() - preview->height());
+
+    QWidget::resizeEvent(e);
 }
 
+void Mw::create_shortcut(QKeySequence ks, std::function<void()> action)
+{
+    connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
+}
 
 void Mw::update_all()
 {

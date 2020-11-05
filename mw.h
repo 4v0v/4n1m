@@ -53,6 +53,7 @@ public:
     virtual void dragEnterEvent(QDragEnterEvent*);
     virtual void dropEvent(QDropEvent*);
     virtual void closeEvent(QCloseEvent*);
+    virtual void resizeEvent(QResizeEvent*);
 
     static void update_all();
     static void set_painter_colors(QPainter* painter, QColor pen , QColor brush = nullptr);

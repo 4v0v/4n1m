@@ -15,13 +15,13 @@ GNU General Public License for more details.
 */
 
 #pragma once
-#include "mainwindow.h"
+#include "mw.h"
 
 class ColorWheel : public QWidget
 {
     Q_OBJECT
 public:
-    ColorWheel(QWidget* parent);
+    ColorWheel(QWidget*);
     QColor color() { return current_color; };
     virtual void mousePressEvent(QMouseEvent*);
     virtual void mouseMoveEvent(QMouseEvent*);

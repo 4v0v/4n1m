@@ -1,6 +1,6 @@
 #include "editor.h"
 
-Editor::Editor(Mw* mw): QWidget(mw)
+Editor::Editor(): QWidget(nullptr)
 {
     setCursor(Qt::CrossCursor);
     onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
@@ -17,10 +17,10 @@ void Editor::mousePressEvent(QMouseEvent* e)
             state = SCRIBBLING;
             stroke << e->pos();
             if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
-                if (add_frame_mode == EMPTY)
-                    Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
-                else if (add_frame_mode == PREVIOUS)
+                if (is_copy_prev_frame)
                     Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(layer_pos, frame_pos), layer_pos, frame_pos));
+                else
+                    Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
             }
             break;
         case Qt::RightButton:
