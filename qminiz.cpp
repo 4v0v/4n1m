@@ -20,7 +20,7 @@ GNU General Public License for more details.
 #include <QDirIterator>
 #include "miniz.h"
 
-bool MiniZ::compressFolder(QString zip_path, QString folder_path, const QStringList& filenames)
+bool QMiniZ::compressFolder(QString zip_path, QString folder_path, const QStringList& filenames)
 {
     if (!folder_path.endsWith("/")) folder_path.append("/");
 
@@ -45,7 +45,7 @@ bool MiniZ::compressFolder(QString zip_path, QString folder_path, const QStringL
     return ok;
 }
 
-bool MiniZ::uncompressFolder(QString zip_name, QString zip_path)
+bool QMiniZ::uncompressFolder(QString zip_name, QString zip_path)
 {
     if (!QFile::exists(zip_name)) return false;
 

@@ -19,6 +19,12 @@ bool Animation::is_animation_empty()
     return true;
 };
 
+bool Animation::is_frame_at(int l, int p)
+{
+    if (!layers.contains(l)) return false;
+    return layers.find(l)->frames.contains(p);
+}
+
 int Animation::get_last_anim_pos()
 {
     int i = 0;
@@ -27,12 +33,6 @@ int Animation::get_last_anim_pos()
     }
     return i;
 };
-
-bool Animation::is_frame_at(int l, int p)
-{
-    if (!layers.contains(l)) return false;
-    return layers.find(l)->frames.contains(p);
-}
 
 int Animation::get_prev_pos(int l, int p)
 {
@@ -77,8 +77,6 @@ void Animation::clear_animation()
     foreach(int l, layers.keys())
         clear_layer_at(l);
 }
-
-
 
 void Animation::init_frame(frame* f, QPoint pos)
 {
@@ -221,7 +219,7 @@ void Animation::export_animation(QString folder_name)
 
 void Animation::save_animation(QString path, QString animation_filename)
 {
-    QString temp_folder = "temp_4n1m_" + animation_filename;
+    QString temp_folder = "temp_4n1m_save";
     QList<QString> file_names;
 
     if (is_animation_empty()) return;
@@ -269,11 +267,10 @@ void Animation::save_animation(QString path, QString animation_filename)
     xml_file.close();
     file_names.append("anim.xml");
 
-
     // Remove saved zip if already exist
     QFile::remove(path + animation_filename + ".4n1m");
 
-    MiniZ::compressFolder(
+    QMiniZ::compressFolder(
         path + animation_filename + ".4n1m",
         temp_folder,
         QStringList(file_names)
@@ -288,10 +285,15 @@ void Animation::load_animation(QString path)
     // TODO: supprimer aussi layers
     clear_animation();
 
-    QString temp_folder = "temp_4n1m_" + path;
-    temp_folder.chop(5);
+    // create temporary folder
+    QString temp_folder = "temp_4n1m_load";
 
-    MiniZ::uncompressFolder(path, temp_folder);
+    //dezip file inside temporary folder
+    if (!QMiniZ::uncompressFolder(path, temp_folder))
+    {
+        qDebug() << "failed to dezip file at " << path;
+        return;
+    }
 
     QDomDocument doc;
     // Load xml file as raw data
@@ -328,6 +330,9 @@ void Animation::load_animation(QString path)
 
     f.close();
 
+    // remove temporary folder
     QDir dir( temp_folder );
     dir.removeRecursively();
+
+    Mw::update_all();
 };

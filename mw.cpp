@@ -71,6 +71,9 @@ Mw::Mw()
     create_shortcut(Qt::Key_G,[]{ editor->toggle_copy_prev_frame(); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
     create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
+
+
+
     create_shortcut(Qt::Key_M,[]{
         auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
         qDebug() << _OutputFolder;
@@ -84,8 +87,6 @@ Mw::Mw()
 
     // restore_previous_session
     animation->load_animation("temp.4n1m");
-    update_all();
-    timeline->update_all_frames();
 }
 
 void Mw::dragEnterEvent(QDragEnterEvent* event)

@@ -5,7 +5,7 @@
 
 Toolbar::Toolbar(): QWidget(nullptr)
 {
-    setGeometry(0, 0, 150, 250);
+    setGeometry(0, 0, 150, 350);
 
     ColorWheel* color_wheel = new ColorWheel(this);
 
@@ -37,13 +37,16 @@ Toolbar::Toolbar(): QWidget(nullptr)
     pen_width_slider->setValue(3);
     pen_width_slider->setOrientation(Qt::Horizontal);
 
+    QPushButton* save_file = new QPushButton("Save");
+    QPushButton* load_file = new QPushButton("Load");
+    QPushButton* export_file = new QPushButton("Export");
 
     QVBoxLayout* vlayout  = new QVBoxLayout;
     vlayout->setSpacing(0);
     vlayout->setMargin(0);
     vlayout->addWidget(color_wheel);
     vlayout->addWidget(pen_width_slider);
-    vlayout->addWidget(pen_width_slider);
+    vlayout->addWidget(pen_radiobutton);
     vlayout->addWidget(lasso_radiobutton);
     vlayout->addWidget(preview_button);
     vlayout->addWidget(copy_previous_button);
@@ -51,6 +54,9 @@ Toolbar::Toolbar(): QWidget(nullptr)
     vlayout->addWidget(onion_next);
     vlayout->addWidget(onion_prev);
     vlayout->addWidget(onion_loop);
+    vlayout->addWidget(save_file);
+    vlayout->addWidget(load_file);
+    vlayout->addWidget(export_file);
     setLayout(vlayout);
 
     connect(pen_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN); });
@@ -65,6 +71,24 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(color_wheel, &ColorWheel::select_color, this, [color_wheel]() {
         Mw::editor->set_pen_color(color_wheel->color());
         Mw::editor->set_brush_color(color_wheel->color());
+    });
+
+    connect(save_file, &QPushButton::pressed, this, [] {
+       auto saved_file = QFileDialog::getSaveFileName(0, ("Save animation"), QDir::currentPath());
+       auto fileinfo = QFileInfo(saved_file);
+
+       qDebug() << fileinfo.baseName();
+       qDebug() << fileinfo.suffix();
+    });
+
+    connect(load_file, &QPushButton::pressed, this, [] {
+        auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
+        Mw::animation->load_animation(loaded_file);
+    });
+
+    connect(export_file, &QPushButton::pressed, this, [] {
+        auto exported_file = QFileDialog::getSaveFileName(0, ("Export animation"), QDir::currentPath());
+        auto fileinfo = QFileInfo(exported_file);
     });
 }
 

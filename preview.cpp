@@ -56,18 +56,8 @@ void Preview::paintEvent(QPaintEvent*)
     widget_painter.setOpacity(1);
     widget_painter.resetTransform();
 
-    //border
-    Mw::set_painter_colors(&widget_painter, Qt::black, Qt::transparent);
-    widget_painter.drawRect(
-        rect().topLeft().x(),
-        rect().topLeft().y(),
-        rect().width()-1,
-        rect().height()-1
-    );
-
     widget_painter.end();
 };
-
 
 void Preview::play_step()
 {
@@ -83,7 +73,7 @@ void Preview::toggle_play()
 {
     if (!is_visible) return;
 
-    if (!playing_timer->isActive() && is_visible) {
+    if (!playing_timer->isActive()) {
         frame_pos = 0;
         playing_timer->start(1000/Mw::animation->FPS);
      } else

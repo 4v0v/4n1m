@@ -47,15 +47,15 @@ public:
     void paste();
 
     bool temp_is_os_enabled;
-    bool is_os_enabled        = true;
-    bool is_os_loop_enabled   = false;
-    bool is_os_prev_enabled   = true;
-    bool is_os_next_enabled   = true;
-    bool is_copy_prev_frame       = false;
-    int nb_prev_os = 2;
-    int nb_next_os = 2;
+    bool is_os_enabled      = true;
+    bool is_os_loop_enabled = false;
+    bool is_os_prev_enabled = true;
+    bool is_os_next_enabled = true;
+    bool is_copy_prev_frame = false;
     bool is_play_loop_enabled = false;
     bool is_internal_clipboard_empty = true;
+    int nb_prev_os = 2;
+    int nb_next_os = 2;
     int knockback_amount = 255/3;
     int frame_pos = 0;
     int layer_pos = 0;
@@ -63,7 +63,7 @@ public:
     Tool tool = PEN;
     QPoint moving_offset;
     QPoint moving_offset_delta;
-    double scale = 1.0;
+    double scale = 1.75;
     QPoint offset = QPoint(300, 50);
     QPen pen_tool = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassofill_tool = QBrush(Qt::black);

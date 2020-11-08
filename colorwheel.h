@@ -35,7 +35,6 @@ signals:
 public slots:
     void set_color(QColor color);
 
-
 private:
     void hue_changed(const int& hue);
     void saturation_changed(const int& sat);

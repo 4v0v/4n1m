@@ -182,7 +182,13 @@ void Editor::remove_frame_at_current_pos()
 
 void Editor::insert_frame_at_current_pos()
 {
-    if (state != IDLE || Mw::animation->is_animation_empty() || frame_pos >= Mw::animation->get_last_pos(layer_pos)) return;
+    if (
+        state != IDLE ||
+        Mw::animation->is_animation_empty() ||
+        Mw::animation->is_layer_empty(layer_pos) ||
+        frame_pos >= Mw::animation->get_last_pos(layer_pos)
+    ) return;
+
     Mw::undostack->push(new InsertFrameCommand(layer_pos, Mw::animation->is_frame_at(layer_pos, frame_pos) ? frame_pos + 1 : frame_pos));
 }
 
@@ -210,7 +216,6 @@ void Editor::goto_pos(int l, int p)
     Mw::update_all();
 }
 
-
 void Editor::create_onions_at_current_pos()
 {
     int f_pos = Mw::animation->is_frame_at(layer_pos, frame_pos) ? frame_pos : Mw::animation->get_prev_pos(layer_pos, frame_pos);
@@ -232,10 +237,7 @@ void Editor::draw_on_key()
     if (j.is_empty) Mw::animation->init_frame(&j, (stroke.first() - offset) / scale);
 
     // Resize frame
-    QRect bb(
-        (stroke.boundingRect().topLeft() - offset) / scale,
-        stroke.boundingRect().size() / scale
-    );
+    QRect bb((stroke.boundingRect().topLeft() - offset) / scale,stroke.boundingRect().size() / scale);
     if (bb.right() > j.dimensions.right()) Mw::animation->resize_frame(&j, RIGHT, bb.right());
     if (bb.bottom() > j.dimensions.bottom()) Mw::animation->resize_frame(&j, BOTTOM, bb.bottom());
     if (bb.left() < j.dimensions.left()) Mw::animation->resize_frame(&j, LEFT, bb.left());

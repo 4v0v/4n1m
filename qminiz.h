@@ -17,7 +17,7 @@ GNU General Public License for more details.
 
 #include <QString>
 
-namespace MiniZ
+namespace QMiniZ
 {
     bool compressFolder(QString zip_path, QString folder_path, const QStringList& filenames);
     bool uncompressFolder(QString zip_path, QString destPath);
