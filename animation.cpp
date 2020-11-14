@@ -188,43 +188,47 @@ void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, Q
     onions_painter.end();
 }
 
-void Animation::export_animation(QString folder_name)
+void Animation::export_animation(QString filename)
 {
     if (is_animation_empty()) return;
     if (!QDir("anim").exists()) return;
 
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
-        QString filename = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
+        QString img_name = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
         QImage img       = QImage(dimensions, QImage::Format_ARGB32);
         QPainter painter(&img);
 
-        // TODO: find better way to reverse iterate qlist
-        QList<int> revert_list = layers.keys();
-        for(int k=0, s=layers.keys().size(), max=(s/2); k<max; k++) revert_list.swap(k,s-(1+k));
-        foreach(int l, revert_list) {
-            if (is_layer_empty(l)) continue;
+        QList<int> layer_keys = layers.keys();
+        QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+        while(ri != layer_keys.crend()) {
+            if (is_layer_empty(*ri)) continue;
 
-            if (is_frame_at(l, i)) {
-                frame f = get_frame_at(l, i);
+            if (is_frame_at(*ri, i)) {
+                frame f = get_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
-            } else if (is_frame_at(l, get_prev_pos(l, i))) {
-                frame f = get_prev_frame_at(l, i);
+            } else if (is_frame_at(*ri, get_prev_pos(*ri, i))) {
+                frame f = get_prev_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
             }
+
+            ++ri;
         }
 
-        img.save( folder_name + "\\" + filename);
+        img.save( filename + "\\" + img_name);
     }
 }
 
-void Animation::save_animation(QString path, QString animation_filename)
+void Animation::save_animation(QString filename)
 {
     QString temp_folder = "temp_4n1m_save";
     QList<QString> file_names;
 
+    auto fileinfo = QFileInfo(filename);
+    auto path = fileinfo.path();
+
     if (is_animation_empty()) return;
-    if (QDir(temp_folder).exists()) return; // if folder exists don't delete it
-    QDir().mkdir(temp_folder); // create temp folder
+    if (QDir(temp_folder).exists()) return;
+    QDir().mkdir(temp_folder);
 
     // create images
     foreach(int l, layers.keys()) {
@@ -268,10 +272,10 @@ void Animation::save_animation(QString path, QString animation_filename)
     file_names.append("anim.xml");
 
     // Remove saved zip if already exist
-    QFile::remove(path + animation_filename + ".4n1m");
+    QFile::remove(path + filename);
 
     QMiniZ::compressFolder(
-        path + animation_filename + ".4n1m",
+        path + filename,
         temp_folder,
         QStringList(file_names)
     );
@@ -282,18 +286,10 @@ void Animation::save_animation(QString path, QString animation_filename)
 
 void Animation::load_animation(QString path)
 {
-    // TODO: supprimer aussi layers
-    clear_animation();
-
-    // create temporary folder
     QString temp_folder = "temp_4n1m_load";
 
     //dezip file inside temporary folder
-    if (!QMiniZ::uncompressFolder(path, temp_folder))
-    {
-        qDebug() << "failed to dezip file at " << path;
-        return;
-    }
+    if (!QMiniZ::uncompressFolder(path, temp_folder)) return;
 
     QDomDocument doc;
     // Load xml file as raw data
@@ -304,6 +300,9 @@ void Animation::load_animation(QString path)
     doc.setContent(&f);
 
     QDomElement animation_node = doc.documentElement();
+
+
+    clear_animation();
 
     for(int i = 0; i < animation_node.childNodes().count(); i++)
     {

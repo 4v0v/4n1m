@@ -15,7 +15,6 @@ Preview* Mw::preview;
 
 Mw::Mw()
 {
-    //widgets & layout initialization
     animation = new Animation();
     editor    = new Editor();
     timeline  = new Timeline();
@@ -45,17 +44,21 @@ Mw::Mw()
 
     preview->move(editor->width() - preview->width(), editor->height() - preview->height());
 
-    // TODO: put all this on toolbar
-    //shortcuts initialization
+    // restore previous session if possible
+    animation->load_animation(".temp.4n1m");
+
+    init_shortcuts();
+}
+
+void Mw::init_shortcuts() {
     create_shortcut(Qt::CTRL + Qt::Key_Z, [this](){ undo(); });
     create_shortcut(Qt::CTRL + Qt::Key_C,[]{ editor->copy(); });
     create_shortcut(Qt::CTRL + Qt::Key_X,[]{ editor->cut(); });
     create_shortcut(Qt::CTRL + Qt::Key_V,[]{ editor->paste(); });
     create_shortcut(Qt::CTRL + Qt::Key_T,[]{ editor->clear_current_layer(); });
     create_shortcut(Qt::CTRL + Qt::Key_Q,[]{ editor->clear_frame_at_current_pos(); });
-    create_shortcut(Qt::CTRL + Qt::Key_S,[]{ animation->save_animation("", "temp"); });
     create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z, [this]{ redo(); });
-    create_shortcut(Qt::Key_Space, []{ preview->toggle_play(); });
+    create_shortcut(Qt::Key_Space,[]{ preview->toggle_play(); });
     create_shortcut(Qt::Key_Right,[]{ editor->goto_next_pos(); });
     create_shortcut(Qt::Key_Left,[]{ editor->goto_prev_pos(); });
     create_shortcut(Qt::Key_Down,[]{ editor->goto_next_layer(); });
@@ -71,22 +74,11 @@ Mw::Mw()
     create_shortcut(Qt::Key_G,[]{ editor->toggle_copy_prev_frame(); });
     create_shortcut(Qt::Key_K,[]{ editor->knockback(); });
     create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
+};
 
-
-
-    create_shortcut(Qt::Key_M,[]{
-        auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
-        qDebug() << _OutputFolder;
-        auto _OutputFile = QFileDialog::getOpenFileName(0, ("Select Output File"), QDir::currentPath(), "*.4n1m");
-        qDebug() << _OutputFile;
-    });
-    create_shortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_S,[]{
-        auto _OutputFolder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
-        animation->export_animation(_OutputFolder);
-    });
-
-    // restore_previous_session
-    animation->load_animation("temp.4n1m");
+void Mw::create_shortcut(QKeySequence ks, std::function<void()> action)
+{
+    connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
 }
 
 void Mw::dragEnterEvent(QDragEnterEvent* event)
@@ -103,7 +95,7 @@ void Mw::dragEnterEvent(QDragEnterEvent* event)
 
 void Mw::closeEvent(QCloseEvent* e)
 {
-    animation->save_animation( "", "temp");
+    animation->save_animation("temp.4n1m");
     e->accept();
 }
 
@@ -117,13 +109,7 @@ void Mw::dropEvent(QDropEvent *event)
 void Mw::resizeEvent(QResizeEvent *e)
 {
     preview->move(editor->width() - preview->width(), editor->height() - preview->height());
-
     QWidget::resizeEvent(e);
-}
-
-void Mw::create_shortcut(QKeySequence ks, std::function<void()> action)
-{
-    connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
 }
 
 void Mw::update_all()

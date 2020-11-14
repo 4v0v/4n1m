@@ -50,9 +50,9 @@ public:
 
     QImage create_onionskins_at(int l, int p, bool loop, int prev, int next);
     void create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color);
-    void export_animation(QString folder);
-    void save_animation(QString path, QString animation_filename);
-    void load_animation(QString path);
+    void export_animation(QString filename);
+    void save_animation(QString filename);
+    void load_animation(QString filename);
 
     int FPS = 24;
     QSize dimensions = QSize(600, 500);

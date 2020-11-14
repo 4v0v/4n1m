@@ -83,7 +83,10 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     connect(load_file, &QPushButton::pressed, this, [] {
         auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
-        Mw::animation->load_animation(loaded_file);
+        auto fileinfo = QFileInfo(loaded_file);
+
+
+//        Mw::animation->load_animation(loaded_file);
     });
 
     connect(export_file, &QPushButton::pressed, this, [] {

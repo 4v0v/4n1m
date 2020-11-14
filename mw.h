@@ -58,6 +58,7 @@ public:
     static void update_all();
     static void set_painter_colors(QPainter* painter, QColor pen , QColor brush = nullptr);
 
+    void init_shortcuts();
     void create_shortcut(QKeySequence ks, std::function<void()> action);
     void undo();
     void redo();
