@@ -188,10 +188,9 @@ void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, Q
     onions_painter.end();
 }
 
-void Animation::export_animation(QString filename)
+void Animation::export_animation(QString folder_path)
 {
     if (is_animation_empty()) return;
-    if (!QDir("anim").exists()) return;
 
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
         QString img_name = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
@@ -200,8 +199,9 @@ void Animation::export_animation(QString filename)
 
         QList<int> layer_keys = layers.keys();
         QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+
         while(ri != layer_keys.crend()) {
-            if (is_layer_empty(*ri)) continue;
+            if (is_layer_empty(*ri)) { ri++; continue; };
 
             if (is_frame_at(*ri, i)) {
                 frame f = get_frame_at(*ri, i);
@@ -211,10 +211,10 @@ void Animation::export_animation(QString filename)
                 painter.drawImage(f.dimensions.topLeft(), f.image);
             }
 
-            ++ri;
+            ri++;
         }
 
-        img.save( filename + "\\" + img_name);
+        img.save( folder_path + "\\" + img_name);
     }
 }
 
