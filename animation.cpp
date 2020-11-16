@@ -1,5 +1,7 @@
 #include "animation.h"
+#include "editor.h"
 #include "qminiz.h"
+#include "gif.h"
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomImplementation>
 
@@ -188,14 +190,26 @@ void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, Q
     onions_painter.end();
 }
 
-void Animation::export_animation(QString folder_path)
+void Animation::export_animation(QString file_name)
 {
+
+    QString qt_string = file_name;
+    std::string str = qt_string.toStdString();
+    const char* filename = str.c_str();
+
+
     if (is_animation_empty()) return;
+
+
+    GifWriter g;
+    GifBegin(&g, filename, dimensions.width(), dimensions.height(), 1, 8, true);
 
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
         QString img_name = QString::fromUtf8(("img_" + std::to_string(i) + ".png").c_str());
         QImage img       = QImage(dimensions, QImage::Format_ARGB32);
         QPainter painter(&img);
+
+        painter.fillRect(img.rect(), Mw::editor->bg_color);
 
         QList<int> layer_keys = layers.keys();
         QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
@@ -213,10 +227,35 @@ void Animation::export_animation(QString folder_path)
 
             ri++;
         }
+//        img.save( folder_path + "\\" + img_name);
 
-        img.save( folder_path + "\\" + img_name);
+        uint8_t frame[ dimensions.width() * dimensions.height() * 4 ];
+
+        for( int yy=0; yy<img.height(); ++yy )
+        {
+            for( int xx=0; xx<img.width(); ++xx )
+            {
+                auto pixel_color = img.pixelColor(xx, yy);
+                int r = pixel_color.red();
+                int g = pixel_color.green();
+                int b = pixel_color.blue();
+                int a = pixel_color.alpha();
+
+                uint8_t* pixel = &frame[(yy*dimensions.width()+xx)*4];
+                pixel[0] = r;
+                pixel[1] = g;
+                pixel[2] = b;
+                pixel[3] = a;
+            }
+        }
+
+        GifWriteFrame(&g, frame, dimensions.width(), dimensions.height(), 1, 8, true);
     }
+
+    GifEnd(&g);
 }
+
+
 
 void Animation::save_animation(QString filename)
 {

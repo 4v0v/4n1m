@@ -90,9 +90,10 @@ Toolbar::Toolbar(): QWidget(nullptr)
     });
 
     connect(export_file, &QPushButton::pressed, this, [] {
-        auto exported_folder = QFileDialog::getExistingDirectory(0, ("Select Output Folder"), QDir::currentPath());
+        auto exported_file = QFileDialog::getSaveFileName(0, ("Export animation"), QDir::currentPath());
+        auto fileinfo = QFileInfo(exported_file);
 
-        Mw::animation->export_animation(exported_folder);
+        Mw::animation->export_animation(exported_file);
     });
 }
 

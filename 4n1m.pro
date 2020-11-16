@@ -29,4 +29,5 @@ HEADERS += \
     commands.h \
     editor.h \
     timeline.h \
-    toolbar.h
+    toolbar.h \
+    gif.h
