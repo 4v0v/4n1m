@@ -68,7 +68,7 @@ public:
     QPoint offset = QPoint(300, 50);
     QPen pen_tool = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassofill_tool = QBrush(Qt::black);
-    QColor bg_color = Qt::darkGray;
+    QColor bg_color = Qt::black;
     QColor img_bg_color = Qt::lightGray;
     QPolygon stroke;
     QImage onion_skins;

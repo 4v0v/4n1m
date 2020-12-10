@@ -7,10 +7,8 @@ TEMPLATE = app
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-    miniz.cpp \
     mw.cpp \
     preview.cpp \
-    qminiz.cpp \
     animation.cpp \
     colorwheel.cpp \
     commands.cpp \

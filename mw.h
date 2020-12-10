@@ -11,6 +11,11 @@
 #include <QDebug>
 #include <QVBoxLayout>
 #include <QUndoCommand>
+#include <QString>
+#include <QFileInfo>
+#include <QDir>
+#include <QDebug>
+#include <QDirIterator>
 
 class Editor;
 class Animation;
