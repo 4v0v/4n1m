@@ -4,6 +4,8 @@ Editor::Editor(): QWidget(nullptr)
 {
     setCursor(Qt::CrossCursor);
     onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
+    tools_preview = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+    tools_preview.fill(Qt::transparent);
 }
 
 void Editor::mousePressEvent(QMouseEvent* e)
@@ -65,6 +67,7 @@ void Editor::mouseReleaseEvent(QMouseEvent*)
     switch (state)
     {
         case SCRIBBLING:
+            tools_preview.fill(Qt::transparent); // reset tools_preview
             draw_on_key();
             state = IDLE;
             break;
@@ -131,32 +134,21 @@ void Editor::paintEvent(QPaintEvent*)
     QList<int> layer_keys = Mw::animation->layers.keys();
     QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
     while(ri != layer_keys.crend()) {
-        widget_painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
-        Animation::frame frame = Mw::animation->is_frame_at(*ri, frame_pos)?
-            Mw::animation->get_frame_at(*ri, frame_pos):
-            Mw::animation->get_prev_frame_at(*ri, frame_pos);
+        auto layer_pos = *ri;
+        widget_painter.setOpacity(Mw::animation->get_layer_at(layer_pos).opacity/100.0);
+        Animation::frame frame = Mw::animation->is_frame_at(layer_pos, frame_pos)?
+            Mw::animation->get_frame_at(layer_pos, frame_pos):
+            Mw::animation->get_prev_frame_at(layer_pos, frame_pos);
         widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
-        ++ri;
+        ri++;
     }
+
+    //tool preview
+    draw_tools_preview();
 
     //reset painter
     widget_painter.setOpacity(1);
     widget_painter.resetTransform();
-    
-    //tool preview
-    switch (tool) {
-        case PEN :
-            widget_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
-            if (stroke.count() == 1) widget_painter.drawPoint(stroke.first());
-            else if (stroke.count() > 1) widget_painter.drawPolyline(stroke);
-            break;
-        case LASSOFILL:
-            widget_painter.setPen(Qt::transparent);
-            widget_painter.setBrush(lassofill_tool);
-            widget_painter.drawPolygon(stroke);
-            break;
-    }
-
     widget_painter.end();
 }
 
@@ -226,6 +218,33 @@ void Editor::create_onions_at_current_pos()
         is_os_prev_enabled ? nb_prev_os: 0,
         is_os_next_enabled ? nb_next_os: 0
     );
+}
+
+void Editor::draw_tools_preview()
+{
+    if (state != SCRIBBLING) return;
+    tools_preview.fill(Qt::transparent);
+    tools_preview_painter.begin(&tools_preview);
+    tools_preview_painter.translate(-offset/scale);
+    tools_preview_painter.scale(1/scale, 1/scale);
+
+    switch (tool) {
+        case PEN :
+            tools_preview_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
+            if (stroke.count() == 1)
+                tools_preview_painter.drawPoint(stroke.first());
+            else if (stroke.count() > 1)
+                tools_preview_painter.drawPolyline(stroke);
+            break;
+        case LASSOFILL:
+            tools_preview_painter.setPen(Qt::transparent);
+            tools_preview_painter.setBrush(lassofill_tool);
+            tools_preview_painter.drawPolygon(stroke);
+            break;
+    }
+
+    tools_preview_painter.end();
+    widget_painter.drawImage(0,0, tools_preview);
 }
 
 void Editor::draw_on_key()

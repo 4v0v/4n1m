@@ -18,7 +18,7 @@ public:
     void play_step();
 
     int frame_pos = 0;
-    bool is_visible = false;
+    bool is_visible = true;
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
     QPainter widget_painter;

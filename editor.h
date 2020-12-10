@@ -38,6 +38,7 @@ public:
     void uninsert_frame_at_current_pos();
     void create_onions_at_current_pos();
     void draw_on_key();
+    void draw_tools_preview();
     void play_step();
     void play_from(int begin, bool loop);
     void knockback();
@@ -71,9 +72,11 @@ public:
     QColor img_bg_color = Qt::lightGray;
     QPolygon stroke;
     QImage onion_skins;
+    QImage tools_preview;
     Animation::frame clipboard;
     QPainter widget_painter;
     QPainter frame_painter;
     QPainter onion_painter;
     QPainter onions_painter;
+    QPainter tools_preview_painter;
 };

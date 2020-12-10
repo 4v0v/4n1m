@@ -1,10 +1,23 @@
 #include "preview.h"
+#include "editor.h"
 
 Preview::Preview(): QWidget(nullptr)
 {
     setGeometry(0, 0, 500, 500);
-    setStyleSheet("background-color: red; border:0px");
+
     playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
+
+//    TODO: Play button on preview
+//    QPushButton* play = new QPushButton("Play");
+//    connect(play, &QPushButton::pressed, this, [this] {
+//       toggle_play();
+//    });
+
+//    QVBoxLayout* vlayout  = new QVBoxLayout;
+//    vlayout->setSpacing(0);
+//    vlayout->setMargin(0);
+//    vlayout->addWidget(play);
+//    setLayout(vlayout);
 }
 
 void Preview::mousePressEvent(QMouseEvent* e)
