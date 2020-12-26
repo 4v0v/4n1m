@@ -54,7 +54,7 @@ public:
     void save_animation(QString filename);
     void load_animation(QString filename);
 
-    int FPS = 10;
+    int FPS = 30;
     QSize dimensions = QSize(600, 500);
     QMap<int, layer> layers;
     QPainter frame_painter;

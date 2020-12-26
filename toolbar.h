@@ -12,4 +12,3 @@ public:
 
     QPainter widget_painter;
 };
-

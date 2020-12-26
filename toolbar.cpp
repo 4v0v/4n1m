@@ -34,8 +34,13 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
-    pen_width_slider->setValue(3);
+    pen_width_slider->setValue(Mw::editor->pen_tool.width());
     pen_width_slider->setOrientation(Qt::Horizontal);
+
+    QSlider* fps_slider = new QSlider();
+    fps_slider->setRange(1, 60);
+    fps_slider->setValue(Mw::animation->FPS);
+    fps_slider->setOrientation(Qt::Horizontal);
 
     QPushButton* save_file = new QPushButton("Save");
     QPushButton* load_file = new QPushButton("Load");
@@ -54,6 +59,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
     vlayout->addWidget(onion_next);
     vlayout->addWidget(onion_prev);
     vlayout->addWidget(onion_loop);
+    vlayout->addWidget(fps_slider);
     vlayout->addWidget(save_file);
     vlayout->addWidget(load_file);
     vlayout->addWidget(export_file);
@@ -68,6 +74,11 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(onion_prev, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_prev(); });
     connect(onion_loop, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_loop(); });
     connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] { Mw::editor->set_pen_size(pen_width_slider->value()); });
+    connect(fps_slider, &QAbstractSlider::valueChanged, this, [fps_slider] {
+        Mw::preview->toggle_play();
+        Mw::preview->toggle_play();
+        Mw::animation->FPS = fps_slider->value();
+    });
     connect(color_wheel, &ColorWheel::select_color, this, [color_wheel]() {
         Mw::editor->set_pen_color(color_wheel->color());
         Mw::editor->set_brush_color(color_wheel->color());
