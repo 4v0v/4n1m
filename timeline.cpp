@@ -93,8 +93,8 @@ TimelineFrame::TimelineFrame(int l, int p): QWidget()
     layer_position = l;
     position = p;
 
-    setMinimumWidth(20);
-    setMaximumWidth(20);
+    setMinimumWidth(10);
+    setMaximumWidth(10);
 };
 
 void TimelineFrame::paintEvent(QPaintEvent*)

@@ -25,5 +25,3 @@ public:
     QPoint delta_pos;
     QColor bg_color = Qt::gray;
 };
-
-
