@@ -47,6 +47,7 @@ enum Direction {
 enum Tool {
     PEN,
     LASSOFILL,
+    ERASER,
 };
 
 class Mw : public QMainWindow

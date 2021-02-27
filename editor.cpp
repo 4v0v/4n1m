@@ -52,7 +52,7 @@ void Editor::mouseMoveEvent(QMouseEvent* e)
                 stroke.boundingRect().height() + 100
             );
             break;
-        case MOVING :
+        case MOVING:
             moving_offset_delta = e->pos();
             update(rect());
             break;
@@ -115,7 +115,7 @@ void Editor::paintEvent(QPaintEvent*)
 {
     widget_painter.begin(this);
 
-    //background
+    //editor background
     Mw::set_painter_colors(&widget_painter, bg_color);
     widget_painter.drawRect(rect());
 
@@ -123,14 +123,14 @@ void Editor::paintEvent(QPaintEvent*)
     widget_painter.translate(offset + moving_offset_delta - moving_offset);
     widget_painter.scale(scale, scale);
 
-    //editor frame
+    //editor background frame
     Mw::set_painter_colors(&widget_painter, bg_color, img_bg_color);
     widget_painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
 
     //onionskins
     if (is_os_enabled) widget_painter.drawImage(0,0, onion_skins);
 
-    //visible frame
+    //sorted frames from all layers at current position
     QList<int> layer_keys = Mw::animation->layers.keys();
     QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
     while(ri != layer_keys.crend()) {
@@ -230,16 +230,25 @@ void Editor::draw_tools_preview()
 
     switch (tool) {
         case PEN :
-            tools_preview_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
+            tools_preview_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
             if (stroke.count() == 1)
                 tools_preview_painter.drawPoint(stroke.first());
             else if (stroke.count() > 1)
                 tools_preview_painter.drawPolyline(stroke);
             break;
+
         case LASSOFILL:
             tools_preview_painter.setPen(Qt::transparent);
             tools_preview_painter.setBrush(lassofill_tool);
             tools_preview_painter.drawPolygon(stroke);
+            break;
+
+        case ERASER:
+            tools_preview_painter.setPen(QPen(eraser_tool.color(), eraser_tool.width() * scale, eraser_tool.style(), eraser_tool.capStyle(), eraser_tool.joinStyle()));
+            if (stroke.count() == 1)
+                tools_preview_painter.drawPoint(stroke.first());
+            else if (stroke.count() > 1)
+                tools_preview_painter.drawPolyline(stroke);
             break;
     }
 
@@ -257,28 +266,50 @@ void Editor::draw_on_key()
 
     // Resize frame
     QRect bb((stroke.boundingRect().topLeft() - offset) / scale,stroke.boundingRect().size() / scale);
-    if (bb.right() > j.dimensions.right()) Mw::animation->resize_frame(&j, RIGHT, bb.right());
+    if (bb.right()  > j.dimensions.right())  Mw::animation->resize_frame(&j, RIGHT,  bb.right());
     if (bb.bottom() > j.dimensions.bottom()) Mw::animation->resize_frame(&j, BOTTOM, bb.bottom());
-    if (bb.left() < j.dimensions.left()) Mw::animation->resize_frame(&j, LEFT, bb.left());
-    if (bb.top() < j.dimensions.top()) Mw::animation->resize_frame(&j, TOP, bb.top());
+    if (bb.left()   < j.dimensions.left())   Mw::animation->resize_frame(&j, LEFT,   bb.left());
+    if (bb.top()    < j.dimensions.top())    Mw::animation->resize_frame(&j, TOP,    bb.top());
 
     // Draw on key
     frame_painter.begin(&j.image);
-    frame_painter.translate(-offset/scale - j.dimensions.topLeft());
-    frame_painter.scale(1/scale, 1/scale);
 
     switch (tool) {
         case PEN :
-            frame_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale));
+            frame_painter.translate(-offset/scale - j.dimensions.topLeft());
+            frame_painter.scale(1/scale, 1/scale);
+            frame_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
+
             if (stroke.count() == 1)
                 frame_painter.drawPoint(stroke.first());
             else if (stroke.count() > 1)
                 frame_painter.drawPolyline(stroke);
             break;
+
         case LASSOFILL:
+            frame_painter.translate(-offset/scale - j.dimensions.topLeft());
+            frame_painter.scale(1/scale, 1/scale);
             frame_painter.setPen(Qt::transparent);
             frame_painter.setBrush(lassofill_tool);
             frame_painter.drawPolygon(stroke);
+            break;
+
+        case ERASER:
+            QImage k = j.image.copy();
+            k.fill(Qt::transparent);
+
+            QPainter eraser_painter(&k);
+            eraser_painter.translate(-offset/scale - j.dimensions.topLeft());
+            eraser_painter.scale(1/scale, 1/scale);
+            eraser_painter.setPen(QPen(eraser_tool.color(), eraser_tool.width() * scale, eraser_tool.style(), eraser_tool.capStyle(), eraser_tool.joinStyle()));
+
+            if (stroke.count() == 1)
+                eraser_painter.drawPoint(stroke.first());
+            else if (stroke.count() > 1)
+                eraser_painter.drawPolyline(stroke);
+
+            frame_painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+            frame_painter.drawImage(0, 0, k);
             break;
     }
 

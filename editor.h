@@ -20,6 +20,7 @@ public:
     void set_pen_color(QColor c) { if (state != IDLE) return; pen_tool.setColor(c); }
     void set_brush_color(QColor c) { if (state != IDLE) return; lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
+    void set_eraser_size(int s) { if (state != IDLE) return; eraser_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
     void toggle_copy_prev_frame() { if (state != IDLE) return;  is_copy_prev_frame = !is_copy_prev_frame; Mw::update_all(); }
     void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; Mw::update_all(); }
@@ -47,7 +48,6 @@ public:
     void cut();
     void paste();
 
-    bool temp_is_os_enabled;
     bool is_os_enabled      = true;
     bool is_os_loop_enabled = false;
     bool is_os_prev_enabled = true;
@@ -68,6 +68,7 @@ public:
     QPoint offset = QPoint(300, 50);
     QPen pen_tool = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QBrush lassofill_tool = QBrush(Qt::black);
+    QPen eraser_tool = QPen(Qt::green, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);
     QColor bg_color = Qt::black;
     QColor img_bg_color = Qt::lightGray;
     QPolygon stroke;

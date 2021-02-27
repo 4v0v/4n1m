@@ -32,6 +32,8 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     QRadioButton *lasso_radiobutton = new QRadioButton("LASSO FILL", this);
 
+    QRadioButton *eraser_radiobutton = new QRadioButton("ERASER", this);
+
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
     pen_width_slider->setValue(Mw::editor->pen_tool.width());
@@ -53,6 +55,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
     vlayout->addWidget(pen_width_slider);
     vlayout->addWidget(pen_radiobutton);
     vlayout->addWidget(lasso_radiobutton);
+    vlayout->addWidget(eraser_radiobutton);
     vlayout->addWidget(preview_button);
     vlayout->addWidget(copy_previous_button);
     vlayout->addWidget(onion_button);
@@ -67,18 +70,25 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     connect(pen_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN); });
     connect(lasso_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL); });
+    connect(eraser_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER); });
     connect(preview_button, &QCheckBox::pressed, this, []() { Mw::preview->toggle_visibility(); });
     connect(onion_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin(); });
     connect(copy_previous_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_copy_prev_frame(); });
     connect(onion_next, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_next(); });
     connect(onion_prev, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_prev(); });
     connect(onion_loop, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_loop(); });
-    connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] { Mw::editor->set_pen_size(pen_width_slider->value()); });
+
+    connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] {
+        Mw::editor->set_pen_size(pen_width_slider->value());
+        Mw::editor->set_eraser_size(pen_width_slider->value());
+    });
+
     connect(fps_slider, &QAbstractSlider::valueChanged, this, [fps_slider] {
         Mw::preview->toggle_play();
         Mw::preview->toggle_play();
         Mw::animation->FPS = fps_slider->value();
     });
+
     connect(color_wheel, &ColorWheel::select_color, this, [color_wheel]() {
         Mw::editor->set_pen_color(color_wheel->color());
         Mw::editor->set_brush_color(color_wheel->color());
@@ -95,7 +105,6 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(load_file, &QPushButton::pressed, this, [] {
         auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
         auto fileinfo = QFileInfo(loaded_file);
-
 
 //        Mw::animation->load_animation(loaded_file);
     });
