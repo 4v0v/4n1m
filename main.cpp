@@ -1,10 +1,12 @@
 #include <QApplication>
 #include "mw.h"
 
+Mw* Mw::mainwindow;
+
 int main(int argc, char *argv[])
 {
     QApplication application(argc, argv);
-    Mw mainwindow;
-    mainwindow.show();
+    Mw::mainwindow = new Mw;
+    Mw::mainwindow->show();
     return application.exec();
 }

@@ -2,6 +2,7 @@
 
 #include "mw.h"
 #include "animation.h"
+#include "toolbar.h"
 #include "timeline.h"
 #include "commands.h"
 
@@ -17,8 +18,8 @@ public:
     virtual void wheelEvent(QWheelEvent* e);
     virtual void resizeEvent(QResizeEvent* e);
 
-    void set_pen_color(QColor c) { if (state != IDLE) return; pen_tool.setColor(c); }
-    void set_brush_color(QColor c) { if (state != IDLE) return; lassofill_tool.setColor(c); }
+    void set_pen_color(QColor c) { pen_tool.setColor(c); }
+    void set_brush_color(QColor c) { lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; pen_tool.setWidth(s); }
     void set_eraser_size(int s) { if (state != IDLE) return; eraser_tool.setWidth(s); }
     void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
@@ -38,7 +39,7 @@ public:
     void insert_frame_at_current_pos();
     void uninsert_frame_at_current_pos();
     void create_onions_at_current_pos();
-    void draw_on_key();
+    void draw_stroke();
     void draw_tools_preview();
     void play_step();
     void play_from(int begin, bool loop);

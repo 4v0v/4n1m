@@ -1,13 +1,12 @@
 #include "toolbar.h"
-#include "colorwheel.h"
 #include "editor.h"
 #include "preview.h"
 
 Toolbar::Toolbar(): QWidget(nullptr)
 {
-    setGeometry(0, 0, 150, 350);
+    setGeometry(0, 0, 150, 400);
 
-    ColorWheel* color_wheel = new ColorWheel(this);
+    color_wheel = new ColorWheel(this);
 
     QCheckBox* preview_button = new QCheckBox("Preview", this);
     preview_button->setChecked(Mw::preview->is_visible);
@@ -34,6 +33,8 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     QRadioButton *eraser_radiobutton = new QRadioButton("ERASER", this);
 
+    QRadioButton *colorpicker_radiobutton = new QRadioButton("COLOR PICKER", this);
+
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
     pen_width_slider->setValue(Mw::editor->pen_tool.width());
@@ -56,6 +57,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
     vlayout->addWidget(pen_radiobutton);
     vlayout->addWidget(lasso_radiobutton);
     vlayout->addWidget(eraser_radiobutton);
+    vlayout->addWidget(colorpicker_radiobutton);
     vlayout->addWidget(preview_button);
     vlayout->addWidget(copy_previous_button);
     vlayout->addWidget(onion_button);
@@ -71,6 +73,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(pen_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN); });
     connect(lasso_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL); });
     connect(eraser_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER); });
+    connect(colorpicker_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER); });
     connect(preview_button, &QCheckBox::pressed, this, []() { Mw::preview->toggle_visibility(); });
     connect(onion_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin(); });
     connect(copy_previous_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_copy_prev_frame(); });
@@ -89,7 +92,8 @@ Toolbar::Toolbar(): QWidget(nullptr)
         Mw::animation->FPS = fps_slider->value();
     });
 
-    connect(color_wheel, &ColorWheel::select_color, this, [color_wheel]() {
+    connect(color_wheel, &ColorWheel::select_color, this, [this]() {
+        color_wheel->set_color(color_wheel->color());
         Mw::editor->set_pen_color(color_wheel->color());
         Mw::editor->set_brush_color(color_wheel->color());
     });

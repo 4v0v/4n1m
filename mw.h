@@ -48,6 +48,7 @@ enum Tool {
     PEN,
     LASSOFILL,
     ERASER,
+    COLORPICKER,
 };
 
 class Mw : public QMainWindow
@@ -69,6 +70,7 @@ public:
     void undo();
     void redo();
 
+    static Mw* mainwindow;
     static Animation* animation;
     static Timeline* timeline;
     static Editor* editor;

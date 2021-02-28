@@ -13,7 +13,7 @@ public:
     virtual void mouseMoveEvent(QMouseEvent* e);
     virtual void mouseReleaseEvent(QMouseEvent* e);
 
-    void toggle_visibility() { is_visible = !is_visible; playing_timer->stop(); update(); }
+    void toggle_visibility();
     void toggle_play();
     void play_step();
 
