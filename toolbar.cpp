@@ -37,7 +37,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
-    pen_width_slider->setValue(Mw::editor->pen_tool.width());
+    pen_width_slider->setValue(Mw::editor->tool_pen->pen_tool.width());
     pen_width_slider->setOrientation(Qt::Horizontal);
 
     QSlider* fps_slider = new QSlider();

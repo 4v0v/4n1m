@@ -205,6 +205,7 @@ void Animation::export_animation(QString filename)
     GifWriter g;
     GifBegin(&g, gif_filename, dimensions.width(), dimensions.height(), 1, 8, true);
 
+    // TODO: pragma omp
     for (int i = 0; i <= get_last_anim_pos(); ++i) {
         // create image
         QImage img       = QImage(dimensions, QImage::Format_ARGB32);
@@ -267,6 +268,7 @@ void Animation::save_animation(QString filename)
     QDir().mkdir(temp_folder);
 
     // create images
+    // TODO: pragma omp
     foreach(int l, layers.keys()) {
         foreach_frame_pos(l, [this, l, path, temp_folder, &file_names](int i){
             QString filename = QString::fromUtf8((std::to_string(l) + "_" + std::to_string(i) + ".png").c_str());
@@ -284,6 +286,7 @@ void Animation::save_animation(QString filename)
     anim_node.setAttribute("name","_");
     anim_node.setAttribute("date","xx-xx-xxxx");
 
+    // TODO: pragma omp
     foreach(int l, layers.keys()) {
         QDomElement layer_node = doc.createElement("layer");
         anim_node.appendChild(layer_node);
@@ -340,6 +343,7 @@ void Animation::load_animation(QString path)
 
     clear_animation();
 
+    // TODO: pragma omp
     for(int i = 0; i < animation_node.childNodes().count(); i++)
     {
         QDomNode layer_node = animation_node.childNodes().at(i);

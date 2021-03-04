@@ -76,8 +76,7 @@ void ColorWheel::resizeEvent(QResizeEvent* event)
 
 void ColorWheel::paintEvent(QPaintEvent*)
 {
-    QPainter painter;
-    painter.begin(this);
+    QPainter painter(this);
     QStyleOption opt;
     opt.initFrom(this);
     draw_color_wheel(wheel_pixmap);

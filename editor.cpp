@@ -6,6 +6,11 @@ Editor::Editor(): QWidget(nullptr)
     onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
     tools_preview = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
     tools_preview.fill(Qt::transparent);
+
+    tool_pen = new Tool_pen();
+    tool_lassofill = new Tool_lassofill();
+    tool_eraser = new Tool_eraser();
+    tool_colorpicker  = new Tool_colorpicker();
 }
 
 void Editor::mousePressEvent(QMouseEvent* e)
@@ -20,29 +25,10 @@ void Editor::mousePressEvent(QMouseEvent* e)
 
             switch (tool)
             {
-                case PEN:
-                case LASSOFILL:
-                case ERASER:
-                    stroke << e->pos();
-                    if (!Mw::animation->is_frame_at(layer_pos, frame_pos)) {
-                        if (is_copy_prev_frame)
-                            Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(layer_pos, frame_pos), layer_pos, frame_pos));
-                        else
-                            Mw::undostack->push(new AddFrameCommand(Animation::frame{}, layer_pos, frame_pos));
-                    }
-                    break;
-
-                case COLORPICKER: {
-                    QPixmap pixmap = this->grab();
-                    QImage image(pixmap.toImage());
-                    QColor color = image.pixelColor(e->pos());
-                    Mw::toolbar->color_wheel->set_color(color);
-                    set_pen_color(color);
-                    set_brush_color(color);
-                    break;
-                }
-                default:
-                    break;
+                case PEN: tool_pen->press(e); break;
+                case LASSOFILL: tool_lassofill->press(e); break;
+                case ERASER: tool_eraser->press(e); break;
+                case COLORPICKER: tool_colorpicker->press(e); break;
             }
             break;
 
@@ -68,23 +54,10 @@ void Editor::mouseMoveEvent(QMouseEvent* e)
         case SCRIBBLING:
             switch (tool)
             {
-                case PEN:
-                case LASSOFILL:
-                case ERASER:
-                    stroke << e->pos();
-                    update(
-                        stroke.boundingRect().x() - 50,
-                        stroke.boundingRect().y() - 50,
-                        stroke.boundingRect().width() + 100,
-                        stroke.boundingRect().height() + 100
-                    );
-                    break;
-
-                case COLORPICKER:
-                    break;
-
-                default:
-                    break;
+                case PEN: tool_pen->move(e); break;
+                case LASSOFILL: tool_lassofill->move(e); break;
+                case ERASER: tool_eraser->move(e); break;
+                case COLORPICKER: tool_colorpicker->move(e); break;
             }
             break;
 
@@ -101,24 +74,17 @@ void Editor::mouseMoveEvent(QMouseEvent* e)
     }
 }
 
-void Editor::mouseReleaseEvent(QMouseEvent*)
+void Editor::mouseReleaseEvent(QMouseEvent* e)
 {
     switch (state)
     {
         case SCRIBBLING:
             switch (tool)
             {
-                case PEN:
-                case LASSOFILL:
-                case ERASER:
-                    draw_stroke();
-                    break;
-
-                case COLORPICKER:
-                    break;
-
-                default:
-                    break;
+                case PEN: tool_pen->release(e); break;
+                case LASSOFILL: tool_lassofill->release(e); break;
+                case ERASER: tool_eraser->release(e); break;
+                case COLORPICKER: tool_colorpicker->release(e); break;
             }
 
             tools_preview.fill(Qt::transparent); // reset tools_preview
@@ -201,118 +167,23 @@ void Editor::paintEvent(QPaintEvent*)
     }
 
     //tool preview
-    draw_tools_preview();
+    if (state == SCRIBBLING) {
+        tools_preview.fill(Qt::transparent);
+
+        switch (tool) {
+            case PEN: tool_pen->preview(); break;
+            case LASSOFILL: tool_lassofill->preview(); break;
+            case ERASER: tool_eraser->preview(); break;
+            case COLORPICKER: tool_colorpicker->preview(); break;
+        }
+
+        widget_painter.drawImage(0,0, tools_preview);
+    }
 
     //reset painter
     widget_painter.setOpacity(1);
     widget_painter.resetTransform();
     widget_painter.end();
-}
-
-void Editor::draw_tools_preview()
-{
-    if (state != SCRIBBLING) return;
-    tools_preview.fill(Qt::transparent);
-    tools_preview_painter.begin(&tools_preview);
-    tools_preview_painter.translate(-offset/scale);
-    tools_preview_painter.scale(1/scale, 1/scale);
-
-    switch (tool) {
-        case PEN :
-            tools_preview_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
-            if (stroke.count() == 1)
-                tools_preview_painter.drawPoint(stroke.first());
-            else if (stroke.count() > 1)
-                tools_preview_painter.drawPolyline(stroke);
-            break;
-
-        case LASSOFILL:
-            tools_preview_painter.setPen(Qt::transparent);
-            tools_preview_painter.setBrush(lassofill_tool);
-            tools_preview_painter.drawPolygon(stroke);
-            break;
-
-        case ERASER:
-            tools_preview_painter.setPen(QPen(eraser_tool.color(), eraser_tool.width() * scale, eraser_tool.style(), eraser_tool.capStyle(), eraser_tool.joinStyle()));
-            if (stroke.count() == 1)
-                tools_preview_painter.drawPoint(stroke.first());
-            else if (stroke.count() > 1)
-                tools_preview_painter.drawPolyline(stroke);
-            break;
-
-        case COLORPICKER:
-            break;
-    }
-
-    tools_preview_painter.end();
-    widget_painter.drawImage(0,0, tools_preview);
-}
-
-void Editor::draw_stroke()
-{
-    Animation::frame i = Mw::animation->get_frame_at(layer_pos, frame_pos);
-    Animation::frame j = Mw::animation->get_frame_at(layer_pos, frame_pos);
-
-    // Init
-    if (j.is_empty) Mw::animation->init_frame(&j, (stroke.first() - offset) / scale);
-
-    // Resize frame
-    QRect bb((stroke.boundingRect().topLeft() - offset) / scale,stroke.boundingRect().size() / scale);
-    if (bb.right()  > j.dimensions.right())  Mw::animation->resize_frame(&j, RIGHT,  bb.right());
-    if (bb.bottom() > j.dimensions.bottom()) Mw::animation->resize_frame(&j, BOTTOM, bb.bottom());
-    if (bb.left()   < j.dimensions.left())   Mw::animation->resize_frame(&j, LEFT,   bb.left());
-    if (bb.top()    < j.dimensions.top())    Mw::animation->resize_frame(&j, TOP,    bb.top());
-
-    // Draw on key
-    frame_painter.begin(&j.image);
-
-    switch (tool) {
-        case PEN :
-            frame_painter.translate(-offset/scale - j.dimensions.topLeft());
-            frame_painter.scale(1/scale, 1/scale);
-            frame_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
-
-            if (stroke.count() == 1)
-                frame_painter.drawPoint(stroke.first());
-            else if (stroke.count() > 1)
-                frame_painter.drawPolyline(stroke);
-            break;
-
-        case LASSOFILL:
-            frame_painter.translate(-offset/scale - j.dimensions.topLeft());
-            frame_painter.scale(1/scale, 1/scale);
-            frame_painter.setPen(Qt::transparent);
-            frame_painter.setBrush(lassofill_tool);
-            frame_painter.drawPolygon(stroke);
-            break;
-
-        case ERASER: {
-            QImage k = j.image.copy();
-            k.fill(Qt::transparent);
-
-            QPainter eraser_painter(&k);
-            eraser_painter.translate(-offset/scale - j.dimensions.topLeft());
-            eraser_painter.scale(1/scale, 1/scale);
-            eraser_painter.setPen(QPen(eraser_tool.color(), eraser_tool.width() * scale, eraser_tool.style(), eraser_tool.capStyle(), eraser_tool.joinStyle()));
-
-            if (stroke.count() == 1)
-                eraser_painter.drawPoint(stroke.first());
-            else if (stroke.count() > 1)
-                eraser_painter.drawPolyline(stroke);
-
-            frame_painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-            frame_painter.drawImage(0, 0, k);
-            break;
-        }
-
-        default:
-            break;
-    }
-
-    frame_painter.end();
-    stroke.clear();
-
-    Mw::undostack->push(new ModifyFrameCommand(i, j, layer_pos, frame_pos));
 }
 
 void Editor::knockback()
