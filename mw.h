@@ -49,6 +49,8 @@ enum Tool {
     LASSOFILL,
     ERASER,
     COLORPICKER,
+    MOVE,
+    KNOCKBACK,
 };
 
 class Mw : public QMainWindow

@@ -4,7 +4,7 @@
 
 Toolbar::Toolbar(): QWidget(nullptr)
 {
-    setGeometry(0, 0, 150, 400);
+    setGeometry(0, 0, 150, 450);
 
     color_wheel = new ColorWheel(this);
 
@@ -26,14 +26,13 @@ Toolbar::Toolbar(): QWidget(nullptr)
     QCheckBox* onion_loop   = new QCheckBox("Onion loop", this);
     onion_loop->setChecked(Mw::editor->is_os_loop_enabled);
 
-    QRadioButton *pen_radiobutton = new QRadioButton("PEN", this);
-    pen_radiobutton->toggle();
-
-    QRadioButton *lasso_radiobutton = new QRadioButton("LASSO FILL", this);
-
-    QRadioButton *eraser_radiobutton = new QRadioButton("ERASER", this);
-
+    QRadioButton *pen_radiobutton         = new QRadioButton("PEN", this);
+    QRadioButton *lasso_radiobutton       = new QRadioButton("LASSO FILL", this);
+    QRadioButton *eraser_radiobutton      = new QRadioButton("ERASER", this);
+    QRadioButton *knockback_radiobutton   = new QRadioButton("KNOCKBACK", this);
     QRadioButton *colorpicker_radiobutton = new QRadioButton("COLOR PICKER", this);
+    QRadioButton *move_radiobutton        = new QRadioButton("MOVE", this);
+    pen_radiobutton->toggle();
 
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
@@ -57,7 +56,9 @@ Toolbar::Toolbar(): QWidget(nullptr)
     vlayout->addWidget(pen_radiobutton);
     vlayout->addWidget(lasso_radiobutton);
     vlayout->addWidget(eraser_radiobutton);
+    vlayout->addWidget(knockback_radiobutton);
     vlayout->addWidget(colorpicker_radiobutton);
+    vlayout->addWidget(move_radiobutton);
     vlayout->addWidget(preview_button);
     vlayout->addWidget(copy_previous_button);
     vlayout->addWidget(onion_button);
@@ -73,7 +74,10 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(pen_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN); });
     connect(lasso_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL); });
     connect(eraser_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER); });
+    connect(knockback_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK); });
     connect(colorpicker_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER); });
+    connect(move_radiobutton, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE); });
+
     connect(preview_button, &QCheckBox::pressed, this, []() { Mw::preview->toggle_visibility(); });
     connect(onion_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin(); });
     connect(copy_previous_button, &QCheckBox::pressed, this, []() { Mw::editor->toggle_copy_prev_frame(); });

@@ -2,13 +2,14 @@
 #include "editor.h"
 
 void Tool_eraser::press(QMouseEvent *e) {
-    stroke << e->pos();
     if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         if (Mw::editor->is_copy_prev_frame)
             Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
         else
             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
+
+    stroke << e->pos();
 }
 
 void Tool_eraser::move(QMouseEvent *e) {
@@ -60,8 +61,8 @@ void Tool_eraser::release(QMouseEvent *) {
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
 };
 
-void Tool_eraser::preview() {
-    QPainter preview_painter(&Mw::editor->tools_preview);
+void Tool_eraser::preview(QImage* preview) {
+    QPainter preview_painter(preview);
 
     preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
     preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);

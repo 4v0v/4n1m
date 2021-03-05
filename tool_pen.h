@@ -10,7 +10,7 @@ public:
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
-    void preview();
+    void preview(QImage*);
 
     QPolygon stroke;
     QPen pen_tool = QPen(Qt::black, 3, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin);

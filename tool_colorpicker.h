@@ -10,6 +10,5 @@ public:
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
-    void preview();
-
+    void preview(QImage*);
 };

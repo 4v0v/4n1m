@@ -17,7 +17,9 @@ SOURCES += \
     timeline.cpp \
     tool_colorpicker.cpp \
     tool_eraser.cpp \
+    tool_knockback.cpp \
     tool_lassofill.cpp \
+    tool_move.cpp \
     tool_pen.cpp \
     toolbar.cpp
 
@@ -33,6 +35,7 @@ HEADERS += \
     timeline.h \
     tool_colorpicker.h \
     tool_eraser.h \
+    tool_knockback.h \
     tool_lassofill.h \
     tool_move.h \
     tool_pen.h \

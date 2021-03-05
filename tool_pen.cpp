@@ -51,8 +51,8 @@ void Tool_pen::release(QMouseEvent *) {
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
 };
 
-void Tool_pen::preview() {
-    QPainter preview_painter(&Mw::editor->tools_preview);
+void Tool_pen::preview(QImage* preview) {
+    QPainter preview_painter(preview);
 
     preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
     preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);

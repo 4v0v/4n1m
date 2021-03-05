@@ -2,16 +2,15 @@
 
 #include "mw.h"
 
-class Tool_lassofill
+class Tool_knockback
 {
 public:
-    Tool_lassofill(){};;
+    Tool_knockback(){};;
 
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
     void preview(QImage*);
 
-    QPolygon stroke;
-    QBrush lassofill_tool = QBrush(Qt::black);
+    int knockback_amount = 255/3;
 };

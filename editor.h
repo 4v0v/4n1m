@@ -9,6 +9,8 @@
 #include "tool_lassofill.h"
 #include "tool_eraser.h"
 #include "tool_colorpicker.h"
+#include "tool_move.h"
+#include "tool_knockback.h"
 
 class Editor : public QWidget
 {
@@ -43,7 +45,6 @@ public:
     void insert_frame_at_current_pos();
     void uninsert_frame_at_current_pos();
     void create_onions_at_current_pos();
-    void knockback();
     void stop();
     void copy();
     void cut();
@@ -58,26 +59,28 @@ public:
     bool is_internal_clipboard_empty = true;
     int nb_prev_os = 2;
     int nb_next_os = 2;
-    int knockback_amount = 255/3;
+
     int frame_pos = 0;
     int layer_pos = 0;
     State state = IDLE;
     Tool tool = PEN;
-    QPoint moving_offset;
-    QPoint moving_offset_delta;
+    Tool previous_tool;
+
     double scale = 1.75;
     QPoint offset = QPoint(300, 50);
+
     QColor bg_color = Qt::black;
     QColor img_bg_color = Qt::lightGray;
-    QPolygon stroke;
+
     QImage onion_skins;
     QImage tools_preview;
-    Animation::frame clipboard;
 
-    QPainter widget_painter;
+    Animation::frame clipboard;
 
     Tool_pen* tool_pen;
     Tool_lassofill* tool_lassofill;
     Tool_eraser* tool_eraser;
     Tool_colorpicker* tool_colorpicker;
+    Tool_move* tool_move;
+    Tool_knockback* tool_knockback;
 };

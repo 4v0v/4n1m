@@ -10,9 +10,9 @@ Editor::Editor(): QWidget(nullptr)
     tool_pen         = new Tool_pen();
     tool_lassofill   = new Tool_lassofill();
     tool_eraser      = new Tool_eraser();
+    tool_knockback   = new Tool_knockback();
     tool_colorpicker = new Tool_colorpicker();
     tool_move        = new Tool_move();
-    tool_knockback   = new Tool_knockback();
 }
 
 void Editor::mousePressEvent(QMouseEvent* e)
@@ -23,32 +23,24 @@ void Editor::mousePressEvent(QMouseEvent* e)
     state = SCRIBBLING;
     previous_tool = tool;
 
-    switch (e->button())
-    {
-        case Qt::LeftButton:
-            switch (tool)
-            {
-                case PEN:         tool_pen->press(e);         break;
-                case LASSOFILL:   tool_lassofill->press(e);   break;
-                case ERASER:      tool_eraser->press(e);      break;
-                case KNOCKBACK:   tool_knockback->press(e);   break;
-                case COLORPICKER: tool_colorpicker->press(e); break;
-                case MOVE:        tool_move->press(e);        break;
-            }
-            break;
+    if (e->button() == Qt::LeftButton) {
+        switch (tool)
+        {
+            case PEN:         tool_pen->press(e);         break;
+            case LASSOFILL:   tool_lassofill->press(e);   break;
+            case ERASER:      tool_eraser->press(e);      break;
+            case KNOCKBACK:   tool_knockback->press(e);   break;
+            case COLORPICKER: tool_colorpicker->press(e); break;
+            case MOVE:        tool_move->press(e);        break;
+        }
 
-        case Qt::RightButton:
-            tool = COLORPICKER;
-            tool_colorpicker->press(e);
-            break;
+    } else if (e->button() == Qt::RightButton) {
+        tool = COLORPICKER;
+        tool_colorpicker->press(e);
 
-        case Qt::MiddleButton:
-            tool = MOVE;
-            tool_move->press(e);
-            break;
-
-        default:
-            break;
+    } else if (e->button() == Qt::MiddleButton) {
+        tool = MOVE;
+        tool_move->press(e);
     }
 
     update();
@@ -73,26 +65,28 @@ void Editor::mouseMoveEvent(QMouseEvent* e)
 void Editor::mouseReleaseEvent(QMouseEvent* e)
 {
     if (state != SCRIBBLING) return;
-
+    
     switch (tool)
     {
-        case PEN:         tool_pen->release(e);       break;
-        case LASSOFILL:   tool_lassofill->release(e); break;
-        case ERASER:      tool_eraser->release(e);    break;
-        case KNOCKBACK:   tool_knockback->release(e); break;
-        case COLORPICKER: tool_colorpicker->release(e); if (previous_tool != tool) tool = previous_tool; break;
-        case MOVE:        tool_move->release(e);        if (previous_tool != tool) tool = previous_tool; break;
+        case PEN:         tool_pen->release(e);         break;
+        case LASSOFILL:   tool_lassofill->release(e);   break;
+        case ERASER:      tool_eraser->release(e);      break;
+        case KNOCKBACK:   tool_knockback->release(e);   break;
+        case COLORPICKER: tool_colorpicker->release(e); break;
+        case MOVE:        tool_move->release(e);        break;
     }
 
-    tools_preview.fill(Qt::transparent); // reset tools_preview
+    if (previous_tool != tool) tool = previous_tool;
+    tools_preview.fill(Qt::transparent);
     state = IDLE;
 }
 
 void Editor::resizeEvent(QResizeEvent *e)
 {
-    int w = Mw::animation->dimensions.width() * scale;
+    int w = Mw::animation->dimensions.width()  * scale;
     int h = Mw::animation->dimensions.height() * scale;
 
+    offset.
     offset.setX(width()/2 - w/2);
     offset.setY(height()/2 - h/2);
 
