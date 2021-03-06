@@ -12,5 +12,7 @@ public:
     void release(QMouseEvent*);
     void preview(QImage*);
 
-    int knockback_amount = 255/3;
+    QVector2D position;
+    QVector2D delta_position;
+    int knockback_amount;
 };

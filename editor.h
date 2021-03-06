@@ -57,6 +57,7 @@ public:
     bool is_copy_prev_frame = false;
     bool is_play_loop_enabled = false;
     bool is_internal_clipboard_empty = true;
+
     int nb_prev_os = 2;
     int nb_next_os = 2;
 
@@ -70,7 +71,7 @@ public:
     QPoint offset = QPoint(300, 50);
 
     QColor bg_color = Qt::black;
-    QColor img_bg_color = Qt::lightGray;
+    QColor paper_color = Qt::lightGray;
 
     QImage onion_skins;
     QImage tools_preview;

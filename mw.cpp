@@ -72,12 +72,6 @@ void Mw::init_shortcuts() {
     create_shortcut(Qt::Key_9,[]{ editor->insert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_G,[]{ editor->toggle_copy_prev_frame(); });
-    create_shortcut(Qt::Key_K,[]{
-        Tool t = editor->tool;
-        editor->set_tool(KNOCKBACK);
-        editor->tool_knockback->press(nullptr);
-        editor->set_tool(t);
-    });
     create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
 };
 
