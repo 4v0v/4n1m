@@ -5,10 +5,12 @@
 class Tool_colorpicker
 {
 public:
-    Tool_colorpicker(){};;
+    Tool_colorpicker();
 
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
-    void preview(QImage*);
+    QImage* preview();
+
+    QImage preview_image;
 };

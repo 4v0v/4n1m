@@ -229,7 +229,7 @@ void Animation::export_animation(QString filename)
 
             ri++;
         }
-        //create gif frame from image
+        // create gif frame from image
         uint8_t frame[ dimensions.width() * dimensions.height() * 4 ];
         for( int yy=0; yy<img.height(); ++yy )
         {
@@ -327,7 +327,7 @@ void Animation::load_animation(QString path)
 {
     QString temp_folder = "temp_4n1m_load";
 
-    //dezip file inside temporary folder
+    // dezip file inside temporary folder
     if (!QMiniZ::uncompressFolder(path, temp_folder)) return;
 
     QDomDocument doc;

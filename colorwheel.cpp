@@ -191,7 +191,7 @@ void ColorWheel::draw_color_wheel(QPixmap& pixmap)
     composePainter.drawImage(square_rect, square_image);
     composePainter.end();
 
-    //draw_hue_indicator
+    // draw_hue_indicator
     QPainter painter(&wheel_pixmap);
     painter.setRenderHint(QPainter::Antialiasing);
     if (current_color.hsvHue() > 20 && current_color.hsvHue() < 200) painter.setPen(Qt::black);
@@ -207,7 +207,7 @@ void ColorWheel::draw_color_wheel(QPixmap& pixmap)
     painter.drawEllipse(QPointF(r, 0), 7, 7);
     painter.end();
 
-    //draw_picker
+    // draw_picker
     QPainter painter2(&wheel_pixmap);
     painter2.setRenderHint(QPainter::Antialiasing);
     int ellipseSize = 9;

@@ -2,7 +2,13 @@
 #include "editor.h"
 #include "animation.h"
 
+Tool_knockback::Tool_knockback() {
+    preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+}
+
 void Tool_knockback::press(QMouseEvent* e) {
+    Mw::editor->state = SCRIBBLING;
+
     if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         if (Mw::editor->is_copy_prev_frame)
             Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
@@ -13,6 +19,9 @@ void Tool_knockback::press(QMouseEvent* e) {
     position       = QVector2D(e->pos());
     delta_position = position;
     knockback_amount = (position - delta_position).length()/3;
+
+    Mw::editor->update();
+    Mw::timeline->update();
 }
 
 void Tool_knockback::move(QMouseEvent* e) {
@@ -38,31 +47,36 @@ void Tool_knockback::release(QMouseEvent*) {
     }
 
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
+
+    Mw::editor->state = IDLE;
+    Mw::editor->update();
 };
 
-void Tool_knockback::preview(QImage* preview) {
-    QPainter preview_painter(preview);
+QImage* Tool_knockback::preview() {
+    preview_image.fill(Qt::transparent);
 
-    preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
-    preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    QPainter painter(&preview_image);
+
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
 
     // background
-    preview_painter.setBrush(Mw::editor->paper_color);
-    preview_painter.drawRect(Mw::editor->rect());
+    painter.setBrush(Mw::editor->paper_color);
+    painter.drawRect(Mw::editor->rect());
 
     // frames
-    preview_painter.resetTransform();
+    painter.resetTransform();
     QList<int> layer_keys = Mw::animation->layers.keys();
     QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
     while(ri != layer_keys.crend()) {
         auto layer_pos = *ri;
 
         if (layer_pos != Mw::editor->layer_pos) {
-            preview_painter.setOpacity(Mw::animation->get_layer_at(layer_pos).opacity/100.0);
+            painter.setOpacity(Mw::animation->get_layer_at(layer_pos).opacity/100.0);
             Animation::frame frame = Mw::animation->is_frame_at(layer_pos, Mw::editor->frame_pos)?
                 Mw::animation->get_frame_at(layer_pos, Mw::editor->frame_pos):
                 Mw::animation->get_prev_frame_at(layer_pos, Mw::editor->frame_pos);
-            preview_painter.drawImage(frame.dimensions.topLeft(), frame.image);
+            painter.drawImage(frame.dimensions.topLeft(), frame.image);
         } else {
             Animation::frame frame = Mw::animation->get_frame_at(layer_pos, Mw::editor->frame_pos);
 
@@ -77,14 +91,16 @@ void Tool_knockback::preview(QImage* preview) {
                     );
                 }
             }
-            preview_painter.drawImage(frame.dimensions.topLeft(), frame.image);
+            painter.drawImage(frame.dimensions.topLeft(), frame.image);
         }
 
         ri++;
     }
 
-    preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
-    preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
 
-    preview_painter.drawLine(position.x(), position.y(), delta_position.x(), delta_position.y());
+    painter.drawLine(position.x(), position.y(), delta_position.x(), delta_position.y());
+
+    return &preview_image;
 };

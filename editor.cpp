@@ -3,9 +3,8 @@
 Editor::Editor(): QWidget(nullptr)
 {
     setCursor(Qt::CrossCursor);
+
     onion_skins = QImage(Mw::animation->dimensions, QImage::Format_ARGB32);
-    tools_preview = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
-    tools_preview.fill(Qt::transparent);
 
     tool_pen         = new Tool_pen();
     tool_lassofill   = new Tool_lassofill();
@@ -13,45 +12,35 @@ Editor::Editor(): QWidget(nullptr)
     tool_knockback   = new Tool_knockback();
     tool_colorpicker = new Tool_colorpicker();
     tool_move        = new Tool_move();
+    tool_selection   = new Tool_selection();
 }
 
 void Editor::mousePressEvent(QMouseEvent* e)
 {
-    if (state != IDLE) return;
     if (!QRect(offset, Mw::animation->dimensions*scale).contains(e->pos())) return;
 
-    state = SCRIBBLING;
-    previous_tool = tool;
+    // TODO: take into account SELECTION + MOVE
+    previous_tool = current_tool;
+    if      (e->button() == Qt::RightButton)  current_tool = COLORPICKER;
+    else if (e->button() == Qt::MiddleButton) current_tool = MOVE;
 
-    if (e->button() == Qt::LeftButton) {
-        switch (tool)
-        {
-            case PEN:         tool_pen->press(e);         break;
-            case LASSOFILL:   tool_lassofill->press(e);   break;
-            case ERASER:      tool_eraser->press(e);      break;
-            case KNOCKBACK:   tool_knockback->press(e);   break;
-            case COLORPICKER: tool_colorpicker->press(e); break;
-            case MOVE:        tool_move->press(e);        break;
-        }
-
-    } else if (e->button() == Qt::RightButton) {
-        tool = COLORPICKER;
-        tool_colorpicker->press(e);
-
-    } else if (e->button() == Qt::MiddleButton) {
-        tool = MOVE;
-        tool_move->press(e);
+    switch (current_tool)
+    {
+        case PEN:         tool_pen->press(e);         break;
+        case LASSOFILL:   tool_lassofill->press(e);   break;
+        case ERASER:      tool_eraser->press(e);      break;
+        case KNOCKBACK:   tool_knockback->press(e);   break;
+        case COLORPICKER: tool_colorpicker->press(e); break;
+        case MOVE:        tool_move->press(e);        break;
+        case SELECTION:   tool_selection->press(e);   break;
     }
-
-    update();
-    Mw::timeline->update();
 }
 
 void Editor::mouseMoveEvent(QMouseEvent* e)
 {
-    if (state != SCRIBBLING) return;
+    if (state == IDLE) return;
 
-    switch (tool)
+    switch (current_tool)
     {
         case PEN:         tool_pen->move(e);         break;
         case LASSOFILL:   tool_lassofill->move(e);   break;
@@ -59,14 +48,15 @@ void Editor::mouseMoveEvent(QMouseEvent* e)
         case KNOCKBACK:   tool_knockback->move(e);   break;
         case COLORPICKER: tool_colorpicker->move(e); break;
         case MOVE:        tool_move->move(e);        break;
+        case SELECTION:   tool_selection->move(e);   break;
     }
 }
 
 void Editor::mouseReleaseEvent(QMouseEvent* e)
 {
-    if (state != SCRIBBLING) return;
+    if (state == IDLE) return;
 
-    switch (tool)
+    switch (current_tool)
     {
         case PEN:         tool_pen->release(e);         break;
         case LASSOFILL:   tool_lassofill->release(e);   break;
@@ -74,11 +64,10 @@ void Editor::mouseReleaseEvent(QMouseEvent* e)
         case KNOCKBACK:   tool_knockback->release(e);   break;
         case COLORPICKER: tool_colorpicker->release(e); break;
         case MOVE:        tool_move->release(e);        break;
+        case SELECTION:   tool_selection->release(e);   break;
     }
 
-    if (previous_tool != tool) tool = previous_tool;
-    tools_preview.fill(Qt::transparent);
-    state = IDLE;
+    if (previous_tool != current_tool) current_tool = previous_tool;
 }
 
 void Editor::resizeEvent(QResizeEvent *e)
@@ -114,49 +103,47 @@ void Editor::paintEvent(QPaintEvent*)
 {
     QPainter widget_painter(this);
 
-    //editor background
+    // editor background
     Mw::set_painter_colors(&widget_painter, bg_color);
     widget_painter.drawRect(rect());
 
-    //transform editor
+    // transform editor
     widget_painter.translate(offset + tool_move->moving_offset_delta - tool_move->moving_offset);
     widget_painter.scale(scale, scale);
 
-    //editor background frame
+    // editor background frame
     Mw::set_painter_colors(&widget_painter, bg_color, paper_color);
     widget_painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
 
-    //onionskins
+    // onionskins
     if (is_os_enabled) widget_painter.drawImage(0,0, onion_skins);
 
-    //sorted frames from all layers at current position
+    // sorted frames from all layers at current position
     QList<int> layer_keys = Mw::animation->layers.keys();
     QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+
     while(ri != layer_keys.crend()) {
-        auto layer_pos = *ri;
-        widget_painter.setOpacity(Mw::animation->get_layer_at(layer_pos).opacity/100.0);
-        Animation::frame frame = Mw::animation->is_frame_at(layer_pos, frame_pos)?
-            Mw::animation->get_frame_at(layer_pos, frame_pos):
-            Mw::animation->get_prev_frame_at(layer_pos, frame_pos);
+        auto l = *ri;
+        widget_painter.setOpacity(Mw::animation->get_layer_at(l).opacity/100.0);
+        auto frame = Mw::animation->is_frame_at(l, frame_pos) ? Mw::animation->get_frame_at(l, frame_pos) : Mw::animation->get_prev_frame_at(l, frame_pos);
         widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
         ri++;
     }
 
-    //tool preview
-    if (state == SCRIBBLING) {
-        tools_preview.fill(Qt::transparent);
-
-        switch (tool) {
-            case PEN:         tool_pen->preview(&tools_preview);         break;
-            case LASSOFILL:   tool_lassofill->preview(&tools_preview);   break;
-            case ERASER:      tool_eraser->preview(&tools_preview);      break;
-            case KNOCKBACK:   tool_knockback->preview(&tools_preview);   break;
-            case COLORPICKER: tool_colorpicker->preview(&tools_preview); break;
-            case MOVE:        tool_move->preview(&tools_preview);        break;
-        }
-
-        widget_painter.drawImage(0,0, tools_preview);
+    // tool preview
+    QImage* preview;
+    switch (current_tool)
+    {
+        case PEN:         preview = tool_pen->preview();         break;
+        case LASSOFILL:   preview = tool_lassofill->preview();   break;
+        case ERASER:      preview = tool_eraser->preview();      break;
+        case KNOCKBACK:   preview = tool_knockback->preview();   break;
+        case COLORPICKER: preview = tool_colorpicker->preview(); break;
+        case MOVE:        preview = tool_move->preview();        break;
+        case SELECTION:   preview = tool_selection->preview();   break;
     }
+
+    if (preview) widget_painter.drawImage(0,0, *preview);
 }
 
 void Editor::clear_current_layer()
@@ -227,14 +214,6 @@ void Editor::create_onions_at_current_pos()
     );
 }
 
-void Editor::copy()
-{
-    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
-
-    clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
-    is_internal_clipboard_empty = false;
-}
-
 void Editor::cut()
 {
     if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
@@ -242,6 +221,14 @@ void Editor::cut()
     clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
     is_internal_clipboard_empty = false;
     Mw::undostack->push(new RemoveFrameCommand(layer_pos, frame_pos));
+}
+
+void Editor::copy()
+{
+    if (state != IDLE || !Mw::animation->is_frame_at(layer_pos, frame_pos)) return;
+
+    clipboard = Mw::animation->get_frame_at(layer_pos, frame_pos);
+    is_internal_clipboard_empty = false;
 }
 
 void Editor::paste()

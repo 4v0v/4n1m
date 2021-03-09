@@ -5,13 +5,14 @@
 class Tool_move
 {
 public:
-    Tool_move(){};;
+    Tool_move();
 
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
-    void preview(QImage*);
+    QImage* preview();
 
+    QImage preview_image;
     QPoint moving_offset_delta;
     QPoint moving_offset;
 };

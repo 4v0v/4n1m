@@ -11,6 +11,7 @@
 #include "tool_colorpicker.h"
 #include "tool_move.h"
 #include "tool_knockback.h"
+#include "tool_selection.h"
 
 class Editor : public QWidget
 {
@@ -28,7 +29,7 @@ public:
     void set_brush_color(QColor c) { tool_lassofill->lassofill_tool.setColor(c); }
     void set_pen_size(int s) { if (state != IDLE) return; tool_pen->pen_tool.setWidth(s); }
     void set_eraser_size(int s) { if (state != IDLE) return; tool_eraser->eraser_tool.setWidth(s); }
-    void set_tool(Tool t) { if (state != IDLE) return; tool = t; }
+    void set_tool(Tool t) { if (state != IDLE) return; current_tool = t; }
     void toggle_copy_prev_frame() { if (state != IDLE) return;  is_copy_prev_frame = !is_copy_prev_frame; Mw::update_all(); }
     void toggle_onion_skin() { if (state != IDLE) return; is_os_enabled = !is_os_enabled; Mw::update_all(); }
     void toggle_onion_skin_loop() { if (state != IDLE) return;is_os_loop_enabled = !is_os_loop_enabled; Mw::update_all(); }
@@ -64,17 +65,16 @@ public:
     int frame_pos = 0;
     int layer_pos = 0;
     State state = IDLE;
-    Tool tool = PEN;
+    Tool current_tool = PEN;
     Tool previous_tool;
 
-    double scale = 1.75;
+    double scale  = 1.75;
     QPoint offset = QPoint(300, 50);
 
-    QColor bg_color = Qt::black;
+    QColor bg_color    = Qt::black;
     QColor paper_color = Qt::lightGray;
 
     QImage onion_skins;
-    QImage tools_preview;
 
     Animation::frame clipboard;
 
@@ -84,4 +84,5 @@ public:
     Tool_colorpicker* tool_colorpicker;
     Tool_move* tool_move;
     Tool_knockback* tool_knockback;
+    Tool_selection* tool_selection;
 };

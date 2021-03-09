@@ -21,7 +21,7 @@ public:
     bool is_visible = true;
     QTimer* playing_timer = new QTimer();
     State state = IDLE;
-    QPainter widget_painter;
+    QPainter painter;
     QPoint delta_pos;
     QColor bg_color = Qt::gray;
 };

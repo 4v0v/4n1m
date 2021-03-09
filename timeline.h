@@ -12,6 +12,7 @@ public:
     virtual void wheelEvent(QWheelEvent* e);
     virtual void resizeEvent(QResizeEvent* e);
     void update_all_frames();
+
     QList<TimelineLayer*> layers;
     QScrollArea* timelineScroll;
 };
@@ -22,6 +23,7 @@ class TimelineLayer : public QWidget
 public:
     TimelineLayer(int p);
     virtual void paintEvent(QPaintEvent *e);
+
     QPainter widget_painter;
     QList<TimelineFrame*> frames;
     int position;
@@ -34,6 +36,7 @@ public:
     TimelineFrame(int l, int p);
     virtual void paintEvent(QPaintEvent *e);
     virtual void mousePressEvent(QMouseEvent *event);
+
     QPainter widget_painter;
     int position;
     int layer_position;

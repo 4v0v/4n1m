@@ -4,6 +4,7 @@ Timeline::Timeline(): QWidget(nullptr)
 {
     setMinimumHeight(110);
     setMaximumHeight(110);
+
     QVBoxLayout* vlayout = new QVBoxLayout();
     for (int i = 0; i < 3; i++) {
        TimelineLayer* t = new TimelineLayer(i);
@@ -48,8 +49,6 @@ void Timeline::resizeEvent(QResizeEvent* e)
     timelineScroll->setGeometry(0, 0, e->size().width(), e->size().height());
 };
 
-//////////
-
 TimelineLayer::TimelineLayer(int p): QWidget()
 {
     position = p;
@@ -85,8 +84,6 @@ void TimelineLayer::paintEvent(QPaintEvent*)
     widget_painter.drawRect(rect());
     widget_painter.end();
 };
-
-//////////
 
 TimelineFrame::TimelineFrame(int l, int p): QWidget()
 {

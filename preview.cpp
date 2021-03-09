@@ -29,35 +29,51 @@ void Preview::mouseReleaseEvent(QMouseEvent*)
 void Preview::paintEvent(QPaintEvent*)
 {
     if (!is_visible) return;
-    widget_painter.begin(this);
+    painter.begin(this);
 
-    //background
-    Mw::set_painter_colors(&widget_painter, bg_color);
-    widget_painter.drawRect(rect());
+    // background
+    Mw::set_painter_colors(&painter, bg_color);
+    painter.drawRect(rect());
 
-    //transform editor
-    widget_painter.scale(
+    // transform editor
+    painter.scale(
         1/((float)Mw::animation->dimensions.width()/ width()),
         1/((float)Mw::animation->dimensions.height()/ height())
     );
 
-    //visible frame
+    // visible frame
     auto layer_keys = Mw::animation->layers.keys();
     auto ri = layer_keys.crbegin();
     while(ri != layer_keys.crend()) {
-        widget_painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
-        auto frame = Mw::animation->is_frame_at(*ri, frame_pos)?
-            Mw::animation->get_frame_at(*ri, frame_pos):
-            Mw::animation->get_prev_frame_at(*ri, frame_pos);
-        widget_painter.drawImage(frame.dimensions.topLeft(), frame.image);
+        painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
+        auto frame = Mw::animation->is_frame_at(*ri, frame_pos) ? Mw::animation->get_frame_at(*ri, frame_pos): Mw::animation->get_prev_frame_at(*ri, frame_pos);
+        painter.drawImage(frame.dimensions.topLeft(), frame.image);
         ++ri;
     }
 
-    //reset painter
-    widget_painter.setOpacity(1);
-    widget_painter.resetTransform();
+    // tool preview
+    if (frame_pos == Mw::editor->frame_pos) {
+        QImage* preview;
+        switch (Mw::editor->current_tool)
+        {
+            case PEN:         preview = Mw::editor->tool_pen->preview();         break;
+            case LASSOFILL:   preview = Mw::editor->tool_lassofill->preview();   break;
+            case ERASER:      preview = Mw::editor->tool_eraser->preview();      break;
+            case KNOCKBACK:   preview = Mw::editor->tool_knockback->preview();   break;
+            case COLORPICKER: preview = Mw::editor->tool_colorpicker->preview(); break;
+            case MOVE:        preview = Mw::editor->tool_move->preview();        break;
+            case SELECTION:   preview = Mw::editor->tool_selection->preview();   break;
+        }
 
-    widget_painter.end();
+        if (preview) painter.drawImage(0,0, *preview);
+    }
+
+
+    // reset painter
+    painter.setOpacity(1);
+    painter.resetTransform();
+
+    painter.end();
 };
 
 void Preview::play_step()

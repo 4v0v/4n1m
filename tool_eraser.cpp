@@ -1,7 +1,14 @@
 #include "tool_eraser.h"
 #include "editor.h"
+#include "animation.h"
+
+Tool_eraser::Tool_eraser() {
+    preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+}
 
 void Tool_eraser::press(QMouseEvent *e) {
+    Mw::editor->state = SCRIBBLING;
+
     if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         if (Mw::editor->is_copy_prev_frame)
             Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
@@ -10,6 +17,9 @@ void Tool_eraser::press(QMouseEvent *e) {
     }
 
     stroke << e->pos();
+
+    Mw::editor->update();
+    Mw::timeline->update();
 }
 
 void Tool_eraser::move(QMouseEvent *e) {
@@ -56,18 +66,22 @@ void Tool_eraser::release(QMouseEvent *) {
     frame_painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
     frame_painter.drawImage(0, 0, k);
 
-
     stroke.clear();
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
+
+    Mw::editor->state = IDLE;
+    Mw::editor->update();
 };
 
-void Tool_eraser::preview(QImage* preview) {
-    QPainter preview_painter(preview);
+QImage* Tool_eraser::preview() {
+    preview_image.fill(Qt::transparent);
 
-    preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
-    preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    QPainter painter(&preview_image);
 
-    preview_painter.setPen(QPen(
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+
+    painter.setPen(QPen(
         eraser_tool.color(),
         eraser_tool.width() * Mw::editor->scale,
         eraser_tool.style(), eraser_tool.capStyle(),
@@ -75,7 +89,9 @@ void Tool_eraser::preview(QImage* preview) {
     ));
 
     if (stroke.count() == 1)
-        preview_painter.drawPoint(stroke.first());
+        painter.drawPoint(stroke.first());
     else if (stroke.count() > 1)
-        preview_painter.drawPolyline(stroke);
+        painter.drawPolyline(stroke);
+
+    return &preview_image;
 };

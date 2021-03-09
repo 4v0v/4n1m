@@ -1,7 +1,14 @@
 #include "tool_pen.h"
 #include "editor.h"
+#include "animation.h"
+
+Tool_pen::Tool_pen() {
+    preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+}
 
 void Tool_pen::press(QMouseEvent *e) {
+    Mw::editor->state = SCRIBBLING;
+
     stroke << e->pos();
     if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         if (Mw::editor->is_copy_prev_frame)
@@ -9,6 +16,9 @@ void Tool_pen::press(QMouseEvent *e) {
         else
             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
+
+    Mw::editor->update();
+    Mw::timeline->update();
 }
 
 void Tool_pen::move(QMouseEvent *e) {
@@ -49,24 +59,25 @@ void Tool_pen::release(QMouseEvent *) {
 
     stroke.clear();
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
+
+    Mw::editor->state = IDLE;
+    Mw::editor->update();
 };
 
-void Tool_pen::preview(QImage* preview) {
-    QPainter preview_painter(preview);
+QImage* Tool_pen::preview() {
+    preview_image.fill(Qt::transparent);
 
-    preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
-    preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    QPainter painter(&preview_image);
 
-    preview_painter.setPen(QPen(
-        pen_tool.color(),
-        pen_tool.width() * Mw::editor->scale,
-        pen_tool.style(),
-        pen_tool.capStyle(),
-        pen_tool.joinStyle()
-    ));
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+
+    painter.setPen(QPen(pen_tool.color(), pen_tool.width() * Mw::editor->scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
 
     if (stroke.count() == 1)
-        preview_painter.drawPoint(stroke.first());
+        painter.drawPoint(stroke.first());
     else if (stroke.count() > 1)
-        preview_painter.drawPolyline(stroke);
+        painter.drawPolyline(stroke);
+
+    return &preview_image;
 };

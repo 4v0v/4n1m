@@ -2,7 +2,13 @@
 #include "editor.h"
 #include "animation.h"
 
+Tool_lassofill::Tool_lassofill() {
+    preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+}
+
 void Tool_lassofill::press(QMouseEvent *e) {
+    Mw::editor->state = SCRIBBLING;
+
     stroke << e->pos();
     if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         if (Mw::editor->is_copy_prev_frame)
@@ -10,6 +16,9 @@ void Tool_lassofill::press(QMouseEvent *e) {
         else
             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
+
+    Mw::editor->update();
+    Mw::timeline->update();
 }
 
 void Tool_lassofill::move(QMouseEvent *e) {
@@ -48,15 +57,22 @@ void Tool_lassofill::release(QMouseEvent *) {
 
     stroke.clear();
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
+
+    Mw::editor->state = IDLE;
+    Mw::editor->update();
 };
 
-void Tool_lassofill::preview(QImage* preview) {
-    QPainter preview_painter(preview);
+QImage* Tool_lassofill::preview() {
+    preview_image.fill(Qt::transparent);
 
-    preview_painter.translate(-Mw::editor->offset/Mw::editor->scale);
-    preview_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    QPainter painter(&preview_image);
 
-    preview_painter.setPen(Qt::transparent);
-    preview_painter.setBrush(lassofill_tool);
-    preview_painter.drawPolygon(stroke);
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+
+    painter.setPen(Qt::transparent);
+    painter.setBrush(lassofill_tool);
+    painter.drawPolygon(stroke);
+
+    return &preview_image;
 };
