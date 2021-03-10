@@ -6,12 +6,12 @@
 #include "toolbar.h"
 #include "preview.h"
 
-Animation* Mw::animation;
-Timeline* Mw::timeline;
-Editor* Mw::editor;
-Toolbar* Mw::toolbar;
+Animation*  Mw::animation;
+Timeline*   Mw::timeline;
+Editor*     Mw::editor;
+Toolbar*    Mw::toolbar;
 QUndoStack* Mw::undostack;
-Preview* Mw::preview;
+Preview*    Mw::preview;
 
 Mw::Mw()
 {
@@ -65,14 +65,14 @@ void Mw::init_shortcuts() {
     create_shortcut(Qt::Key_Up,[]{ editor->goto_prev_layer(); });
     create_shortcut(Qt::Key_1,[]{ editor->set_tool(PEN); });
     create_shortcut(Qt::Key_2,[]{ editor->set_tool(LASSOFILL); });
-//    create_shortcut(Qt::Key_0,[]{ editor->toggle_onion_skin(); });
-//    create_shortcut(Qt::Key_P,[]{ editor->toggle_onion_skin_loop(); });
-//    create_shortcut(Qt::Key_I,[]{ editor->toggle_onion_skin_prev(); });
-//    create_shortcut(Qt::Key_O,[]{ editor->toggle_onion_skin_next(); });
     create_shortcut(Qt::Key_9,[]{ editor->insert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_8,[]{ editor->uninsert_frame_at_current_pos(); });
     create_shortcut(Qt::Key_G,[]{ editor->toggle_copy_prev_frame(); });
     create_shortcut(Qt::Key_R,[]{ preview->toggle_visibility(); });
+//    create_shortcut(Qt::Key_0,[]{ editor->toggle_onion_skin(); });
+//    create_shortcut(Qt::Key_P,[]{ editor->toggle_onion_skin_loop(); });
+//    create_shortcut(Qt::Key_I,[]{ editor->toggle_onion_skin_prev(); });
+//    create_shortcut(Qt::Key_O,[]{ editor->toggle_onion_skin_next(); });
 };
 
 void Mw::create_shortcut(QKeySequence ks, std::function<void()> action)

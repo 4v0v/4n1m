@@ -5,7 +5,7 @@ Preview::Preview(): QWidget(nullptr)
 {
     setGeometry(0, 0, 500, 500);
 
-    playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ this->play_step();});
+    playing_timer->connect(playing_timer, &QTimer::timeout, this, [this]{ play_step();});
 }
 
 void Preview::mousePressEvent(QMouseEvent* e)
@@ -100,8 +100,8 @@ void Preview::toggle_play()
 void Preview::toggle_visibility() {
     is_visible = !is_visible;
 
-    if (!is_visible) setGeometry(0, 0, 0, 0);
-    else setGeometry(0, 0, 500, 500);
+    if (!is_visible) setGeometry(0, 0,   0,   0);
+    else             setGeometry(0, 0, 500, 500);
 
     playing_timer->stop();
     update();
