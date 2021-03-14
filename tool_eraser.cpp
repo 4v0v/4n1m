@@ -48,7 +48,7 @@ void Tool_eraser::release(QMouseEvent *) {
     if (bb.top()    < j.dimensions.top())    Mw::animation->resize_frame(&j, TOP,    bb.top());
 
     // Draw on key
-    QPainter frame_painter(&j.image);
+    QPainter painter(&j.image);
 
     QImage k = j.image.copy();
     k.fill(Qt::transparent);
@@ -58,13 +58,11 @@ void Tool_eraser::release(QMouseEvent *) {
     eraser_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
     eraser_painter.setPen(QPen(eraser_tool.color(), eraser_tool.width() * Mw::editor->scale, eraser_tool.style(), eraser_tool.capStyle(), eraser_tool.joinStyle()));
 
-    if (stroke.count() == 1)
-        eraser_painter.drawPoint(stroke.first());
-    else if (stroke.count() > 1)
-        eraser_painter.drawPolyline(stroke);
+    if      (stroke.count() == 1) eraser_painter.drawPoint(stroke.first());
+    else if (stroke.count()  > 1) eraser_painter.drawPolyline(stroke);
 
-    frame_painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
-    frame_painter.drawImage(0, 0, k);
+    painter.setCompositionMode(QPainter::CompositionMode_DestinationOut);
+    painter.drawImage(0, 0, k);
 
     stroke.clear();
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
@@ -84,7 +82,8 @@ QImage* Tool_eraser::preview() {
     painter.setPen(QPen(
         eraser_tool.color(),
         eraser_tool.width() * Mw::editor->scale,
-        eraser_tool.style(), eraser_tool.capStyle(),
+        eraser_tool.style(),
+        eraser_tool.capStyle(),
         eraser_tool.joinStyle()
     ));
 

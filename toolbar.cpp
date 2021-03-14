@@ -128,10 +128,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
 }
 
 void Toolbar::paintEvent(QPaintEvent*) {
-    widget_painter.begin(this);
-
-    widget_painter.setBrush(Qt::gray);
-    widget_painter.drawRect(rect());
-
-    widget_painter.end();
+    QPainter painter(this);
+    painter.setBrush(Qt::gray);
+    painter.drawRect(rect());
 }

@@ -10,15 +10,17 @@ public:
     void press(QMouseEvent*);
     void move(QMouseEvent*);
     void release(QMouseEvent*);
-    void reset();
     QImage* preview();
+    void init_values();
+    void draw_on_frame();
 
     QImage preview_image;
-    QRect selected_zone            = QRect(0, 0, 1, 1);;
-    QRect initial_selected_zone    = QRect(0, 0, 1, 1);;
-    QPoint selected_zone_delta_pos = QPoint(0, 0);
-    bool mirrored_h = false;
-    bool mirrored_v = false;
-    QImage selected_image          = QImage(1, 1, QImage::Format_ARGB32);
-    State state                    = SELECTION_EMPTY;
+    QRect selected_zone;
+    QRect initial_selected_zone;
+    QPoint selected_zone_delta_pos;
+    bool is_mirrored_h;
+    bool is_mirrored_v;
+    bool is_copying;
+    QImage selected_image;
+    State state;
 };

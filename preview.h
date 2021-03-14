@@ -23,5 +23,4 @@ public:
     State state = IDLE;
     QPainter painter;
     QPoint delta_pos;
-    QColor bg_color = Qt::gray;
 };

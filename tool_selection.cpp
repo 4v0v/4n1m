@@ -13,8 +13,9 @@ void Tool_selection::init_values() {
     selected_zone           = QRect(0, 0, 1, 1);;
     initial_selected_zone   = QRect(0, 0, 1, 1);;
     selected_zone_delta_pos = QPoint(0, 0);
-    mirrored_h              = false;
-    mirrored_v              = false;
+    is_mirrored_h           = false;
+    is_mirrored_v           = false;
+    is_copying              = false;
 }
 
 void Tool_selection::press(QMouseEvent* e) {
@@ -36,10 +37,14 @@ void Tool_selection::press(QMouseEvent* e) {
         else if (bottom_left.contains(e->pos()))  state = SELECTION_SCALING_BL;
         else if (selected_zone.contains(e->pos())) {
             state = SELECTION_MOVING;
+
+            // TODO: si on a déjà sélectionné et qu'on appuie sur CTRL il faut réinitialiser la sélection pour faire une nouvelle copie
+            if (QApplication::keyboardModifiers() == Qt::CTRL) is_copying = true;
+
             selected_zone_delta_pos.setX(e->x() - selected_zone.x());
             selected_zone_delta_pos.setY(e->y() - selected_zone.y());
         } else {
-            init_values();
+            draw_on_frame();
             state = SELECTION_SELECTING;
             selected_zone.setRect(e->x(), e->y(), 0, 0);
         }
@@ -66,12 +71,12 @@ void Tool_selection::move(QMouseEvent* e) {
         if (
             (selected_zone_before_move.width() >= 0 && selected_zone.width()  < 0) ||
             (selected_zone_before_move.width()  < 0 && selected_zone.width() >= 0)
-        ) mirrored_h = !mirrored_h;
+        ) is_mirrored_h = !is_mirrored_h;
 
         if (
             (selected_zone_before_move.height() >= 0 && selected_zone.height()  < 0) ||
             (selected_zone_before_move.height()  < 0 && selected_zone.height() >= 0)
-        ) mirrored_v = !mirrored_v;
+        ) is_mirrored_v = !is_mirrored_v;
     }
 
     Mw::editor->update();
@@ -107,19 +112,33 @@ void Tool_selection::release(QMouseEvent*) {
 
 QImage* Tool_selection::preview() {
     if (state == SELECTION_EMPTY) return nullptr;
-
     preview_image.fill(Qt::transparent);
 
     QPainter painter(&preview_image);
 
+    // background
+    painter.setBrush(Mw::editor->paper_color);
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    painter.drawRect(Mw::editor->rect());
+    painter.resetTransform();
+
+    // complete current frame
+    Animation::frame frame = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+    painter.drawImage(frame.dimensions.topLeft(), frame.image);
+
+    //
     painter.translate(-Mw::editor->offset/Mw::editor->scale);
     painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
 
     // initial zone
-    painter.setBrush(Qt::blue);
-    painter.drawRect(initial_selected_zone);
+    if (!is_copying) {
+        painter.setPen(Mw::editor->paper_color);
+        painter.setBrush(Mw::editor->paper_color);
+        painter.drawRect(initial_selected_zone);
+    }
 
-    //selection zone
+    // selection zone
     if (state == SELECTION_SELECTING) {
         painter.setPen(QPen(Qt::red, 2, Qt::DashLine));
         painter.setBrush(Qt::transparent);
@@ -130,7 +149,7 @@ QImage* Tool_selection::preview() {
         if (selected_zone.right()  < selected_zone.left()) real_top_left.setX(selected_zone.right());
         if (selected_zone.bottom() < selected_zone.top())  real_top_left.setY(selected_zone.bottom());
 
-        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(mirrored_h, mirrored_v));
+        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(is_mirrored_h, is_mirrored_v));
 
         painter.setPen(QPen(Qt::green, 2, Qt::DashLine));
         painter.setBrush(Qt::transparent);
@@ -141,7 +160,7 @@ QImage* Tool_selection::preview() {
         if (selected_zone.right()  < selected_zone.left()) real_top_left.setX(selected_zone.right());
         if (selected_zone.bottom() < selected_zone.top())  real_top_left.setY(selected_zone.bottom());
 
-        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(mirrored_h, mirrored_v));
+        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(is_mirrored_h, is_mirrored_v));
 
         painter.setPen(QPen(Qt::yellow, 2, Qt::DashLine));
         painter.setBrush(Qt::transparent);
@@ -159,7 +178,7 @@ QImage* Tool_selection::preview() {
         if (selected_zone.right()  < selected_zone.left()) real_top_left.setX(selected_zone.right());
         if (selected_zone.bottom() < selected_zone.top())  real_top_left.setY(selected_zone.bottom());
 
-        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(mirrored_h, mirrored_v));
+        painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(is_mirrored_h, is_mirrored_v));
 
         painter.setPen(QPen(Qt::red, 2, Qt::DashLine));
         painter.setBrush(Qt::transparent);
@@ -175,4 +194,37 @@ QImage* Tool_selection::preview() {
 
     return &preview_image;
 };
+
+void Tool_selection::draw_on_frame()
+{
+    Animation::frame i = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+    Animation::frame j = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+
+    // redimentionner frame
+    Mw::animation->resize_frame(&j, LEFT  , 0);
+    Mw::animation->resize_frame(&j, RIGHT , 10000);
+    Mw::animation->resize_frame(&j, TOP   , 0);
+    Mw::animation->resize_frame(&j, BOTTOM, 10000);
+
+    QPainter painter(&j.image);
+
+    // dessiner le trou initial_selected_zone
+    painter.translate(-Mw::editor->offset/Mw::editor->scale);
+    painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
+    if (!is_copying) {
+        painter.setPen(Mw::editor->paper_color);
+        painter.setBrush(Mw::editor->paper_color);
+        painter.drawRect(initial_selected_zone);
+    }
+
+    // dessiner selected_image au bon endroit
+    QPoint real_top_left = selected_zone.topLeft();
+    if (selected_zone.right()  < selected_zone.left()) real_top_left.setX(selected_zone.right());
+    if (selected_zone.bottom() < selected_zone.top())  real_top_left.setY(selected_zone.bottom());
+
+    painter.drawImage(real_top_left, selected_image.scaled(std::abs(selected_zone.width()), std::abs(selected_zone.height())).mirrored(is_mirrored_h, is_mirrored_v));
+
+    Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
+    init_values();
+}
 

@@ -110,12 +110,12 @@ QColor ColorWheel::pick_color(const QPoint& point)
         hue = (hue > 359) ? 359 : hue;
         hue = (hue < 0) ? 0 : hue;
         return QColor::fromHsv(static_cast<int>(hue), current_color.saturation(), current_color.value());
-    }
-    else if (is_in_square)
-    {
+        
+    } else if (is_in_square) {
         QPointF p = point - square_rect.topLeft();
         return QColor::fromHsvF(current_color.hueF(), p.x() / (square_rect.width() - 1), 1.0 - (p.y() / (square_rect.height()-1)));
     }
+
     return QColor();
 }
 
@@ -176,7 +176,7 @@ void ColorWheel::draw_square_image(const int &hue)
     painter.fillRect(square.rect(), colorGradiantBrush);
     painter.fillRect(square.rect(), blackGradiantBrush);
     qreal SquareWidth = 2 * ir / qSqrt(2.1);
-    square_rect = QRectF(m1, m2, SquareWidth, SquareWidth).toAlignedRect();
+    square_rect  = QRectF(m1, m2, SquareWidth, SquareWidth).toAlignedRect();
     square_image = square.scaled(square_rect.size());
 }
 
@@ -246,7 +246,7 @@ void ColorWheel::hue_changed(const int &hue)
 
 void ColorWheel::saturation_changed(const int &sat)
 {
-    int hue = current_color.hsvHue();
+    int hue   = current_color.hsvHue();
     int value = current_color.value();
     int alpha = current_color.alpha();
     current_color.setHsv(hue, sat, value, alpha);
@@ -256,8 +256,8 @@ void ColorWheel::saturation_changed(const int &sat)
 
 void ColorWheel::value_changed(const int &value)
 {
-    int hue = current_color.hsvHue();
-    int sat = current_color.hsvSaturation();
+    int hue   = current_color.hsvHue();
+    int sat   = current_color.hsvSaturation();
     int alpha = current_color.alpha();
     current_color.setHsv(hue, sat, value, alpha);
 

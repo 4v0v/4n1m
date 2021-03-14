@@ -32,7 +32,7 @@ void Preview::paintEvent(QPaintEvent*)
     painter.begin(this);
 
     // background
-    Mw::set_painter_colors(&painter, bg_color);
+    Mw::set_painter_colors(&painter, Mw::editor->paper_color);
     painter.drawRect(rect());
 
     // transform editor

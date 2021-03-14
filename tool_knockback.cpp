@@ -16,8 +16,8 @@ void Tool_knockback::press(QMouseEvent* e) {
             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
 
-    position       = QVector2D(e->pos());
-    delta_position = position;
+    position         = QVector2D(e->pos());
+    delta_position   = position;
     knockback_amount = (position - delta_position).length()/3;
 
     Mw::editor->update();
@@ -48,12 +48,15 @@ void Tool_knockback::release(QMouseEvent*) {
 
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
 
+    preview_image.fill(Qt::transparent);
     Mw::editor->state = IDLE;
     Mw::editor->update();
 };
 
 QImage* Tool_knockback::preview() {
     preview_image.fill(Qt::transparent);
+
+    if (Mw::editor->state == IDLE) return nullptr;
 
     QPainter painter(&preview_image);
 
