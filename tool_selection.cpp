@@ -98,8 +98,40 @@ void Tool_selection::release(QMouseEvent*) {
             if (selected_zone.width()  < 0) x -= w;
             if (selected_zone.height() < 0) y -= h;
 
+            if (x < Mw::editor->offset.x()) {
+                w -= Mw::editor->offset.x() - x;
+                x = Mw::editor->offset.x();
+            }
+
+            if (y < Mw::editor->offset.y()) {
+                h -= Mw::editor->offset.y() - y;
+                y = Mw::editor->offset.y();
+            }
+
+            if (w > (Mw::editor->offset.x() + Mw::animation->dimensions.width() * Mw::editor->scale) - x) {
+                w = (Mw::editor->offset.x() + Mw::animation->dimensions.width() * Mw::editor->scale) - x;
+            }
+
+            if (h > (Mw::editor->offset.y() + Mw::animation->dimensions.height() * Mw::editor->scale) - y) {
+                h = (Mw::editor->offset.y() + Mw::animation->dimensions.height() * Mw::editor->scale) - y;
+            }
+
             selected_zone.setRect(x, y, w, h);
-            selected_image        = Mw::editor->grab().toImage().copy(selected_zone); // TODO: use another method to get the image
+
+            Animation::frame frame = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+            Mw::animation->resize_frame(&frame, LEFT  , 0);
+            Mw::animation->resize_frame(&frame, RIGHT , 10000);
+            Mw::animation->resize_frame(&frame, TOP   , 0);
+            Mw::animation->resize_frame(&frame, BOTTOM, 10000);
+
+            QRect r = QRect(selected_zone);
+            r.setX((r.x() - Mw::editor->offset.x())/ Mw::editor->scale);
+            r.setY((r.y() - Mw::editor->offset.y())/ Mw::editor->scale);
+            r.setWidth(w / Mw::editor->scale);
+            r.setHeight(h / Mw::editor->scale);
+
+            selected_image        = frame.image.copy(r);
+
             initial_selected_zone = selected_zone;
         }
 

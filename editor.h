@@ -68,7 +68,7 @@ public:
     Tool current_tool = PEN;
     Tool previous_tool;
 
-    double scale  = 1.75;
+    double scale  = 1;
     QPoint offset = QPoint(300, 50);
 
     QColor bg_color    = Qt::black;
