@@ -93,7 +93,6 @@ void Animation::clear_animation()
 
 void Animation::init_frame(frame* f, QPoint pos)
 {
-    f->is_empty = false;
     f->dimensions.setRect(
         pos.x() - 25 > 0                   ? pos.x() - 25 : 0,
         pos.y() - 25 > 0                   ? pos.y() - 25 : 0,
@@ -104,21 +103,23 @@ void Animation::init_frame(frame* f, QPoint pos)
     QImage resized_canvas(f->dimensions.size(), QImage::Format_ARGB32);
     resized_canvas.fill(Qt::transparent);
 
-    f->image = resized_canvas;
+    f->image    = resized_canvas;
+    f->is_empty = false;
 }
 
 void Animation::clear_frame(frame* f)
 {
-    f->is_empty = true;
+    f->dimensions.setRect(0, 0, 1, 1);
     f->image    = QImage(1, 1, QImage::Format_ARGB32);
-    f->dimensions.setRect(0,0,1,1);
+    f->is_empty = true;
 }
 
 void Animation::resize_frame(frame* f, Direction direction, int size)
 {
     QPoint point = QPoint(0, 0);
 
-    switch (direction) {
+    switch (direction)
+    {
         case RIGHT: {
             f->dimensions.setRight(size + 50 < dimensions.width() ? size + 50 : dimensions.width());
             break;
@@ -181,45 +182,49 @@ QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int ne
     if (is_layer_empty(l)) return onion_skins;
 
     for (int i = prev; i > 0; i--)
-    {
-        create_onionskin_at(&onion_skins, l, get_recursive_prev_pos(l, p, i), 0.5- 0.1 * i, Qt::blue);
-    }
+        fill_final_onionskin_image(&onion_skins, l, get_recursive_prev_pos(l, p, i), .5 - .1 * i, Qt::blue);
 
-    for (int i = 0; i < next; i++)
-    {
-        create_onionskin_at(&onion_skins, l, get_recursive_next_pos(l, p, i), 0.5- 0.1 * i, Qt::red);
-    }
+    for (int i = 0; i <= next; i++)
+        fill_final_onionskin_image(&onion_skins, l, get_recursive_next_pos(l, p, i), .5 - .1 * i, Qt::red);
 
     if (loop)
     {
-        create_onionskin_at(&onion_skins, l, get_last_pos(l), 0.3, Qt::darkYellow);
-        create_onionskin_at(&onion_skins, l, get_first_pos(l), 0.3, Qt::darkGreen);
+        fill_final_onionskin_image(&onion_skins, l, get_last_pos(l) , .3, Qt::darkYellow);
+        fill_final_onionskin_image(&onion_skins, l, get_first_pos(l), .3, Qt::darkGreen );
     }
 
     return onion_skins;
 }
 
-void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color)
+void Animation::fill_final_onionskin_image(QImage* final, int l, int p, float opacity, QColor color)
 {
     if (is_animation_empty() || is_layer_empty(l) || !has_frame_at(l, p)) return;
 
-    QImage copy = get_frame_at(l, p).image.copy();
+    QImage without_opacity = get_frame_at(l, p).image.copy();
+    QImage with_opacity    = get_frame_at(l, p).image.copy();
 
-    static QPainter painter; // image filled with onion skin color
+    with_opacity.fill(Qt::transparent);
 
-    painter.begin(&copy);
+    static QPainter painter;
+
+    // draw skin
+    painter.begin(&without_opacity);
     painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
     painter.setPen(color);
     painter.setBrush(color);
-    painter.drawRect(copy.rect());
+    painter.drawRect(without_opacity.rect());
     painter.end();
 
-    static QPainter painter2; // image + onion skin
+    // set skin opacity
+    painter.begin(&with_opacity);
+    painter.setOpacity(opacity);
+    painter.drawImage(0, 0, without_opacity);
+    painter.end();
 
-    painter2.begin(img);
-    painter2.setOpacity(opacity);
-    painter2.drawImage(get_frame_at(l, p).dimensions.topLeft(), copy);
-    painter2.end();
+    // draw skin on top of final onion skin image
+    painter.begin(final);
+    painter.drawImage(get_frame_at(l, p).dimensions.topLeft(), with_opacity);
+    painter.end();
 }
 
 void Animation::export_animation(QString filename)
@@ -227,33 +232,36 @@ void Animation::export_animation(QString filename)
     if (is_animation_empty()) return;
 
     QString qt_string = filename;
-    auto fileinfo = QFileInfo(filename);
+    auto    fileinfo  = QFileInfo(filename);
 
     if (fileinfo.suffix() != ".gif") qt_string += ".gif";
 
-    std::string str = qt_string.toStdString();
+    std::string str          = qt_string.toStdString();
     const char* gif_filename = str.c_str();
 
     GifWriter g;
     GifBegin(&g, gif_filename, dimensions.width(), dimensions.height(), 1, 8, true);
 
     // TODO: pragma omp
-    for (int i = 0; i <= get_last_anim_pos(); ++i) {
+    for (int i = 0; i <= get_last_anim_pos(); ++i)
+    {
         // create image
         QImage img       = QImage(dimensions, QImage::Format_ARGB32);
         QPainter painter(&img);
 
         painter.fillRect(img.rect(), Mw::editor->bg_color);
 
-        QList<int> layer_keys = layers.keys();
-        QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+        auto layer_keys = layers.keys();
+        auto ri         = layer_keys.crbegin();
 
-        while(ri != layer_keys.crend()) {
+        while (ri != layer_keys.crend())
+        {
             if (is_layer_empty(*ri)) { ri++; continue; };
 
             if (has_frame_at(*ri, i)) {
                 frame f = get_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
+
             } else if (has_frame_at(*ri, get_prev_pos(*ri, i))) {
                 frame f = get_prev_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
@@ -261,11 +269,13 @@ void Animation::export_animation(QString filename)
 
             ri++;
         }
+
         // create gif frame from image
         uint8_t frame[ dimensions.width() * dimensions.height() * 4 ];
-        for( int yy=0; yy<img.height(); ++yy )
+
+        for (int yy=0; yy<img.height(); ++yy )
         {
-            for( int xx=0; xx<img.width(); ++xx )
+            for (int xx=0; xx<img.width(); ++xx )
             {
                 auto pixel_color = img.pixelColor(xx, yy);
                 int r = pixel_color.red();

@@ -22,7 +22,7 @@ void Editor::mousePressEvent(QMouseEvent* e)
     // TODO: take into account SELECTION + MOVE
     previous_tool = current_tool;
 
-    if      (e->button() == Qt::RightButton)  current_tool = COLORPICKER;
+    if      (e->button() == Qt::RightButton ) current_tool = COLORPICKER;
     else if (e->button() == Qt::MiddleButton) current_tool = MOVE;
 
     switch (current_tool)
@@ -76,7 +76,7 @@ void Editor::resizeEvent(QResizeEvent *e)
     int w = Mw::animation->dimensions.width()  * scale;
     int h = Mw::animation->dimensions.height() * scale;
 
-    offset.setX(width()/2 - w/2);
+    offset.setX(width() /2 - w/2);
     offset.setY(height()/2 - h/2);
 
     QWidget::resizeEvent(e);
@@ -85,12 +85,17 @@ void Editor::resizeEvent(QResizeEvent *e)
 void Editor::wheelEvent(QWheelEvent* e){
     if (state != IDLE) return;
 
+    static float MIN_SCALE = .7;
+    static float MAX_SCALE = 3.;
+
+
     if (QApplication::keyboardModifiers() == Qt::CTRL)
     {
-        if (e->angleDelta().y() < 0 && scale > .7) {
-            scale -= .1;
+        if        (e->angleDelta().y() < 0 && scale > MIN_SCALE) {
+            scale  -= .1;
             offset += QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
-        } else if (e->angleDelta().y() > 0 && scale < 3.) {
+
+        } else if (e->angleDelta().y() > 0 && scale < MAX_SCALE) {
             scale += .1;
             offset -= QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
         }
@@ -109,8 +114,8 @@ void Editor::paintEvent(QPaintEvent*)
 
     painter.begin(this);
 
-    // editor backgrou
-    painter.setPen(bg_color);
+    // editor background
+    painter.setPen  (bg_color);
     painter.setBrush(bg_color);
     painter.drawRect(rect());
 
@@ -119,7 +124,7 @@ void Editor::paintEvent(QPaintEvent*)
     painter.scale(scale, scale);
 
     // editor background frame
-    painter.setPen(bg_color);
+    painter.setPen  (bg_color);
     painter.setBrush(paper_color);
     painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
 
@@ -127,14 +132,18 @@ void Editor::paintEvent(QPaintEvent*)
     if (is_os_enabled) painter.drawImage(0,0, onion_skins);
 
     // sorted frames from all layers at current position
-    QList<int> layer_keys = Mw::animation->layers.keys();
-    QList<int>::const_reverse_iterator ri = layer_keys.crbegin();
+    auto layer_keys = Mw::animation->layers.keys();
+    auto ri         = layer_keys.crbegin();
 
-    while(ri != layer_keys.crend()) {
-        auto l = *ri;
-        painter.setOpacity(Mw::animation->get_layer_at(l).opacity/100.0);
-        auto frame = Mw::animation->has_frame_at(l, frame_pos) ? Mw::animation->get_frame_at(l, frame_pos) : Mw::animation->get_prev_frame_at(l, frame_pos);
+    while (ri != layer_keys.crend())
+    {
+        auto frame = Mw::animation->has_frame_at(*ri, frame_pos) ?
+            Mw::animation->get_frame_at(*ri, frame_pos) :
+            Mw::animation->get_prev_frame_at(*ri, frame_pos);
+
+        painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
         painter.drawImage(frame.dimensions.topLeft(), frame.image);
+
         ri++;
     }
 
@@ -212,6 +221,7 @@ void Editor::goto_pos(int l, int p)
 void Editor::create_onions_at_current_pos()
 {
     int f_pos = Mw::animation->has_frame_at(layer_pos, frame_pos) ? frame_pos : Mw::animation->get_prev_pos(layer_pos, frame_pos);
+
     onion_skins = Mw::animation->create_onionskins_at(
         layer_pos,
         f_pos != -1 ? f_pos : 0,

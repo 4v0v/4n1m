@@ -8,29 +8,27 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     color_wheel = new ColorWheel(this);
 
-    QCheckBox* button_show_preview  = new QCheckBox("Preview"            , this);
-    QCheckBox* button_copy_previous = new QCheckBox("Copy previous frame", this);
-    QCheckBox* button_onion_show    = new QCheckBox("Onion skin"         , this);
-    QCheckBox* button_onion_next    = new QCheckBox("Onion next"         , this);
-    QCheckBox* button_onion_prev    = new QCheckBox("Onion prev"         , this);
-    QCheckBox* button_onion_loop    = new QCheckBox("Onion loop"         , this);
+    QCheckBox* btn_show_preview = new QCheckBox("Preview"            , this);
+    QCheckBox* btn_copy_prev    = new QCheckBox("Copy previous frame", this);
+    QCheckBox* btn_onion_show   = new QCheckBox("Onion skin"         , this);
+    QCheckBox* btn_onion_next   = new QCheckBox("Onion next"         , this);
+    QCheckBox* btn_onion_prev   = new QCheckBox("Onion prev"         , this);
+    QCheckBox* btn_onion_loop   = new QCheckBox("Onion loop"         , this);
+    btn_show_preview->setChecked(Mw::preview->is_visible);
+    btn_copy_prev   ->setChecked(Mw::editor->is_copy_prev_enabled);
+    btn_onion_show  ->setChecked(Mw::editor->is_os_enabled);
+    btn_onion_next  ->setChecked(Mw::editor->is_os_next_enabled);
+    btn_onion_prev  ->setChecked(Mw::editor->is_os_prev_enabled);
+    btn_onion_loop  ->setChecked(Mw::editor->is_os_loop_enabled);
 
-    button_show_preview ->setChecked(Mw::preview->is_visible);
-    button_copy_previous->setChecked(Mw::editor->is_copy_prev_enabled);
-    button_onion_show   ->setChecked(Mw::editor->is_os_enabled);
-    button_onion_next   ->setChecked(Mw::editor->is_os_next_enabled);
-    button_onion_prev   ->setChecked(Mw::editor->is_os_prev_enabled);
-    button_onion_loop   ->setChecked(Mw::editor->is_os_loop_enabled);
-
-    QRadioButton* radio_pen         = new QRadioButton("PEN"         , this);
-    QRadioButton* radio_lasso       = new QRadioButton("LASSO FILL"  , this);
-    QRadioButton* radio_eraser      = new QRadioButton("ERASER"      , this);
-    QRadioButton* radio_knockback   = new QRadioButton("KNOCKBACK"   , this);
-    QRadioButton* radio_colorpicker = new QRadioButton("COLOR PICKER", this);
-    QRadioButton* radio_move        = new QRadioButton("MOVE"        , this);
-    QRadioButton* radio_selection   = new QRadioButton("SELECTION"   , this);
-
-    radio_pen->toggle();
+    QRadioButton* rad_pen         = new QRadioButton("PEN"         , this);
+    QRadioButton* rad_lasso       = new QRadioButton("LASSO FILL"  , this);
+    QRadioButton* rad_eraser      = new QRadioButton("ERASER"      , this);
+    QRadioButton* rad_knockback   = new QRadioButton("KNOCKBACK"   , this);
+    QRadioButton* rad_colorpicker = new QRadioButton("COLOR PICKER", this);
+    QRadioButton* rad_move        = new QRadioButton("MOVE"        , this);
+    QRadioButton* rad_selection   = new QRadioButton("SELECTION"   , this);
+    rad_pen->toggle();
 
     QSlider* pen_width_slider = new QSlider();
     pen_width_slider->setRange(1, 10);
@@ -42,9 +40,9 @@ Toolbar::Toolbar(): QWidget(nullptr)
     fps_slider->setValue(Mw::animation->FPS);
     fps_slider->setOrientation(Qt::Horizontal);
 
-    QPushButton* save_file   = new QPushButton("Save");
-    QPushButton* load_file   = new QPushButton("Load");
-    QPushButton* export_file = new QPushButton("Export");
+    QPushButton* file_save   = new QPushButton("Save"  );
+    QPushButton* file_load   = new QPushButton("Load"  );
+    QPushButton* file_export = new QPushButton("Export");
 
     QVBoxLayout* vlayout = new QVBoxLayout;
     vlayout->setSpacing(0);
@@ -52,70 +50,70 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     vlayout->addWidget(color_wheel);
     vlayout->addWidget(pen_width_slider);
-    vlayout->addWidget(radio_pen);
-    vlayout->addWidget(radio_lasso);
-    vlayout->addWidget(radio_eraser);
-    vlayout->addWidget(radio_knockback);
-    vlayout->addWidget(radio_colorpicker);
-    vlayout->addWidget(radio_move);
-    vlayout->addWidget(radio_selection);
-    vlayout->addWidget(button_show_preview);
-    vlayout->addWidget(button_copy_previous);
-    vlayout->addWidget(button_onion_show);
-    vlayout->addWidget(button_onion_next);
-    vlayout->addWidget(button_onion_prev);
-    vlayout->addWidget(button_onion_loop);
+    vlayout->addWidget(rad_pen);
+    vlayout->addWidget(rad_lasso);
+    vlayout->addWidget(rad_eraser);
+    vlayout->addWidget(rad_knockback);
+    vlayout->addWidget(rad_colorpicker);
+    vlayout->addWidget(rad_move);
+    vlayout->addWidget(rad_selection);
+    vlayout->addWidget(btn_show_preview);
+    vlayout->addWidget(btn_copy_prev);
+    vlayout->addWidget(btn_onion_show);
+    vlayout->addWidget(btn_onion_next);
+    vlayout->addWidget(btn_onion_prev);
+    vlayout->addWidget(btn_onion_loop);
     vlayout->addWidget(fps_slider);
-    vlayout->addWidget(save_file);
-    vlayout->addWidget(load_file);
-    vlayout->addWidget(export_file);
+    vlayout->addWidget(file_save);
+    vlayout->addWidget(file_load);
+    vlayout->addWidget(file_export);
 
     setLayout(vlayout);
 
-    connect(radio_pen        , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN);         });
-    connect(radio_lasso      , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL);   });
-    connect(radio_eraser     , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER);      });
-    connect(radio_knockback  , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK);   });
-    connect(radio_colorpicker, &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER); });
-    connect(radio_move       , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE);        });
-    connect(radio_selection  , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(SELECTION);   });
-
-    connect(button_show_preview , &QCheckBox::pressed, this, []() { Mw::preview->toggle_visibility();     });
-    connect(button_onion_show   , &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin();      });
-    connect(button_copy_previous, &QCheckBox::pressed, this, []() { Mw::editor->toggle_copy_prev_frame(); });
-    connect(button_onion_next   , &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_next(); });
-    connect(button_onion_prev   , &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_prev(); });
-    connect(button_onion_loop   , &QCheckBox::pressed, this, []() { Mw::editor->toggle_onion_skin_loop(); });
+    connect(btn_show_preview , &QCheckBox   ::pressed, this, [] { Mw::preview->toggle_visibility();     });
+    connect(btn_onion_show   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin();      });
+    connect(btn_copy_prev    , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_copy_prev_frame(); });
+    connect(btn_onion_next   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_next(); });
+    connect(btn_onion_prev   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_prev(); });
+    connect(btn_onion_loop   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_loop(); });
+    connect(rad_pen          , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN);            });
+    connect(rad_lasso        , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL);      });
+    connect(rad_eraser       , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER);         });
+    connect(rad_knockback    , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK);      });
+    connect(rad_colorpicker  , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER);    });
+    connect(rad_move         , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE);           });
+    connect(rad_selection    , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(SELECTION);      });
 
     connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] {
-        Mw::editor->set_pen_size(pen_width_slider->value());
+        Mw::editor->set_pen_size   (pen_width_slider->value());
         Mw::editor->set_eraser_size(pen_width_slider->value());
     });
 
     connect(fps_slider, &QAbstractSlider::valueChanged, this, [fps_slider] {
+        //TODO: refactor ugly double toggle to reset preview
         Mw::preview->toggle_play();
         Mw::preview->toggle_play();
         Mw::animation->FPS = fps_slider->value();
     });
 
-    connect(save_file, &QPushButton::pressed, this, [] {
+    connect(file_save, &QPushButton::pressed, this, [] {
        auto saved_file = QFileDialog::getSaveFileName(0, ("Save animation"), QDir::currentPath());
-       auto fileinfo = QFileInfo(saved_file);
+       auto file_info  = QFileInfo(saved_file);
 
        // TODO:
-       qDebug() << fileinfo.baseName();
-       qDebug() << fileinfo.suffix();
+       qDebug() << file_info.baseName();
+       qDebug() << file_info.suffix();
     });
 
-    connect(load_file, &QPushButton::pressed, this, [] {
+    connect(file_load, &QPushButton::pressed, this, [] {
         auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
-        auto fileinfo = QFileInfo(loaded_file);
+        auto file_info   = QFileInfo(loaded_file);
         // TODO: Mw::animation->load_animation(loaded_file);
     });
 
-    connect(export_file, &QPushButton::pressed, this, [] {
+    connect(file_export, &QPushButton::pressed, this, [] {
         auto exported_file = QFileDialog::getSaveFileName(0, ("Export animation"), QDir::currentPath());
-        auto fileinfo = QFileInfo(exported_file);
+        auto file_info     = QFileInfo(exported_file);
 
         Mw::animation->export_animation(exported_file);
     });

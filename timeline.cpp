@@ -111,7 +111,7 @@ TimelineFrame::TimelineFrame(int l, int p): QWidget()
 
 void TimelineFrame::paintEvent(QPaintEvent*)
 {
-    static QPainter painter(this);
+    static QPainter painter;
 
     painter.begin(this);
 

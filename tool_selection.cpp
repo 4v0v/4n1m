@@ -59,11 +59,11 @@ void Tool_selection::move(QMouseEvent* e) {
 
     switch(state) {
         case SELECTION_SELECTING:  selected_zone.setSize(QSize(e->x() - selected_zone.x(), e->y() - selected_zone.y())); break;
-        case SELECTION_MOVING:     selected_zone.moveTo(e->pos() - selected_zone_delta_pos); break;
-        case SELECTION_SCALING_TR: selected_zone.setTopRight(e->pos());    break;
-        case SELECTION_SCALING_TL: selected_zone.setTopLeft(e->pos());     break;
-        case SELECTION_SCALING_BR: selected_zone.setBottomRight(e->pos()); break;
-        case SELECTION_SCALING_BL: selected_zone.setBottomLeft(e->pos());  break;
+        case SELECTION_MOVING:     selected_zone.moveTo(e->pos() - selected_zone_delta_pos);                             break;
+        case SELECTION_SCALING_TR: selected_zone.setTopRight(e->pos());                                                  break;
+        case SELECTION_SCALING_TL: selected_zone.setTopLeft(e->pos());                                                   break;
+        case SELECTION_SCALING_BR: selected_zone.setBottomRight(e->pos());                                               break;
+        case SELECTION_SCALING_BL: selected_zone.setBottomLeft(e->pos());                                                break;
         default: break;
     }
 
@@ -86,33 +86,37 @@ void Tool_selection::release(QMouseEvent*) {
     Mw::editor->state = IDLE;
 
     if (state == SELECTION_SELECTING) {
-        if ( std::abs(selected_zone.width()) < 2 || std::abs(selected_zone.height()) < 2) {
+        if (std::abs(selected_zone.width()) < 2 || std::abs(selected_zone.height()) < 2) {
             init_values();
         } else {
             state = SELECTION_SELECTED;
-            int x = selected_zone.topLeft().x();
-            int y = selected_zone.topLeft().y();
-            int w = std::abs(selected_zone.width());
+            int x = selected_zone.topLeft().x() -1;
+            int y = selected_zone.topLeft().y() -1;
+            int w = std::abs(selected_zone.width() );
             int h = std::abs(selected_zone.height());
 
             if (selected_zone.width()  < 0) x -= w;
             if (selected_zone.height() < 0) y -= h;
 
-            if (x < Mw::editor->offset.x()) {
+            if (x < Mw::editor->offset.x())
+            {
                 w -= Mw::editor->offset.x() - x;
                 x  = Mw::editor->offset.x();
             }
 
-            if (y < Mw::editor->offset.y()) {
+            if (y < Mw::editor->offset.y())
+            {
                 h -= Mw::editor->offset.y() - y;
                 y  = Mw::editor->offset.y();
             }
 
-            if (w > (Mw::editor->offset.x() + Mw::animation->dimensions.width() * Mw::editor->scale) - x) {
+            if (w > (Mw::editor->offset.x() + Mw::animation->dimensions.width() * Mw::editor->scale) - x)
+            {
                 w = (Mw::editor->offset.x() + Mw::animation->dimensions.width() * Mw::editor->scale) - x;
             }
 
-            if (h > (Mw::editor->offset.y() + Mw::animation->dimensions.height() * Mw::editor->scale) - y) {
+            if (h > (Mw::editor->offset.y() + Mw::animation->dimensions.height() * Mw::editor->scale) - y)
+            {
                 h = (Mw::editor->offset.y() + Mw::animation->dimensions.height() * Mw::editor->scale) - y;
             }
 
@@ -145,7 +149,9 @@ QImage* Tool_selection::preview() {
     if (state == SELECTION_EMPTY) return nullptr;
     preview_image.fill(Qt::transparent);
 
-    QPainter painter(&preview_image);
+    static QPainter painter;
+
+    painter.begin(&preview_image);
 
     // background
     painter.setBrush(Mw::editor->paper_color);
@@ -222,6 +228,8 @@ QImage* Tool_selection::preview() {
         painter.drawRect(selected_zone.bottomRight().x() - 5, selected_zone.bottomRight().y() - 5, 10, 10);
         painter.drawRect(selected_zone.bottomLeft().x()  - 5, selected_zone.bottomLeft().y()  - 5, 10, 10);
     }
+
+    painter.end();
 
     return &preview_image;
 };

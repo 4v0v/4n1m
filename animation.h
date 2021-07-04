@@ -36,25 +36,25 @@ public:
     void foreach_frame_pos(int l, std::function<void(int)> action, int begin = 0, int end = -1);
     void foreach_frame_pos_revert(int l, std::function<void(int)> action, int begin = 0, int end = -1);
     void set_layer_opacity(int l, int opacity) { layers.find(l)->opacity = opacity; }
-    int  get_first_pos(int l) { return layers.find(l)->frames.firstKey(); }
-    int  get_last_pos(int l) { return layers.find(l)->frames.lastKey(); }
-    int  get_last_anim_pos();
-    int  get_prev_pos(int l, int p);
-    int  get_recursive_prev_pos(int l, int p, int nb);
-    int  get_recursive_next_pos(int l, int p, int nb);
-    int  get_next_pos(int l, int p);
+    int get_first_pos(int l) { return layers.find(l)->frames.firstKey(); }
+    int get_last_pos(int l) { return layers.find(l)->frames.lastKey(); }
+    int get_last_anim_pos();
+    int get_prev_pos(int l, int p);
+    int get_recursive_prev_pos(int l, int p, int nb);
+    int get_recursive_next_pos(int l, int p, int nb);
+    int get_next_pos(int l, int p);
     layer get_layer_at(int l) { return layers.value(l); }
     frame get_frame_at(int l, int p) { return layers.find(l)->frames.value(p); }
     frame get_prev_frame_at(int l, int p) { return get_frame_at(l, get_prev_pos(l, p)); }
     frame get_next_frame_at(int l, int p) { return get_frame_at(l, get_next_pos(l, p)); }
 
     QImage create_onionskins_at(int l, int p, bool loop, int prev, int next);
-    void create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color);
+    void fill_final_onionskin_image(QImage* img, int l, int p, float opacity, QColor color);
     void export_animation(QString filename);
     void save_animation(QString filename);
     void load_animation(QString filename);
 
     int              FPS = 30;
-    QSize            dimensions = QSize(600, 500);
+    QSize            dimensions = QSize(1200, 800);
     QMap<int, layer> layers;
 };

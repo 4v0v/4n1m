@@ -22,12 +22,32 @@ class ColorWheel : public QWidget
     Q_OBJECT
 public:
     ColorWheel(QWidget*);
+
+    virtual void mousePressEvent  (QMouseEvent* );
+    virtual void mouseMoveEvent   (QMouseEvent* );
+    virtual void mouseReleaseEvent(QMouseEvent* );
+    virtual void resizeEvent      (QResizeEvent*);
+    virtual void paintEvent       (QPaintEvent* );
+
+    void change_hue(const int& hue);
+    void change_saturation(const int& sat);
+    void change_value(const int& value);
+    void draw_wheel_image(const QSize& newSize);
+    void draw_square_image(const int& hue);
+    void draw_color_wheel(QPixmap& pixmap);
+    QColor pick_color(const QPoint& point);
     QColor color() { return current_color; };
-    virtual void mousePressEvent(QMouseEvent*);
-    virtual void mouseMoveEvent(QMouseEvent*);
-    virtual void mouseReleaseEvent(QMouseEvent*);
-    virtual void resizeEvent(QResizeEvent*);
-    virtual void paintEvent(QPaintEvent*);
+
+    QImage  wheel_image;
+    QPixmap wheel_pixmap;
+    QRect   wheel_rect;
+    QImage  square_image;
+    QRect   square_rect;
+
+    QColor current_color = QColor(1,0,0);
+    int  wheel_thickness = 15;
+    bool is_in_wheel     = false;
+    bool is_in_square    = false;
 
 signals:
     void select_color(const QColor& color);
@@ -35,23 +55,5 @@ signals:
 public slots:
     void set_color(QColor color);
 
-private:
-    void hue_changed(const int& hue);
-    void saturation_changed(const int& sat);
-    void value_changed(const int& value);
-    QColor pick_color(const QPoint& point);
-    void draw_wheel_image(const QSize& newSize);
-    void draw_square_image(const int& hue);
-    void draw_color_wheel(QPixmap& pixmap);
-
-    QImage wheel_image;
-    QImage square_image;
-    QPixmap wheel_pixmap;
-    int wheel_thickness = 15;
-    QRect wheel_rect;
-    QRect square_rect;
-    QColor current_color = QColor(1,0,0);
-    bool is_in_wheel = false;
-    bool is_in_square = false;
 };
 
