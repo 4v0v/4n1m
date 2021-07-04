@@ -2,37 +2,44 @@
 #include "editor.h"
 #include "animation.h"
 
-Tool_pen::Tool_pen() {
-    preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
+Tool_pen::Tool_pen()
+{
+    preview_image = QImage(QSize(Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1), QImage::Format_ARGB32);
 }
 
-void Tool_pen::press(QMouseEvent *e) {
+void Tool_pen::press(QMouseEvent *e)
+{
     Mw::editor->state = SCRIBBLING;
 
-    stroke << e->pos();
-    if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
-        if (Mw::editor->is_copy_prev_frame)
-            Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
-        else
-            Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
+    if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
+        Animation::frame frame;
+
+        if (Mw::editor->is_copy_prev_enabled)
+            frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+
+        Mw::undostack->push(new AddFrameCommand(frame, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
 
-    Mw::editor->update();
+    stroke << e->pos();
+
+    Mw::editor  ->update();
     Mw::timeline->update();
 }
 
-void Tool_pen::move(QMouseEvent *e) {
+void Tool_pen::move(QMouseEvent *e)
+{
     stroke << e->pos();
     // TODO: understand why the fuck i can't put that inside .h, fuck C++
     Mw::editor->update(
-        stroke.boundingRect().x() - 50,
-        stroke.boundingRect().y() - 50,
-        stroke.boundingRect().width() + 100,
+        stroke.boundingRect().x()      - 50 ,
+        stroke.boundingRect().y()      - 50 ,
+        stroke.boundingRect().width()  + 100,
         stroke.boundingRect().height() + 100
     );
 };
 
-void Tool_pen::release(QMouseEvent *) {
+void Tool_pen::release(QMouseEvent *)
+{
     Animation::frame i = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
     Animation::frame j = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
@@ -64,7 +71,8 @@ void Tool_pen::release(QMouseEvent *) {
     Mw::editor->update();
 };
 
-QImage* Tool_pen::preview() {
+QImage* Tool_pen::preview()
+{
     preview_image.fill(Qt::transparent);
 
     QPainter painter(&preview_image);

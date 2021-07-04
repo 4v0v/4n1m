@@ -14,97 +14,110 @@ Animation::Animation(): QWidget(nullptr)
 
 bool Animation::is_animation_empty()
 {
-    if (layers.count() == 0) return true;
+    if (layers.isEmpty()) return true;
+
     foreach(layer l, layers) {
-        if (l.frames.count() > 0) return false;
+        if (!l.frames.isEmpty()) return false;
     }
+
     return true;
 };
 
-bool Animation::is_frame_at(int l, int p)
+bool Animation::has_frame_at(int l, int p)
 {
     if (!layers.contains(l)) return false;
+
     return layers.find(l)->frames.contains(p);
 }
 
 int Animation::get_last_anim_pos()
 {
-    int i = 0;
-    foreach(int l, layers.keys()) {
-        if (!is_layer_empty(l) && get_last_pos(l) > i) i = get_last_pos(l);
-    }
-    return i;
+    int last_pos = 0;
+
+    auto active_layers = layers.keys();
+
+    foreach(int l, active_layers)
+        if (!is_layer_empty(l) && get_last_pos(l) > last_pos) last_pos = get_last_pos(l);
+
+    return last_pos;
 };
 
 int Animation::get_prev_pos(int l, int p)
 {
-    if (is_animation_empty() || is_layer_empty(l) || p == -1) return -1;
-    int temp = -1;
+    int prev_pos = -1;
+
+    if (is_animation_empty() || is_layer_empty(l) || p == -1) return prev_pos;
+
     for (auto i = layers.find(l)->frames.begin(); i != layers.find(l)->frames.end(); ++i) {
         if (i.key() >= p) break;
-        temp = i.key();
+        prev_pos = i.key();
     }
-    return temp;
+
+    return prev_pos;
 }
 
 int Animation::get_next_pos(int l, int p)
 {
     if (is_animation_empty() || is_layer_empty(l) || p >= get_last_pos(l) || p == -1) return -1;
+
     return layers.find(l)->frames.upperBound(p).key();
 }
 
 int Animation::get_recursive_prev_pos(int l, int p, int nb)
 {
-    int temp = p;
-    for (int i = 0; i < nb; ++i) temp = get_prev_pos(l, temp);
-    return temp;
+    int prev_pos = p;
+
+    for (int i = 0; i < nb; ++i) prev_pos = get_prev_pos(l, prev_pos);
+
+    return prev_pos;
 }
 
 int Animation::get_recursive_next_pos(int l, int p, int nb)
 {
-    int temp = p;
-    for (int i = 0; i < nb; i++) temp = get_next_pos(l, temp);
-    return temp;
+    int next_pos = p;
+
+    for (int i = 0; i < nb; i++) next_pos = get_next_pos(l, next_pos);
+
+    return next_pos;
 }
 
 void Animation::clear_layer_at(int l)
 {
-    foreach_frame_pos_revert(l, [this, l](int i){
-        remove_frame_at(l, i);
-    });
+    foreach_frame_pos_revert(l, [this, l](int i) { remove_frame_at(l, i); });
 }
 
 void Animation::clear_animation()
 {
-    foreach(int l, layers.keys())
-        clear_layer_at(l);
+    foreach(int l, layers.keys()) clear_layer_at(l);
 }
 
 void Animation::init_frame(frame* f, QPoint pos)
 {
     f->is_empty = false;
     f->dimensions.setRect(
-        pos.x() - 25 > 0 ? pos.x() - 25 : 0,
-        pos.y() - 25 > 0 ? pos.y() - 25 : 0,
-        pos.x() + 25 < dimensions.width() ? 50 : 50 - (pos.x() + 25 - dimensions.width()),
-        pos.y() + 25 < dimensions.height() ? 50 : 50 - (pos.y() + 25 - dimensions.height())
+        pos.x() - 25 > 0                   ? pos.x() - 25 : 0,
+        pos.y() - 25 > 0                   ? pos.y() - 25 : 0,
+        pos.x() + 25 < dimensions.width()  ? 50           : 50 - (pos.x() + 25 - dimensions.width()),
+        pos.y() + 25 < dimensions.height() ? 50           : 50 - (pos.y() + 25 - dimensions.height())
     );
+
     QImage resized_canvas(f->dimensions.size(), QImage::Format_ARGB32);
     resized_canvas.fill(Qt::transparent);
+
     f->image = resized_canvas;
 }
 
 void Animation::clear_frame(frame* f)
 {
     f->is_empty = true;
-    f->image = QImage(1, 1, QImage::Format_ARGB32);
+    f->image    = QImage(1, 1, QImage::Format_ARGB32);
     f->dimensions.setRect(0,0,1,1);
 }
 
 void Animation::resize_frame(frame* f, Direction direction, int size)
 {
-    QImage resized_image;
     QPoint point = QPoint(0, 0);
+
     switch (direction) {
         case RIGHT: {
             f->dimensions.setRight(size + 50 < dimensions.width() ? size + 50 : dimensions.width());
@@ -125,29 +138,40 @@ void Animation::resize_frame(frame* f, Direction direction, int size)
         }
     }
 
-    resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
+    QImage resized_image = QImage(f->dimensions.size(), QImage::Format_ARGB32);
     resized_image.fill(Qt::transparent);
-    frame_painter.begin(&resized_image);
-    frame_painter.drawImage(point, f->image);
 
-    frame_painter.end();
+    static QPainter painter;
+
+    painter.begin(&resized_image);
+    painter.drawImage(point, f->image);
+    painter.end();
+
     f->image = resized_image;
 }
 
 void Animation::foreach_frame_pos(int l, std::function<void(int)> action, int begin, int end)
 {
     if (is_animation_empty() || is_layer_empty(l)) return;
+
     if (end == -1) end = get_last_pos(l);
+
     if (begin > end) return;
-    for (int i = begin; i <= end; ++i) if(is_frame_at(l, i)) action(i);
+
+    for (int i = begin; i <= end; ++i)
+        if (has_frame_at(l, i)) action(i);
 }
 
 void Animation::foreach_frame_pos_revert(int l, std::function<void(int)> action, int begin, int end)
 {
     if (is_animation_empty() || is_layer_empty(l)) return;
+
     if (end == -1) end = get_last_pos(l);
+
     if (begin > end) return;
-    for (int i = end; i >= begin; --i) if(is_frame_at(l, i)) action(i);
+
+    for (int i = end; i >= begin; --i)
+        if(has_frame_at(l, i)) action(i);
 }
 
 QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int next)
@@ -156,11 +180,13 @@ QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int ne
 
     if (is_layer_empty(l)) return onion_skins;
 
-    for (int i = prev; i > 0; i--) {
+    for (int i = prev; i > 0; i--)
+    {
         create_onionskin_at(&onion_skins, l, get_recursive_prev_pos(l, p, i), 0.5- 0.1 * i, Qt::blue);
     }
 
-    for (int i = 0; i < next; i++) {
+    for (int i = 0; i < next; i++)
+    {
         create_onionskin_at(&onion_skins, l, get_recursive_next_pos(l, p, i), 0.5- 0.1 * i, Qt::red);
     }
 
@@ -175,19 +201,25 @@ QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int ne
 
 void Animation::create_onionskin_at(QImage* img, int l, int p, double opacity, QColor color)
 {
-    if (is_animation_empty() || is_layer_empty(l) || !is_frame_at(l, p)) return;
+    if (is_animation_empty() || is_layer_empty(l) || !has_frame_at(l, p)) return;
+
     QImage copy = get_frame_at(l, p).image.copy();
 
-    onion_painter.begin(&copy);
-    onion_painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
-    Mw::set_painter_colors(&onion_painter, color);
-    onion_painter.drawRect(copy.rect());
-    onion_painter.end();
+    static QPainter painter; // image filled with onion skin color
 
-    onions_painter.begin(img);
-    onions_painter.setOpacity(opacity);
-    onions_painter.drawImage(get_frame_at(l, p).dimensions.topLeft(), copy);
-    onions_painter.end();
+    painter.begin(&copy);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+    painter.setPen(color);
+    painter.setBrush(color);
+    painter.drawRect(copy.rect());
+    painter.end();
+
+    static QPainter painter2; // image + onion skin
+
+    painter2.begin(img);
+    painter2.setOpacity(opacity);
+    painter2.drawImage(get_frame_at(l, p).dimensions.topLeft(), copy);
+    painter2.end();
 }
 
 void Animation::export_animation(QString filename)
@@ -219,10 +251,10 @@ void Animation::export_animation(QString filename)
         while(ri != layer_keys.crend()) {
             if (is_layer_empty(*ri)) { ri++; continue; };
 
-            if (is_frame_at(*ri, i)) {
+            if (has_frame_at(*ri, i)) {
                 frame f = get_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
-            } else if (is_frame_at(*ri, get_prev_pos(*ri, i))) {
+            } else if (has_frame_at(*ri, get_prev_pos(*ri, i))) {
                 frame f = get_prev_frame_at(*ri, i);
                 painter.drawImage(f.dimensions.topLeft(), f.image);
             }

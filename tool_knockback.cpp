@@ -9,8 +9,8 @@ Tool_knockback::Tool_knockback() {
 void Tool_knockback::press(QMouseEvent* e) {
     Mw::editor->state = SCRIBBLING;
 
-    if (!Mw::animation->is_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
-        if (Mw::editor->is_copy_prev_frame)
+    if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
+        if (Mw::editor->is_copy_prev_enabled)
             Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
         else
             Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
@@ -76,7 +76,7 @@ QImage* Tool_knockback::preview() {
 
         if (layer_pos != Mw::editor->layer_pos) {
             painter.setOpacity(Mw::animation->get_layer_at(layer_pos).opacity/100.0);
-            Animation::frame frame = Mw::animation->is_frame_at(layer_pos, Mw::editor->frame_pos)?
+            Animation::frame frame = Mw::animation->has_frame_at(layer_pos, Mw::editor->frame_pos)?
                 Mw::animation->get_frame_at(layer_pos, Mw::editor->frame_pos):
                 Mw::animation->get_prev_frame_at(layer_pos, Mw::editor->frame_pos);
             painter.drawImage(frame.dimensions.topLeft(), frame.image);

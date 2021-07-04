@@ -73,19 +73,20 @@ public:
     virtual void closeEvent(QCloseEvent*);
     virtual void resizeEvent(QResizeEvent*);
 
-    static void update_all();
-    static void set_painter_colors(QPainter* painter, QColor pen , QColor brush = nullptr);
-
-    void init_shortcuts();
-    void create_shortcut(QKeySequence ks, std::function<void()> action);
     void undo();
     void redo();
+    static void update_all();
 
-    static Mw* mainwindow;
-    static Animation* animation;
-    static Timeline* timeline;
-    static Editor* editor;
-    static Toolbar* toolbar;
-    static Preview* preview;
+    void create_shortcut(QKeySequence ks, std::function<void()> action)
+    {
+        connect(new QShortcut(ks, this), &QShortcut::activated, this, action);
+    };
+
+    static Mw*         mainwindow;
+    static Animation*  animation;
+    static Timeline*   timeline;
+    static Editor*     editor;
+    static Toolbar*    toolbar;
+    static Preview*    preview;
     static QUndoStack* undostack;
 };
