@@ -1,2 +1,0 @@
-- windeployqt path
-- copy dlls folder
