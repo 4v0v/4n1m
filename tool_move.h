@@ -7,9 +7,10 @@ class Tool_move
 public:
     Tool_move();
 
-    void press(QMouseEvent*);
-    void move(QMouseEvent*);
+    void press  (QMouseEvent*);
+    void move   (QMouseEvent*);
     void release(QMouseEvent*);
+
     QImage* preview();
 
     QImage preview_image;

@@ -11,6 +11,6 @@ public:
 
     virtual void paintEvent(QPaintEvent* e);
 
-    QPainter widget_painter;
+    QPainter    widget_painter;
     ColorWheel* color_wheel;
 };

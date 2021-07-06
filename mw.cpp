@@ -40,9 +40,10 @@ Mw::Mw()
     setWindowTitle(tr("4n1m"));
     setGeometry(QRect(0, 0, 1350, 850));
     setWindowState(Qt::WindowMaximized);
-    setAcceptDrops  (true);
+    setAcceptDrops(true);
     setMouseTracking(true);
 
+    // move preview
     preview->move(editor->width() - preview->width(), editor->height() - preview->height());
 
     // restore auto save if possible
@@ -72,7 +73,7 @@ Mw::Mw()
 
 void Mw::dragEnterEvent(QDragEnterEvent* event)
 {
-    const QMimeData* mimeData = event->mimeData();
+    auto mimeData = event->mimeData();
 
     if (mimeData->hasUrls())
     {
@@ -90,7 +91,7 @@ void Mw::closeEvent(QCloseEvent* e)
 
 void Mw::dropEvent(QDropEvent *event)
 {
-    const QMimeData* mimeData = event->mimeData();
+    auto mimeData = event->mimeData();
 
     animation->load_animation(mimeData->urls().at(0).toLocalFile());
 
@@ -100,6 +101,7 @@ void Mw::dropEvent(QDropEvent *event)
 void Mw::resizeEvent(QResizeEvent *e)
 {
     preview->move(editor->width() - preview->width(), editor->height() - preview->height());
+
     QWidget::resizeEvent(e);
 }
 

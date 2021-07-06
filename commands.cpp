@@ -30,11 +30,12 @@ void ModifyFrameCommand::redo()
 
 AddFrameCommand::AddFrameCommand(Animation::frame i, int l, int p): QUndoCommand()
 {
-    new_frame.image = i.image.copy();
+    new_frame.image      = i.image.copy();
     new_frame.dimensions = i.dimensions;
-    new_frame.is_empty = i.is_empty;
+    new_frame.is_empty   = i.is_empty;
+
     layer = l;
-    pos = p;
+    pos   = p;
 }
 
 void AddFrameCommand::undo()
@@ -92,7 +93,7 @@ void InsertFrameCommand::undo()
 
 void InsertFrameCommand::redo()
 {
-    Mw::animation->foreach_frame_pos_revert(layer, [this](int i){
+    Mw::animation->foreach_frame_pos_revert(layer, [this](int i) {
         Animation::frame f = Mw::animation->get_frame_at(layer, i);
         Mw::animation->add_frame_at(layer, i + 1, f);
         Mw::animation->remove_frame_at(layer, i);
@@ -109,7 +110,7 @@ UninsertFrameCommand::UninsertFrameCommand(int l, int p): QUndoCommand()
 
 void UninsertFrameCommand::undo()
 {
-    Mw::animation->foreach_frame_pos_revert(layer, [this](int i){
+    Mw::animation->foreach_frame_pos_revert(layer, [this](int i) {
         Animation::frame f = Mw::animation->get_frame_at(layer, i);
         Mw::animation->add_frame_at(layer, i + 1, f);
         Mw::animation->remove_frame_at(layer, i);
@@ -120,7 +121,7 @@ void UninsertFrameCommand::undo()
 
 void UninsertFrameCommand::redo()
 {
-    Mw::animation->foreach_frame_pos(layer, [this](int i){
+    Mw::animation->foreach_frame_pos(layer, [this](int i) {
         Animation::frame f = Mw::animation->get_frame_at(layer, i);
         Mw::animation->add_frame_at(layer, i - 1, f);
         Mw::animation->remove_frame_at(layer, i);

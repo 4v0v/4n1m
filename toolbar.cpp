@@ -70,19 +70,19 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     setLayout(vlayout);
 
-    connect(btn_show_preview , &QCheckBox   ::pressed, this, [] { Mw::preview->toggle_visibility();     });
-    connect(btn_onion_show   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin();      });
-    connect(btn_copy_prev    , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_copy_prev_frame(); });
-    connect(btn_onion_next   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_next(); });
-    connect(btn_onion_prev   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_prev(); });
-    connect(btn_onion_loop   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_loop(); });
-    connect(rad_pen          , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN);            });
-    connect(rad_lasso        , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL);      });
-    connect(rad_eraser       , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER);         });
-    connect(rad_knockback    , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK);      });
-    connect(rad_colorpicker  , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER);    });
-    connect(rad_move         , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE);           });
-    connect(rad_selection    , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(SELECTION);      });
+    connect(btn_show_preview, &QCheckBox   ::pressed, this, [] { Mw::preview->toggle_visibility();     });
+    connect(btn_onion_show  , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin();      });
+    connect(btn_copy_prev   , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_copy_prev_frame(); });
+    connect(btn_onion_next  , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_next(); });
+    connect(btn_onion_prev  , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_prev(); });
+    connect(btn_onion_loop  , &QCheckBox   ::pressed, this, [] { Mw::editor->toggle_onion_skin_loop(); });
+    connect(rad_pen         , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(PEN);            });
+    connect(rad_lasso       , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(LASSOFILL);      });
+    connect(rad_eraser      , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(ERASER);         });
+    connect(rad_knockback   , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK);      });
+    connect(rad_colorpicker , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER);    });
+    connect(rad_move        , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE);           });
+    connect(rad_selection   , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(SELECTION);      });
 
     connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] {
         Mw::editor->set_pen_size   (pen_width_slider->value());
@@ -90,7 +90,7 @@ Toolbar::Toolbar(): QWidget(nullptr)
     });
 
     connect(fps_slider, &QAbstractSlider::valueChanged, this, [fps_slider] {
-        //TODO: refactor ugly double toggle to reset preview
+        // TODO: refactor ugly double toggle to reset preview
         Mw::preview->toggle_play();
         Mw::preview->toggle_play();
         Mw::animation->FPS = fps_slider->value();
@@ -106,20 +106,27 @@ Toolbar::Toolbar(): QWidget(nullptr)
     });
 
     connect(file_load, &QPushButton::pressed, this, [] {
-        auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
-        auto file_info   = QFileInfo(loaded_file);
+//        auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
+//        auto file_info   = QFileInfo(loaded_file);
         // TODO: Mw::animation->load_animation(loaded_file);
     });
 
     connect(file_export, &QPushButton::pressed, this, [] {
         auto exported_file = QFileDialog::getSaveFileName(0, ("Export animation"), QDir::currentPath());
-        auto file_info     = QFileInfo(exported_file);
+//        auto file_info     = QFileInfo(exported_file);
 
         Mw::animation->export_animation(exported_file);
     });
+
+    connect(color_wheel, &ColorWheel::select_color, this, [this]() {
+        color_wheel->set_color(color_wheel->color());
+        Mw::editor->set_pen_color(color_wheel->color());
+        Mw::editor->set_brush_color(color_wheel->color());
+    });
 }
 
-void Toolbar::paintEvent(QPaintEvent*) {
+void Toolbar::paintEvent(QPaintEvent*)
+{
     QPainter painter(this);
     painter.setBrush(Qt::gray);
     painter.drawRect(rect());

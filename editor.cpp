@@ -96,7 +96,7 @@ void Editor::wheelEvent(QWheelEvent* e){
             offset += QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
 
         } else if (e->angleDelta().y() > 0 && scale < MAX_SCALE) {
-            scale += .1;
+            scale  += .1;
             offset -= QPoint(Mw::animation->dimensions.width()/2*.1, Mw::animation->dimensions.height()/2*.1);
         }
 
@@ -126,7 +126,7 @@ void Editor::paintEvent(QPaintEvent*)
     // editor background frame
     painter.setPen  (bg_color);
     painter.setBrush(paper_color);
-    painter.drawRect(0, 0, Mw::animation->dimensions.width() + 1, Mw::animation->dimensions.height() + 1);
+    painter.drawRect(-1, -1, Mw::animation->dimensions.width() + 2, Mw::animation->dimensions.height() + 2);
 
     // onionskins
     if (is_os_enabled) painter.drawImage(0,0, onion_skins);
@@ -149,6 +149,7 @@ void Editor::paintEvent(QPaintEvent*)
 
     // tool preview
     QImage* preview;
+
     switch (current_tool)
     {
         case PEN        : preview = tool_pen        ->preview(); break;
@@ -160,7 +161,7 @@ void Editor::paintEvent(QPaintEvent*)
         case SELECTION  : preview = tool_selection  ->preview(); break;
     }
 
-    if (preview) painter.drawImage(0,0, *preview);
+    if (preview) painter.drawImage(0, 0, *preview);
 
     painter.end();
 }
@@ -171,6 +172,7 @@ void Editor::clear_current_layer()
 
     Mw::animation->clear_layer_at(layer_pos);
     Mw::undostack->clear();
+
     Mw::update_all();
 }
 

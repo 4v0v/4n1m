@@ -2,58 +2,67 @@
 #include "editor.h"
 #include "animation.h"
 
-Tool_knockback::Tool_knockback() {
+Tool_knockback::Tool_knockback()
+{
     preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
 }
 
-void Tool_knockback::press(QMouseEvent* e) {
+void Tool_knockback::press(QMouseEvent* e)
+{
     Mw::editor->state = SCRIBBLING;
 
-    if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
-        if (Mw::editor->is_copy_prev_enabled)
-            Mw::undostack->push(new AddFrameCommand(Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos), Mw::editor->layer_pos, Mw::editor->frame_pos));
-        else
-            Mw::undostack->push(new AddFrameCommand(Animation::frame{}, Mw::editor->layer_pos, Mw::editor->frame_pos));
+    if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos))
+    {
+        Animation::frame frame;
+
+        if (Mw::editor->is_copy_prev_enabled) frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+
+        Mw::undostack->push(new AddFrameCommand(frame, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
 
     position         = QVector2D(e->pos());
     delta_position   = position;
     knockback_amount = (position - delta_position).length()/3;
 
-    Mw::editor->update();
+    Mw::editor  ->update();
     Mw::timeline->update();
 }
 
-void Tool_knockback::move(QMouseEvent* e) {
-    delta_position = QVector2D(e->pos());
+void Tool_knockback::move(QMouseEvent* e)
+{
+    delta_position   = QVector2D(e->pos());
     knockback_amount = (position - delta_position).length()/3;
+
     Mw::editor->update();
 };
 
-void Tool_knockback::release(QMouseEvent*) {
+void Tool_knockback::release(QMouseEvent*)
+{
     Animation::frame i = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
     Animation::frame j = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
-    for (int y = 0; y < j.image.height(); y++) {
+    for (int y = 0; y < j.image.height(); y++)
+    {
         QRgb* rgb = (QRgb*)j.image.scanLine(y);
-        for (int x = 0; x < j.image.width(); x++) {
-            rgb[x] = qRgba(
-                qRed(rgb[x]),
-                qGreen(rgb[x]),
-                qBlue(rgb[x]),
-                qAlpha(rgb[x]) > knockback_amount ? qAlpha(rgb[x]) - knockback_amount : 0
-            );
+
+        for (int x = 0; x < j.image.width(); x++)
+        {
+            auto alpha = qAlpha(rgb[x]) > knockback_amount ? qAlpha(rgb[x]) - knockback_amount : 0;
+
+            rgb[x] = qRgba(qRed(rgb[x]), qGreen(rgb[x]), qBlue(rgb[x]), alpha);
         }
     }
 
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
 
     preview_image.fill(Qt::transparent);
+
     Mw::editor->state = IDLE;
     Mw::editor->update();
 };
 
-QImage* Tool_knockback::preview() {
+QImage* Tool_knockback::preview()
+{
     preview_image.fill(Qt::transparent);
 
     if (Mw::editor->state == IDLE) return nullptr;

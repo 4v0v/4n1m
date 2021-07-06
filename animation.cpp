@@ -16,9 +16,8 @@ bool Animation::is_animation_empty()
 {
     if (layers.isEmpty()) return true;
 
-    foreach(layer l, layers) {
+    foreach(layer l, layers)
         if (!l.frames.isEmpty()) return false;
-    }
 
     return true;
 };
@@ -48,7 +47,8 @@ int Animation::get_prev_pos(int l, int p)
 
     if (is_animation_empty() || is_layer_empty(l) || p == -1) return prev_pos;
 
-    for (auto i = layers.find(l)->frames.begin(); i != layers.find(l)->frames.end(); ++i) {
+    for (auto i = layers.find(l)->frames.begin(); i != layers.find(l)->frames.end(); ++i)
+    {
         if (i.key() >= p) break;
         prev_pos = i.key();
     }
@@ -126,7 +126,7 @@ void Animation::resize_frame(frame* f, Direction direction, int size)
         } case BOTTOM: {
             f->dimensions.setBottom(size + 50 < dimensions.height() ? size + 50 : dimensions.height());
             break;
-         } case LEFT: {
+        } case LEFT: {
             int tempLeft = f->dimensions.left();
             f->dimensions.setLeft(size - 50 > 0 ? size - 50 : 0);
             point = QPoint(std::abs(f->dimensions.left() - tempLeft), 0);
@@ -184,7 +184,7 @@ QImage Animation::create_onionskins_at(int l, int p, bool loop, int prev, int ne
     for (int i = prev; i > 0; i--)
         fill_final_onionskin_image(&onion_skins, l, get_recursive_prev_pos(l, p, i), .5 - .1 * i, Qt::blue);
 
-    for (int i = 0; i <= next; i++)
+    for (int i = 1; i <= next; i++)
         fill_final_onionskin_image(&onion_skins, l, get_recursive_next_pos(l, p, i), .5 - .1 * i, Qt::red);
 
     if (loop)
@@ -231,13 +231,13 @@ void Animation::export_animation(QString filename)
 {
     if (is_animation_empty()) return;
 
-    QString qt_string = filename;
-    auto    fileinfo  = QFileInfo(filename);
+    auto fileinfo  = QFileInfo(filename);
+    auto qt_string = filename;
 
     if (fileinfo.suffix() != ".gif") qt_string += ".gif";
 
-    std::string str          = qt_string.toStdString();
-    const char* gif_filename = str.c_str();
+    auto str          = qt_string.toStdString();
+    auto gif_filename = str.c_str();
 
     GifWriter g;
     GifBegin(&g, gif_filename, dimensions.width(), dimensions.height(), 1, 8, true);
@@ -271,19 +271,19 @@ void Animation::export_animation(QString filename)
         }
 
         // create gif frame from image
-        uint8_t frame[ dimensions.width() * dimensions.height() * 4 ];
+        uint8_t frame[dimensions.width() * dimensions.height() * 4];
 
-        for (int yy=0; yy<img.height(); ++yy )
+        for (int y = 0; y < img.height(); y++)
         {
-            for (int xx=0; xx<img.width(); ++xx )
+            for (int x = 0; x < img.width(); x++)
             {
-                auto pixel_color = img.pixelColor(xx, yy);
+                auto pixel_color = img.pixelColor(x, y);
                 int r = pixel_color.red();
                 int g = pixel_color.green();
                 int b = pixel_color.blue();
                 int a = pixel_color.alpha();
 
-                uint8_t* pixel = &frame[(yy*dimensions.width()+xx)*4];
+                auto pixel = &frame[(y*dimensions.width()+x)*4];
                 pixel[0] = r;
                 pixel[1] = g;
                 pixel[2] = b;
@@ -300,19 +300,22 @@ void Animation::export_animation(QString filename)
 void Animation::save_animation(QString filename)
 {
     QString temp_folder = "temp_4n1m_save";
-    QList<QString> file_names;
-
-    auto fileinfo = QFileInfo(filename);
-    auto path = fileinfo.path();
+    auto    fileinfo    = QFileInfo(filename);
+    auto    path        = fileinfo.path();
 
     if (is_animation_empty()) return;
+
     if (QDir(temp_folder).exists()) return;
+
     QDir().mkdir(temp_folder);
 
     // create images
     // TODO: pragma omp
-    foreach(int l, layers.keys()) {
-        foreach_frame_pos(l, [this, l, path, temp_folder, &file_names](int i){
+    QList<QString> file_names;
+
+    foreach(int l, layers.keys())
+    {
+        foreach_frame_pos(l, [this, l, path, temp_folder, &file_names](int i) {
             QString filename = QString::fromUtf8((std::to_string(l) + "_" + std::to_string(i) + ".png").c_str());
             frame f = get_frame_at(l, i);
             f.image.save( temp_folder + "\\" + filename);
@@ -329,13 +332,16 @@ void Animation::save_animation(QString filename)
     anim_node.setAttribute("date","xx-xx-xxxx");
 
     // TODO: pragma omp
-    foreach(int l, layers.keys()) {
+    foreach(int l, layers.keys())
+    {
         QDomElement layer_node = doc.createElement("layer");
         anim_node.appendChild(layer_node);
         layer_node.setAttribute("id", l);
-        foreach_frame_pos(l, [this, &doc, &layer_node, l](int i){
+
+        foreach_frame_pos(l, [this, &doc, &layer_node, l](int i) {
             QDomElement frame_node = doc.createElement("frame");
             layer_node.appendChild(frame_node);
+
             frame f = get_frame_at(l, i);
             frame_node.setAttribute("pos", i);
             frame_node.setAttribute("name", (std::to_string(l) + "_" + std::to_string(i)).c_str());
@@ -347,21 +353,20 @@ void Animation::save_animation(QString filename)
     // Write qXML inside  file
     QFile xml_file( temp_folder + "\\anim.xml" );
     xml_file.open(QIODevice::WriteOnly | QIODevice::Text);
+
     QTextStream stream( &xml_file );
     stream << doc.toString();
+
     xml_file.close();
     file_names.append("anim.xml");
 
     // Remove saved zip if already exist
     QFile::remove(path + filename);
 
-    QMiniZ::compressFolder(
-        path + filename,
-        temp_folder,
-        QStringList(file_names)
-    );
+    QMiniZ::compressFolder(path + filename, temp_folder, QStringList(file_names));
 
     QDir dir( temp_folder );
+
     dir.removeRecursively();
 }
 
@@ -401,8 +406,8 @@ void Animation::load_animation(QString path)
 
             // créer frame
             frame f;
-            f.is_empty = false;
-            f.image = img;
+            f.is_empty   = false;
+            f.image      = img;
             f.dimensions = QRect(x.toInt(), y.toInt(), img.width(), img.height());
 
             add_frame_at(layer_pos.toInt(), frame_pos.toInt(), f);

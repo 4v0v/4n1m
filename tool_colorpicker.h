@@ -7,8 +7,8 @@ class Tool_colorpicker
 public:
     Tool_colorpicker();
 
-    void press(QMouseEvent*);
-    void move(QMouseEvent*);
+    void press  (QMouseEvent*);
+    void move   (QMouseEvent*);
     void release(QMouseEvent*);
 
     QImage* preview();

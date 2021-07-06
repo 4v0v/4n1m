@@ -7,15 +7,15 @@ Tool_eraser::Tool_eraser()
     preview_image = QImage(QSize(Mw::animation->dimensions.width()+1, Mw::animation->dimensions.height() +1), QImage::Format_ARGB32);
 }
 
-void Tool_eraser::press(QMouseEvent *e) {
+void Tool_eraser::press(QMouseEvent *e)
+{
     Mw::editor->state = SCRIBBLING;
 
     if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos))
     {
         Animation::frame frame;
 
-        if (Mw::editor->is_copy_prev_enabled)
-            frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+        if (Mw::editor->is_copy_prev_enabled) frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
         Mw::undostack->push(new AddFrameCommand(frame, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
@@ -26,8 +26,10 @@ void Tool_eraser::press(QMouseEvent *e) {
     Mw::timeline->update();
 }
 
-void Tool_eraser::move(QMouseEvent *e) {
+void Tool_eraser::move(QMouseEvent *e)
+{
     stroke << e->pos();
+
     // TODO: understand why the fuck i can't put that inside .h, fuck C++
     Mw::editor->update(
         stroke.boundingRect().x()      - 50 ,
@@ -37,7 +39,8 @@ void Tool_eraser::move(QMouseEvent *e) {
     );
 };
 
-void Tool_eraser::release(QMouseEvent *) {
+void Tool_eraser::release(QMouseEvent *)
+{
     Animation::frame i = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
     Animation::frame j = Mw::animation->get_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
@@ -77,7 +80,8 @@ void Tool_eraser::release(QMouseEvent *) {
     Mw::editor->update();
 };
 
-QImage* Tool_eraser::preview() {
+QImage* Tool_eraser::preview()
+{
     preview_image.fill(Qt::transparent);
 
     QPainter painter(&preview_image);

@@ -65,13 +65,13 @@ enum Tool {
 class Mw : public QMainWindow
 {
     Q_OBJECT
-
 public:
     Mw();
+
     virtual void dragEnterEvent(QDragEnterEvent*);
-    virtual void dropEvent(QDropEvent*);
-    virtual void closeEvent(QCloseEvent*);
-    virtual void resizeEvent(QResizeEvent*);
+    virtual void dropEvent     (QDropEvent*);
+    virtual void closeEvent    (QCloseEvent*);
+    virtual void resizeEvent   (QResizeEvent*);
 
     void undo();
     void redo();

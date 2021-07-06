@@ -10,7 +10,7 @@ class Timeline : public QWidget
 public:
     Timeline();
 
-    virtual void wheelEvent(QWheelEvent* e);
+    virtual void wheelEvent (QWheelEvent*  e);
     virtual void resizeEvent(QResizeEvent* e);
 
     void update_all_frames();
@@ -37,8 +37,8 @@ class TimelineFrame : public QWidget
 public:
     TimelineFrame(int l, int p);
 
-    virtual void paintEvent(QPaintEvent *e);
-    virtual void mousePressEvent(QMouseEvent *event);
+    virtual void paintEvent     (QPaintEvent* e);
+    virtual void mousePressEvent(QMouseEvent* e);
 
     int  position;
     int  layer_position;

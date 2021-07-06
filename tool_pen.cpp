@@ -14,8 +14,7 @@ void Tool_pen::press(QMouseEvent *e)
     if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         Animation::frame frame;
 
-        if (Mw::editor->is_copy_prev_enabled)
-            frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+        if (Mw::editor->is_copy_prev_enabled) frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
         Mw::undostack->push(new AddFrameCommand(frame, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
@@ -59,12 +58,11 @@ void Tool_pen::release(QMouseEvent *)
     frame_painter.scale(1/Mw::editor->scale, 1/Mw::editor->scale);
     frame_painter.setPen(QPen(pen_tool.color(), pen_tool.width() * Mw::editor->scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
 
-    if (stroke.count() == 1)
-        frame_painter.drawPoint(stroke.first());
-    else if (stroke.count() > 1)
-        frame_painter.drawPolyline(stroke);
+    if      (stroke.count() == 1) frame_painter.drawPoint(stroke.first());
+    else if (stroke.count()  > 1) frame_painter.drawPolyline(stroke);
 
     stroke.clear();
+
     Mw::undostack->push(new ModifyFrameCommand(i, j, Mw::editor->layer_pos, Mw::editor->frame_pos));
 
     Mw::editor->state = IDLE;
@@ -82,10 +80,8 @@ QImage* Tool_pen::preview()
 
     painter.setPen(QPen(pen_tool.color(), pen_tool.width() * Mw::editor->scale, pen_tool.style(), pen_tool.capStyle(), pen_tool.joinStyle()));
 
-    if (stroke.count() == 1)
-        painter.drawPoint(stroke.first());
-    else if (stroke.count() > 1)
-        painter.drawPolyline(stroke);
+    if      (stroke.count() == 1) painter.drawPoint(stroke.first());
+    else if (stroke.count()  > 1) painter.drawPolyline(stroke);
 
     return &preview_image;
 };

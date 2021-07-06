@@ -5,7 +5,6 @@
 class Animation: public QWidget
 {
     Q_OBJECT
-
 public:
     struct frame {
         bool   is_empty = true;

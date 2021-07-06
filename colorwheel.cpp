@@ -25,18 +25,16 @@ void ColorWheel::mousePressEvent(QMouseEvent* e)
 {
     if (square_rect.contains(e->pos()))
     {
-        QColor color = pick_color(e->pos());
-
         is_in_square = true;
 
+        QColor color = pick_color(e->pos());
         change_saturation(color.saturation());
         change_value     (color.value()     );
 
     } else if (wheel_rect.contains(e->pos())) {
-        QColor color = pick_color(e->pos());
-
         is_in_wheel  = true;
 
+        QColor color = pick_color(e->pos());
         change_hue(color.hue());
     }
 }
@@ -45,21 +43,23 @@ void ColorWheel::mouseMoveEvent(QMouseEvent* e)
 {
     if (e->buttons() == Qt::NoButton) return;
 
-    if (square_rect.contains(e->pos()) && is_in_square)
+    auto pos = e->pos();
+
+    if (square_rect.contains(pos) && is_in_square)
     {
-        if      (e->pos().x() < square_rect.topLeft().x()    ) e->pos().setX(square_rect.topLeft().x()    );
-        else if (e->pos().x() > square_rect.bottomRight().x()) e->pos().setX(square_rect.bottomRight().x());
+        if      (pos.x() < square_rect.topLeft().x()    ) pos.setX(square_rect.topLeft().x()    );
+        else if (pos.x() > square_rect.bottomRight().x()) pos.setX(square_rect.bottomRight().x());
 
-        if      (e->pos().y() < square_rect.topLeft().y()    ) e->pos().setY(square_rect.topLeft().y()    );
-        else if (e->pos().y() > square_rect.bottomRight().y()) e->pos().setY(square_rect.bottomRight().y());
+        if      (pos.y() < square_rect.topLeft().y()    ) pos.setY(square_rect.topLeft().y()    );
+        else if (pos.y() > square_rect.bottomRight().y()) pos.setY(square_rect.bottomRight().y());
 
-        QColor color = pick_color(e->pos());
+        QColor color = pick_color(pos);
 
         change_saturation(color.saturation());
         change_value     (color.value()     );
 
-    } else if (wheel_rect.contains(e->pos()) && is_in_wheel) {
-        QColor color = pick_color(e->pos());
+    } else if (wheel_rect.contains(pos) && is_in_wheel) {
+        QColor color = pick_color(pos);
 
         change_hue(color.hue());
     }
@@ -168,7 +168,7 @@ void ColorWheel::draw_wheel_image(const QSize &newSize)
     painter.drawEllipse(QPoint(0, 0), r / 2 - wheel_thickness, r / 2 - wheel_thickness);
 
     // Center of wheel
-    qreal m1 = (wheel_pixmap.width() / 2) - (ir / qSqrt(2));
+    qreal m1 = (wheel_pixmap.width()  / 2) - (ir / qSqrt(2));
     qreal m2 = (wheel_pixmap.height() / 2) - (ir / qSqrt(2));
 
     // calculate size of wheel width
@@ -276,6 +276,7 @@ void ColorWheel::change_hue(const int &hue)
     int s = current_color.hsvSaturation();
     int v = current_color.value();
     int a = current_color.alpha();
+
     current_color.setHsv(hue, s, v, a);
 
     if (!isVisible()) return;
@@ -285,24 +286,24 @@ void ColorWheel::change_hue(const int &hue)
     update();
 }
 
-void ColorWheel::change_saturation(const int &sat)
+void ColorWheel::change_saturation(const int &s)
 {
-    int hue   = current_color.hsvHue();
-    int value = current_color.value();
-    int alpha = current_color.alpha();
+    int h = current_color.hsvHue();
+    int v = current_color.value();
+    int a = current_color.alpha();
 
-    current_color.setHsv(hue, sat, value, alpha);
+    current_color.setHsv(h, s, v, a);
 
     update();
 }
 
-void ColorWheel::change_value(const int &value)
+void ColorWheel::change_value(const int &v)
 {
-    int hue   = current_color.hsvHue();
-    int sat   = current_color.hsvSaturation();
-    int alpha = current_color.alpha();
+    int h = current_color.hsvHue();
+    int s = current_color.hsvSaturation();
+    int a = current_color.alpha();
 
-    current_color.setHsv(hue, sat, value, alpha);
+    current_color.setHsv(h, s, v, a);
 
     update();
 }

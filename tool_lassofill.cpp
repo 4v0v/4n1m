@@ -14,8 +14,7 @@ void Tool_lassofill::press(QMouseEvent* e)
     if (!Mw::animation->has_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos)) {
         Animation::frame frame;
 
-        if (Mw::editor->is_copy_prev_enabled)
-            frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
+        if (Mw::editor->is_copy_prev_enabled) frame = Mw::animation->get_prev_frame_at(Mw::editor->layer_pos, Mw::editor->frame_pos);
 
         Mw::undostack->push(new AddFrameCommand(frame, Mw::editor->layer_pos, Mw::editor->frame_pos));
     }
