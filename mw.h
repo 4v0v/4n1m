@@ -30,14 +30,6 @@ enum State {
     SCRIBBLING,
     MOVING,
     PLAYING,
-    SELECTION_EMPTY,
-    SELECTION_SELECTING,
-    SELECTION_SELECTED,
-    SELECTION_MOVING,
-    SELECTION_SCALING_TL,
-    SELECTION_SCALING_TR,
-    SELECTION_SCALING_BR,
-    SELECTION_SCALING_BL,
 };
 
 enum Mode {
@@ -59,7 +51,6 @@ enum Tool {
     COLORPICKER,
     KNOCKBACK,
     MOVE,
-    SELECTION,
 };
 
 class Mw : public QMainWindow

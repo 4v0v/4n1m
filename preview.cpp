@@ -48,20 +48,20 @@ void Preview::paintEvent(QPaintEvent*)
     );
 
     // visible frame
-    auto layer_keys = Mw::animation->layers.keys();
-    auto ri         = layer_keys.crbegin();
+    auto keys = Mw::animation->layers.keys();
+    auto rit  = keys.crbegin();
 
-    while (ri != layer_keys.crend())
+    while (rit != keys.crend())
     {
-        painter.setOpacity(Mw::animation->get_layer_at(*ri).opacity/100.0);
+        painter.setOpacity(Mw::animation->get_layer_at(*rit).opacity/100.0);
 
-        auto frame = Mw::animation->has_frame_at(*ri, frame_pos) ?
-            Mw::animation->get_frame_at(*ri, frame_pos) :
-            Mw::animation->get_prev_frame_at(*ri, frame_pos);
+        auto frame = Mw::animation->has_frame_at(*rit, frame_pos) ?
+            Mw::animation->get_frame_at(*rit, frame_pos) :
+            Mw::animation->get_prev_frame_at(*rit, frame_pos);
 
         painter.drawImage(frame.dimensions.topLeft(), frame.image);
 
-        ri++;
+        rit++;
     }
 
     // tool preview
@@ -76,7 +76,6 @@ void Preview::paintEvent(QPaintEvent*)
             case KNOCKBACK  : preview = Mw::editor->tool_knockback  ->preview(); break;
             case COLORPICKER: preview = Mw::editor->tool_colorpicker->preview(); break;
             case MOVE       : preview = Mw::editor->tool_move       ->preview(); break;
-            case SELECTION  : preview = Mw::editor->tool_selection  ->preview(); break;
         }
 
         if (preview) painter.drawImage(0,0, *preview);

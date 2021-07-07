@@ -27,18 +27,17 @@ Toolbar::Toolbar(): QWidget(nullptr)
     QRadioButton* rad_knockback   = new QRadioButton("KNOCKBACK"   , this);
     QRadioButton* rad_colorpicker = new QRadioButton("COLOR PICKER", this);
     QRadioButton* rad_move        = new QRadioButton("MOVE"        , this);
-    QRadioButton* rad_selection   = new QRadioButton("SELECTION"   , this);
     rad_pen->toggle();
 
-    QSlider* pen_width_slider = new QSlider();
-    pen_width_slider->setRange(1, 10);
-    pen_width_slider->setValue(Mw::editor->tool_pen->pen_tool.width());
-    pen_width_slider->setOrientation(Qt::Horizontal);
+    QSlider* slider_width = new QSlider();
+    slider_width->setRange(1, 10);
+    slider_width->setValue(Mw::editor->tool_pen->pen_tool.width());
+    slider_width->setOrientation(Qt::Horizontal);
 
-    QSlider* fps_slider = new QSlider();
-    fps_slider->setRange(1, 60);
-    fps_slider->setValue(Mw::animation->FPS);
-    fps_slider->setOrientation(Qt::Horizontal);
+    QSlider* slider_fps = new QSlider();
+    slider_fps->setRange(1, 60);
+    slider_fps->setValue(Mw::animation->FPS);
+    slider_fps->setOrientation(Qt::Horizontal);
 
     QPushButton* file_save   = new QPushButton("Save"  );
     QPushButton* file_load   = new QPushButton("Load"  );
@@ -46,27 +45,26 @@ Toolbar::Toolbar(): QWidget(nullptr)
 
     QVBoxLayout* vlayout = new QVBoxLayout;
     vlayout->setSpacing(0);
-    vlayout->setMargin(0);
+    vlayout->setMargin (0);
 
-    vlayout->addWidget(color_wheel);
-    vlayout->addWidget(pen_width_slider);
-    vlayout->addWidget(rad_pen);
-    vlayout->addWidget(rad_lasso);
-    vlayout->addWidget(rad_eraser);
-    vlayout->addWidget(rad_knockback);
-    vlayout->addWidget(rad_colorpicker);
-    vlayout->addWidget(rad_move);
-    vlayout->addWidget(rad_selection);
+    vlayout->addWidget(color_wheel     );
+    vlayout->addWidget(slider_width    );
+    vlayout->addWidget(rad_pen         );
+    vlayout->addWidget(rad_lasso       );
+    vlayout->addWidget(rad_eraser      );
+    vlayout->addWidget(rad_knockback   );
+    vlayout->addWidget(rad_colorpicker );
+    vlayout->addWidget(rad_move        );
     vlayout->addWidget(btn_show_preview);
-    vlayout->addWidget(btn_copy_prev);
-    vlayout->addWidget(btn_onion_show);
-    vlayout->addWidget(btn_onion_next);
-    vlayout->addWidget(btn_onion_prev);
-    vlayout->addWidget(btn_onion_loop);
-    vlayout->addWidget(fps_slider);
-    vlayout->addWidget(file_save);
-    vlayout->addWidget(file_load);
-    vlayout->addWidget(file_export);
+    vlayout->addWidget(btn_copy_prev   );
+    vlayout->addWidget(btn_onion_show  );
+    vlayout->addWidget(btn_onion_next  );
+    vlayout->addWidget(btn_onion_prev  );
+    vlayout->addWidget(btn_onion_loop  );
+    vlayout->addWidget(slider_fps      );
+    vlayout->addWidget(file_save       );
+    vlayout->addWidget(file_load       );
+    vlayout->addWidget(file_export     );
 
     setLayout(vlayout);
 
@@ -82,18 +80,17 @@ Toolbar::Toolbar(): QWidget(nullptr)
     connect(rad_knockback   , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(KNOCKBACK);      });
     connect(rad_colorpicker , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(COLORPICKER);    });
     connect(rad_move        , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(MOVE);           });
-    connect(rad_selection   , &QRadioButton::pressed, this, [] { Mw::editor->set_tool(SELECTION);      });
 
-    connect(pen_width_slider, &QAbstractSlider::valueChanged, this, [pen_width_slider] {
-        Mw::editor->set_pen_size   (pen_width_slider->value());
-        Mw::editor->set_eraser_size(pen_width_slider->value());
+    connect(slider_width, &QAbstractSlider::valueChanged, this, [slider_width] {
+        Mw::editor->set_pen_size   (slider_width->value());
+        Mw::editor->set_eraser_size(slider_width->value());
     });
 
-    connect(fps_slider, &QAbstractSlider::valueChanged, this, [fps_slider] {
+    connect(slider_fps, &QAbstractSlider::valueChanged, this, [slider_fps] {
         // TODO: refactor ugly double toggle to reset preview
         Mw::preview->toggle_play();
         Mw::preview->toggle_play();
-        Mw::animation->FPS = fps_slider->value();
+        Mw::animation->FPS = slider_fps->value();
     });
 
     connect(file_save, &QPushButton::pressed, this, [] {
@@ -106,14 +103,14 @@ Toolbar::Toolbar(): QWidget(nullptr)
     });
 
     connect(file_load, &QPushButton::pressed, this, [] {
-//        auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
-//        auto file_info   = QFileInfo(loaded_file);
+        // auto loaded_file = QFileDialog::getOpenFileName(0, ("Load animation"), QDir::currentPath(), "*.4n1m");
+        // auto file_info   = QFileInfo(loaded_file);
         // TODO: Mw::animation->load_animation(loaded_file);
     });
 
     connect(file_export, &QPushButton::pressed, this, [] {
         auto exported_file = QFileDialog::getSaveFileName(0, ("Export animation"), QDir::currentPath());
-//        auto file_info     = QFileInfo(exported_file);
+        // auto file_info     = QFileInfo(exported_file);
 
         Mw::animation->export_animation(exported_file);
     });

@@ -115,14 +115,8 @@ void TimelineFrame::paintEvent(QPaintEvent*)
 
     painter.begin(this);
 
-    if (is_key)
-    {
-        painter.setPen  (Qt::darkGray);
-        painter.setBrush(Qt::darkGray);
-    } else {
-        painter.setPen  (Qt::white);
-        painter.setBrush(Qt::white);
-    }
+    painter.setPen  (is_key ? Qt::darkGray : Qt::white);
+    painter.setBrush(is_key ? Qt::darkGray : Qt::white);
 
     painter.drawRect(rect());
 

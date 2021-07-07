@@ -11,7 +11,6 @@
 #include "tool_colorpicker.h"
 #include "tool_move.h"
 #include "tool_knockback.h"
-#include "tool_selection.h"
 
 class Editor : public QWidget
 {
@@ -88,5 +87,4 @@ public:
     Tool_colorpicker* tool_colorpicker;
     Tool_move*        tool_move;
     Tool_knockback*   tool_knockback;
-    Tool_selection*   tool_selection;
 };

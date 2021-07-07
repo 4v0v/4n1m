@@ -21,7 +21,6 @@ SOURCES += \
     tool_lassofill.cpp \
     tool_move.cpp \
     tool_pen.cpp \
-    tool_selection.cpp \
     toolbar.cpp
 
 HEADERS += \
@@ -40,6 +39,5 @@ HEADERS += \
     tool_lassofill.h \
     tool_move.h \
     tool_pen.h \
-    tool_selection.h \
     toolbar.h \
     gif.h
